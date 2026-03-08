@@ -1,0 +1,11 @@
+Category,Current Value (R$),Target Allocation (%),Target Lower (%),Target Upper (%)
+Survival & Optionality,1900000.00,45,35,55
+Convex Growth,0.00,40,30,50
+Tactical Brazil,5518260.00,10,0,10
+Total Portfolio,7418260.00,100,100,100
+,,,
+Sub-Allocation,Current (%),Target (%)
+Bitcoin (BTC),0,10
+Foreign ETFs (VISA),0,30
+Cash/BRL,25.6,20
+Real Estate,74.4,40

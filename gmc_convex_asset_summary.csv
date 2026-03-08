@@ -1,0 +1,6 @@
+Asset Class,Target Weight,Amount USD,Min Weight,Max Weight,Role
+Cash,0.25,110000,0.15,0.35,Liquidity and optionality reserve
+Bonds,0.15,66000,0.10,0.25,Risk-off ballast and yield capture
+Gold,0.20,88000,0.15,0.35,Anti-fragile reserve and debasement hedge
+Equities,0.30,132000,0.15,0.40,Selective global growth exposure
+Bitcoin,0.10,44000,0.05,0.20,Convex asymmetric optionality
