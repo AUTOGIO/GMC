@@ -1,12 +1,26 @@
 Asset Class,Instrument ID,Name,Ticker,Type,Custodian,Target Weight,Amount USD,Currency,Execution Status,Notes
-Cash,usd_bank_cash,USD Bank Cash,—,cash,bank,0.1364,60000,USD,planned,Immediate liquidity reserve.
-Cash,sgov,iShares 0-3 Month Treasury Bond ETF,SGOV,etf,brokerage,0.1136,50000,USD,planned,Ultra-short Treasury parking sleeve.
-Bonds,ief,iShares 7-10 Year Treasury Bond ETF,IEF,etf,brokerage,0.0750,33000,USD,planned,Intermediate duration exposure.
-Bonds,tlt,iShares 20+ Year Treasury Bond ETF,TLT,etf,brokerage,0.0750,33000,USD,planned,Long duration convex sleeve.
-Gold,gldm,SPDR Gold MiniShares Trust,GLDM,etf,brokerage,0.1364,60000,USD,planned,Liquid gold proxy.
-Gold,physical_gold,Physical Gold,—,physical_asset,vault_or_personal_custody,0.0636,28000,USD,planned,Offline anti-fragile reserve.
-Equities,vt,Vanguard Total World Stock ETF,VT,etf,brokerage,0.1182,52000,USD,planned,Broad global equity core.
-Equities,qqq,Invesco QQQ Trust,QQQ,etf,brokerage,0.0909,40000,USD,planned,Higher beta growth sleeve.
-Equities,vti,Vanguard Total Stock Market ETF,VTI,etf,brokerage,0.0909,40000,USD,planned,US broad equity sleeve.
-Bitcoin,btc_spot,Bitcoin Spot,BTC,digital_asset,cold_storage_or_exchange,0.0682,30000,USD,planned,Direct BTC ownership.
-Bitcoin,ibit,iShares Bitcoin Trust ETF,IBIT,etf,brokerage,0.0318,14000,USD,planned,Listed BTC sleeve for operational simplicity.
+Cash,usd_bank_cash,USD Bank Cash,—,cash,bank,0.1364,62727,USD,planned,Immediate liquidity reserve.
+Cash,tflo,iShares Treasury Floating Rate Bond ETF,TFLO,etf,brokerage,0.1136,52273,USD,planned,Ultra-short Treasury parking sleeve; low-vol yield.
+Bonds,ief,iShares 7-10 Year Treasury Bond ETF,IEF,etf,brokerage,0.075,34500,USD,planned,Intermediate duration exposure; aligns with Treasury QE theme.
+Bonds,tlt,iShares 20+ Year Treasury Bond ETF,TLT,etf,brokerage,0.075,34500,USD,planned,Long duration convex sleeve; Warsh-era liquidity hedge.
+Gold,gldm,SPDR Gold MiniShares Trust,GLDM,etf,brokerage,0.1364,62727,USD,planned,Liquid gold proxy; supplements existing physical holdings.
+Gold,gdx,VanEck Gold Miners ETF,GDX,etf,brokerage,0.0636,29273,USD,planned,Gold miners for geo premium leverage; VISA-aligned hedge.
+Equities,tflo,iShares Treasury Floating Rate Bond ETF,TFLO,etf,brokerage,0.15,69000,USD,planned,Liquidity buffer within equities; rebalancing tool.
+Equities,ewz,iShares MSCI Brazil ETF,EWZ,etf,brokerage,0.0165,7590,USD,planned,Tactical EM exposure; opportunistic only.
+Equities,spy,SPDR S&P 500 ETF Trust,SPY,etf,brokerage,0.0135,6210,USD,planned,Core US growth; secular tech/IA tailwinds.
+Equities,gdx,VanEck Gold Miners ETF,GDX,etf,brokerage,0.0135,6210,USD,planned,Geo hedge; supports gold premium on Iran risks.
+Equities,xlu,Utilities Select Sector SPDR Fund,XLU,etf,brokerage,0.0067,3105,USD,planned,Defensive sector; duration-like stability.
+Equities,vxx,iPath Series B S&P 500 VIX Short-Term Futures ETN,VXX,etn,brokerage,0.0067,3105,USD,planned,Convex hedge against drawdowns.
+Equities,fxi,iShares China Large-Cap ETF,FXI,etf,brokerage,0.015,6900,USD,planned,China recovery play; new bull wave imminent.
+Equities,ewh,iShares MSCI Hong Kong ETF,EWH,etf,brokerage,0.015,6900,USD,planned,China proxy; undervalued asymmetry.
+Equities,baba,Alibaba Group Holding Limited ADR,BABA,adr,brokerage,0.015,6900,USD,planned,China tech; regulatory tailwinds.
+Equities,bidu,Baidu Inc ADR,BIDU,adr,brokerage,0.015,6900,USD,planned,China AI/search; undervalued.
+Equities,mstr,MicroStrategy Incorporated,MSTR,stock,brokerage,0.006,2760,USD,planned,BTC proxy; leveraged crypto exposure.
+Equities,riot,Riot Platforms Inc,RIOT,stock,brokerage,0.006,2760,USD,planned,BTC mining; efficiency edge.
+Equities,clsk,CleanSpark Inc,CLSK,stock,brokerage,0.006,2760,USD,planned,BTC mining; green energy asymmetry.
+Equities,coin,Coinbase Global Inc,COIN,stock,brokerage,0.006,2760,USD,planned,Crypto exchange; ecosystem convexity.
+Equities,tsla,Tesla Inc,TSLA,stock,brokerage,0.009,4140,USD,planned,EV/IA secular growth.
+Bitcoin,btc_spot,Bitcoin Spot,BTC,digital_asset,brokerage,0.08,36800,USD,planned,Direct BTC ownership; core reserve.
+Bitcoin,eth_spot,Ethereum Spot,ETH,digital_asset,brokerage,0.0125,5750,USD,planned,Scaling layer; quantum resilience.
+Bitcoin,ltc_spot,Litecoin Spot,LTC,digital_asset,brokerage,0.0056,2576,USD,planned,Payment efficiency; low fragility.
+Bitcoin,link_spot,Chainlink Spot,LINK,digital_asset,brokerage,0.0019,874,USD,planned,Oracles; ecosystem convexity.

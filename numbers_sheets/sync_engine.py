@@ -43,7 +43,7 @@ def save_to_csv(data, filename):
     print(f"Updated {filename}")
 
 def sync_portfolio():
-    base_dir = "/Users/dnigga/Documents/Active_Projects/GMC"
+    base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     assets_dir = os.path.join(base_dir, "Giovannini_Mare_Capital/Assets")
     reports_dir = os.path.join(base_dir, "Giovannini_Mare_Capital/Convex_Reports")
     

@@ -6,20 +6,21 @@
   "base_currency": "USD",
   "reporting_currency": "USD",
   "owner_type": "single_family_office",
-  "last_update": "2026-03-08",
+  "last_update": "2026-03-11",
   "source_context": {
     "strategy_style": "macro_driven_regime_aware",
     "current_macro_regime": "defensive_convex",
     "investment_doctrine": "preserve_purchasing_power_first_deploy_aggressively_only_when_asymmetry_is_clear",
-    "capital_available_usd": 440000,
+    "capital_available_usd": 460000,
     "notes": [
-      "Portfolio derived from Macro Summary, MacroStrategy, VISA reports, Bonds report, and Crypto Fragility Model context.",
+      "Portfolio derived from Macro Summary, MacroStrategy, VISA reports (March 4, 2026), Bonds report (February 2026), and Crypto Fragility Model (March 2, 2026).",
       "Primary allocation logic: preservation-first with controlled convex exposure.",
-      "Designed for dashboard ingestion and rebalancing logic inside GMC_System."
+      "Designed for dashboard ingestion and rebalancing logic inside GMC_System.",
+      "Incorporates existing assets: Brazil real estate (~US$1,178,000, structural hold), physical gold (~US$8,000, hold), total portfolio ~US$1,646,000."
     ]
   },
   "portfolio_summary": {
-    "total_capital_usd": 440000,
+    "total_capital_usd": 460000,
     "target_net_exposure": 1.0,
     "cash_like_weight": 0.25,
     "defensive_weight": 0.60,
@@ -40,11 +41,11 @@
       "name": "Survival & Optionality",
       "role": "Preserve liquidity, protect optionality, fund future rebalancing",
       "target_weight": 0.60,
-      "target_amount_usd": 264000,
+      "target_amount_usd": 276000,
       "components": [
-        { "asset_class": "Cash", "weight": 0.25, "amount_usd": 110000 },
-        { "asset_class": "Bonds", "weight": 0.15, "amount_usd": 66000 },
-        { "asset_class": "Gold", "weight": 0.20, "amount_usd": 88000 }
+        { "asset_class": "Cash", "weight": 0.25, "amount_usd": 115000 },
+        { "asset_class": "Bonds", "weight": 0.15, "amount_usd": 69000 },
+        { "asset_class": "Gold", "weight": 0.20, "amount_usd": 92000 }
       ]
     },
     {
@@ -52,10 +53,10 @@
       "name": "Convex Growth",
       "role": "Capture upside with limited sizing under fragile macro conditions",
       "target_weight": 0.40,
-      "target_amount_usd": 176000,
+      "target_amount_usd": 184000,
       "components": [
-        { "asset_class": "Equities", "weight": 0.30, "amount_usd": 132000 },
-        { "asset_class": "Bitcoin", "weight": 0.10, "amount_usd": 44000 }
+        { "asset_class": "Equities", "weight": 0.30, "amount_usd": 138000 },
+        { "asset_class": "Bitcoin", "weight": 0.10, "amount_usd": 46000 }
       ]
     }
   ],
@@ -67,7 +68,7 @@
       "target_weight": 0.25,
       "min_weight": 0.15,
       "max_weight": 0.35,
-      "amount_usd": 110000,
+      "amount_usd": 115000,
       "volatility_profile": "very_low",
       "liquidity_profile": "immediate",
       "strategic_priority": "core",
@@ -81,7 +82,7 @@
           "instrument_type": "cash",
           "custodian": "bank",
           "target_weight": 0.136364,
-          "amount_usd": 60000,
+          "amount_usd": 62727,
           "currency": "USD",
           "country_risk": "US",
           "expected_return_profile": "cash_rate_linked",
@@ -89,18 +90,18 @@
           "notes": "Immediate liquidity reserve."
         },
         {
-          "instrument_id": "sgov",
-          "name": "iShares 0-3 Month Treasury Bond ETF",
-          "ticker": "SGOV",
+          "instrument_id": "tflo",
+          "name": "iShares Treasury Floating Rate Bond ETF",
+          "ticker": "TFLO",
           "instrument_type": "etf",
           "custodian": "brokerage",
           "target_weight": 0.113636,
-          "amount_usd": 50000,
+          "amount_usd": 52273,
           "currency": "USD",
           "country_risk": "US",
           "expected_return_profile": "money_market_equivalent",
           "execution_status": "planned",
-          "notes": "Ultra-short Treasury parking sleeve."
+          "notes": "Ultra-short Treasury parking sleeve; low-vol yield."
         }
       ]
     },
@@ -111,7 +112,7 @@
       "target_weight": 0.15,
       "min_weight": 0.10,
       "max_weight": 0.25,
-      "amount_usd": 66000,
+      "amount_usd": 69000,
       "volatility_profile": "low_to_medium",
       "liquidity_profile": "high",
       "strategic_priority": "core",
@@ -125,12 +126,12 @@
           "instrument_type": "etf",
           "custodian": "brokerage",
           "target_weight": 0.075,
-          "amount_usd": 33000,
+          "amount_usd": 34500,
           "currency": "USD",
           "duration_bucket": "intermediate",
           "credit_quality": "sovereign",
           "execution_status": "planned",
-          "notes": "Intermediate duration exposure."
+          "notes": "Intermediate duration exposure; aligns with Treasury QE theme."
         },
         {
           "instrument_id": "tlt",
@@ -139,12 +140,12 @@
           "instrument_type": "etf",
           "custodian": "brokerage",
           "target_weight": 0.075,
-          "amount_usd": 33000,
+          "amount_usd": 34500,
           "currency": "USD",
           "duration_bucket": "long",
           "credit_quality": "sovereign",
           "execution_status": "planned",
-          "notes": "Long duration convex sleeve."
+          "notes": "Long duration convex sleeve; Warsh-era liquidity hedge."
         }
       ]
     },
@@ -155,7 +156,7 @@
       "target_weight": 0.20,
       "min_weight": 0.15,
       "max_weight": 0.35,
-      "amount_usd": 88000,
+      "amount_usd": 92000,
       "volatility_profile": "medium",
       "liquidity_profile": "high",
       "strategic_priority": "core",
@@ -169,22 +170,22 @@
           "instrument_type": "etf",
           "custodian": "brokerage",
           "target_weight": 0.136364,
-          "amount_usd": 60000,
+          "amount_usd": 62727,
           "currency": "USD",
           "execution_status": "planned",
-          "notes": "Liquid gold proxy."
+          "notes": "Liquid gold proxy; supplements existing physical holdings."
         },
         {
-          "instrument_id": "physical_gold",
-          "name": "Physical Gold",
-          "ticker": null,
-          "instrument_type": "physical_asset",
-          "custodian": "vault_or_personal_custody",
+          "instrument_id": "gdx",
+          "name": "VanEck Gold Miners ETF",
+          "ticker": "GDX",
+          "instrument_type": "etf",
+          "custodian": "brokerage",
           "target_weight": 0.063636,
-          "amount_usd": 28000,
+          "amount_usd": 29273,
           "currency": "USD",
           "execution_status": "planned",
-          "notes": "Offline anti-fragile reserve."
+          "notes": "Gold miners for geo premium leverage; VISA-aligned hedge."
         }
       ]
     },
@@ -195,7 +196,7 @@
       "target_weight": 0.30,
       "min_weight": 0.15,
       "max_weight": 0.40,
-      "amount_usd": 132000,
+      "amount_usd": 138000,
       "volatility_profile": "medium_to_high",
       "liquidity_profile": "high",
       "strategic_priority": "core_growth",
@@ -203,43 +204,199 @@
       "dashboard": { "color_tag": "green", "group": "growth", "display_order": 4 },
       "instruments": [
         {
-          "instrument_id": "vt",
-          "name": "Vanguard Total World Stock ETF",
-          "ticker": "VT",
+          "instrument_id": "tflo",
+          "name": "iShares Treasury Floating Rate Bond ETF",
+          "ticker": "TFLO",
           "instrument_type": "etf",
           "custodian": "brokerage",
-          "target_weight": 0.118182,
-          "amount_usd": 52000,
+          "target_weight": 0.15,
+          "amount_usd": 69000,
           "currency": "USD",
-          "regional_exposure": "global",
+          "regional_exposure": "US_cash_equiv",
           "execution_status": "planned",
-          "notes": "Broad global equity core."
+          "notes": "Liquidity buffer within equities; rebalancing tool."
         },
         {
-          "instrument_id": "qqq",
-          "name": "Invesco QQQ Trust",
-          "ticker": "QQQ",
+          "instrument_id": "ewz",
+          "name": "iShares MSCI Brazil ETF",
+          "ticker": "EWZ",
           "instrument_type": "etf",
           "custodian": "brokerage",
-          "target_weight": 0.090909,
-          "amount_usd": 40000,
+          "target_weight": 0.0165,
+          "amount_usd": 7590,
           "currency": "USD",
-          "regional_exposure": "US_growth",
+          "regional_exposure": "Brazil",
           "execution_status": "planned",
-          "notes": "Higher beta growth sleeve."
+          "notes": "Tactical EM exposure; opportunistic only."
         },
         {
-          "instrument_id": "vti",
-          "name": "Vanguard Total Stock Market ETF",
-          "ticker": "VTI",
+          "instrument_id": "spy",
+          "name": "SPDR S&P 500 ETF Trust",
+          "ticker": "SPY",
           "instrument_type": "etf",
           "custodian": "brokerage",
-          "target_weight": 0.090909,
-          "amount_usd": 40000,
+          "target_weight": 0.0135,
+          "amount_usd": 6210,
           "currency": "USD",
-          "regional_exposure": "US_broad_market",
+          "regional_exposure": "US",
           "execution_status": "planned",
-          "notes": "US broad equity sleeve."
+          "notes": "Core US growth; secular tech/IA tailwinds."
+        },
+        {
+          "instrument_id": "gdx",
+          "name": "VanEck Gold Miners ETF",
+          "ticker": "GDX",
+          "instrument_type": "etf",
+          "custodian": "brokerage",
+          "target_weight": 0.0135,
+          "amount_usd": 6210,
+          "currency": "USD",
+          "regional_exposure": "Global_miners",
+          "execution_status": "planned",
+          "notes": "Geo hedge; supports gold premium on Iran risks."
+        },
+        {
+          "instrument_id": "xlu",
+          "name": "Utilities Select Sector SPDR Fund",
+          "ticker": "XLU",
+          "instrument_type": "etf",
+          "custodian": "brokerage",
+          "target_weight": 0.00675,
+          "amount_usd": 3105,
+          "currency": "USD",
+          "regional_exposure": "US",
+          "execution_status": "planned",
+          "notes": "Defensive sector; duration-like stability."
+        },
+        {
+          "instrument_id": "vxx",
+          "name": "iPath Series B S&P 500 VIX Short-Term Futures ETN",
+          "ticker": "VXX",
+          "instrument_type": "etn",
+          "custodian": "brokerage",
+          "target_weight": 0.00675,
+          "amount_usd": 3105,
+          "currency": "USD",
+          "regional_exposure": "US_volatility",
+          "execution_status": "planned",
+          "notes": "Convex hedge against drawdowns."
+        },
+        {
+          "instrument_id": "fxi",
+          "name": "iShares China Large-Cap ETF",
+          "ticker": "FXI",
+          "instrument_type": "etf",
+          "custodian": "brokerage",
+          "target_weight": 0.015,
+          "amount_usd": 6900,
+          "currency": "USD",
+          "regional_exposure": "China",
+          "execution_status": "planned",
+          "notes": "China recovery play; new bull wave imminent."
+        },
+        {
+          "instrument_id": "ewh",
+          "name": "iShares MSCI Hong Kong ETF",
+          "ticker": "EWH",
+          "instrument_type": "etf",
+          "custodian": "brokerage",
+          "target_weight": 0.015,
+          "amount_usd": 6900,
+          "currency": "USD",
+          "regional_exposure": "Hong_Kong",
+          "execution_status": "planned",
+          "notes": "China proxy; undervalued asymmetry."
+        },
+        {
+          "instrument_id": "baba",
+          "name": "Alibaba Group Holding Limited ADR",
+          "ticker": "BABA",
+          "instrument_type": "adr",
+          "custodian": "brokerage",
+          "target_weight": 0.015,
+          "amount_usd": 6900,
+          "currency": "USD",
+          "regional_exposure": "China",
+          "execution_status": "planned",
+          "notes": "China tech; regulatory tailwinds."
+        },
+        {
+          "instrument_id": "bidu",
+          "name": "Baidu Inc ADR",
+          "ticker": "BIDU",
+          "instrument_type": "adr",
+          "custodian": "brokerage",
+          "target_weight": 0.015,
+          "amount_usd": 6900,
+          "currency": "USD",
+          "regional_exposure": "China",
+          "execution_status": "planned",
+          "notes": "China AI/search; undervalued."
+        },
+        {
+          "instrument_id": "mstr",
+          "name": "MicroStrategy Incorporated",
+          "ticker": "MSTR",
+          "instrument_type": "stock",
+          "custodian": "brokerage",
+          "target_weight": 0.006,
+          "amount_usd": 2760,
+          "currency": "USD",
+          "regional_exposure": "US",
+          "execution_status": "planned",
+          "notes": "BTC proxy; leveraged crypto exposure."
+        },
+        {
+          "instrument_id": "riot",
+          "name": "Riot Platforms Inc",
+          "ticker": "RIOT",
+          "instrument_type": "stock",
+          "custodian": "brokerage",
+          "target_weight": 0.006,
+          "amount_usd": 2760,
+          "currency": "USD",
+          "regional_exposure": "US",
+          "execution_status": "planned",
+          "notes": "BTC mining; efficiency edge."
+        },
+        {
+          "instrument_id": "clsk",
+          "name": "CleanSpark Inc",
+          "ticker": "CLSK",
+          "instrument_type": "stock",
+          "custodian": "brokerage",
+          "target_weight": 0.006,
+          "amount_usd": 2760,
+          "currency": "USD",
+          "regional_exposure": "US",
+          "execution_status": "planned",
+          "notes": "BTC mining; green energy asymmetry."
+        },
+        {
+          "instrument_id": "coin",
+          "name": "Coinbase Global Inc",
+          "ticker": "COIN",
+          "instrument_type": "stock",
+          "custodian": "brokerage",
+          "target_weight": 0.006,
+          "amount_usd": 2760,
+          "currency": "USD",
+          "regional_exposure": "US",
+          "execution_status": "planned",
+          "notes": "Crypto exchange; ecosystem convexity."
+        },
+        {
+          "instrument_id": "tsla",
+          "name": "Tesla Inc",
+          "ticker": "TSLA",
+          "instrument_type": "stock",
+          "custodian": "brokerage",
+          "target_weight": 0.009,
+          "amount_usd": 4140,
+          "currency": "USD",
+          "regional_exposure": "US",
+          "execution_status": "planned",
+          "notes": "EV/IA secular growth."
         }
       ]
     },
@@ -250,7 +407,7 @@
       "target_weight": 0.10,
       "min_weight": 0.05,
       "max_weight": 0.20,
-      "amount_usd": 44000,
+      "amount_usd": 46000,
       "volatility_profile": "high",
       "liquidity_profile": "high",
       "strategic_priority": "optional_convexity",
@@ -262,24 +419,48 @@
           "name": "Bitcoin Spot",
           "ticker": "BTC",
           "instrument_type": "digital_asset",
-          "custodian": "cold_storage_or_exchange",
-          "target_weight": 0.068182,
-          "amount_usd": 30000,
+          "custodian": "brokerage",
+          "target_weight": 0.08,
+          "amount_usd": 36800,
           "currency": "USD",
           "execution_status": "planned",
-          "notes": "Direct BTC ownership."
+          "notes": "Direct BTC ownership; core reserve."
         },
         {
-          "instrument_id": "ibit",
-          "name": "iShares Bitcoin Trust ETF",
-          "ticker": "IBIT",
-          "instrument_type": "etf",
+          "instrument_id": "eth_spot",
+          "name": "Ethereum Spot",
+          "ticker": "ETH",
+          "instrument_type": "digital_asset",
           "custodian": "brokerage",
-          "target_weight": 0.031818,
-          "amount_usd": 14000,
+          "target_weight": 0.0125,
+          "amount_usd": 5750,
           "currency": "USD",
           "execution_status": "planned",
-          "notes": "Listed BTC sleeve for operational simplicity."
+          "notes": "Scaling layer; quantum resilience."
+        },
+        {
+          "instrument_id": "ltc_spot",
+          "name": "Litecoin Spot",
+          "ticker": "LTC",
+          "instrument_type": "digital_asset",
+          "custodian": "brokerage",
+          "target_weight": 0.0056,
+          "amount_usd": 2576,
+          "currency": "USD",
+          "execution_status": "planned",
+          "notes": "Payment efficiency; low fragility."
+        },
+        {
+          "instrument_id": "link_spot",
+          "name": "Chainlink Spot",
+          "ticker": "LINK",
+          "instrument_type": "digital_asset",
+          "custodian": "brokerage",
+          "target_weight": 0.0019,
+          "amount_usd": 874,
+          "currency": "USD",
+          "execution_status": "planned",
+          "notes": "Oracles; ecosystem convexity."
         }
       ]
     }
@@ -344,143 +525,7 @@
         "regime_id": "expansion",
         "label": "Expansion",
         "target_weights": { "cash": 0.15, "bonds": 0.10, "gold": 0.15, "equities": 0.40, "bitcoin": 0.20 }
-      },
-      {
-        "regime_id": "monetary_debasement",
-        "label": "Monetary Debasement",
-        "target_weights": { "cash": 0.10, "bonds": 0.10, "gold": 0.35, "equities": 0.30, "bitcoin": 0.15 }
       }
-    ]
-  },
-  "monitoring_indicators": [
-    {
-      "indicator_id": "dxy",
-      "name": "US Dollar Index",
-      "source_type": "market_data",
-      "timeframe": "weekly",
-      "current_interpretation": "liquidity_signal",
-      "thresholds": { "risk_off_high": 105, "neutral_low": 95, "neutral_high": 105, "risk_on_low": 95 }
-    },
-    {
-      "indicator_id": "us10y_yield",
-      "name": "US 10Y Treasury Yield",
-      "source_type": "market_data",
-      "timeframe": "weekly",
-      "current_interpretation": "financial_conditions_signal",
-      "thresholds": { "stress_high": 5.0, "neutral_low": 4.0, "neutral_high": 5.0, "easing_low": 3.5 }
-    },
-    {
-      "indicator_id": "vix",
-      "name": "CBOE Volatility Index",
-      "source_type": "market_data",
-      "timeframe": "weekly",
-      "current_interpretation": "risk_sentiment_signal",
-      "thresholds": { "crisis": 30, "risk_off": 20, "risk_on": 18 }
-    },
-    {
-      "indicator_id": "gold_trend",
-      "name": "Gold vs 200DMA",
-      "source_type": "technical",
-      "timeframe": "weekly",
-      "current_interpretation": "monetary_stress_signal",
-      "thresholds": { "bullish": "price_above_200dma", "bearish": "price_below_200dma" }
-    },
-    {
-      "indicator_id": "btc_trend_fragility",
-      "name": "Bitcoin Trend and Fragility",
-      "source_type": "hybrid",
-      "timeframe": "weekly",
-      "current_interpretation": "convexity_signal",
-      "thresholds": { "fragile": "price_below_200dma", "expansion": "price_above_200dma_and_fragility_improving" }
-    }
-  ],
-  "rebalancing_rules": {
-    "default_policy": "event_driven_with_quarterly_review",
-    "review_frequency": {
-      "weekly": ["indicators", "drawdowns", "drift"],
-      "monthly": ["macro_regime", "allocation_validity"],
-      "quarterly": ["full_rebalance", "strategic_review"]
-    },
-    "rules": [
-      {
-        "rule_id": "asset_drift_rule",
-        "name": "Asset Drift Rebalance",
-        "trigger": "current_weight_deviation_abs_gte_0.05",
-        "action": "rebalance_toward_target_weight",
-        "priority": "high"
-      },
-      {
-        "rule_id": "profit_harvest_rule",
-        "name": "Profit Harvest",
-        "trigger": "instrument_return_since_last_rebalance_gte_0.60",
-        "action": "sell_25_percent_of_position_and_move_to_cash_or_bonds",
-        "priority": "medium"
-      },
-      {
-        "rule_id": "crash_accumulation_rule",
-        "name": "Crash Accumulation",
-        "trigger": "asset_drawdown_gte_0.30_and_macro_regime_unchanged",
-        "action": "add_25_percent_of_target_position_gradually",
-        "priority": "medium"
-      },
-      {
-        "rule_id": "regime_change_rule",
-        "name": "Regime Shift Reallocation",
-        "trigger": "regime_engine_current_regime_changes",
-        "action": "replace_current_weights_with_regime_target_weights",
-        "priority": "critical"
-      }
-    ]
-  },
-  "execution_model": {
-    "execution_style": "slow_deliberate_liquidity_aware",
-    "order_splitting": true,
-    "preferred_brokerage": "ibkr_or_equivalent",
-    "trade_rules": {
-      "avoid_market_orders_in_high_volatility": true,
-      "use_limit_orders_for_volatile_assets": true,
-      "rebalance_in_tranches": true,
-      "do_not_chase_breakouts_without_regime_confirmation": true
-    }
-  },
-  "dashboard_views": {
-    "summary_cards": [
-      { "id": "total_capital", "label": "Total Capital", "value_type": "currency_usd", "source_path": "portfolio_summary.total_capital_usd" },
-      { "id": "current_regime", "label": "Current Regime", "value_type": "string", "source_path": "regime_engine.current_regime" },
-      { "id": "defensive_weight", "label": "Defensive Weight", "value_type": "percentage", "source_path": "portfolio_summary.defensive_weight" },
-      { "id": "growth_weight", "label": "Growth Weight", "value_type": "percentage", "source_path": "portfolio_summary.growth_weight" },
-      { "id": "convex_weight", "label": "Convex Weight", "value_type": "percentage", "source_path": "portfolio_summary.convex_weight" }
-    ],
-    "allocation_chart": { "chart_type": "donut", "source_path": "asset_allocation", "label_field": "asset_class", "value_field": "amount_usd" },
-    "bucket_chart": { "chart_type": "stacked_bar", "source_path": "gavetas", "label_field": "name", "value_field": "target_amount_usd" },
-    "instrument_table": {
-      "source_path": "asset_allocation[*].instruments[*]",
-      "columns": ["name", "ticker", "instrument_type", "amount_usd", "execution_status"]
-    },
-    "indicator_panel": {
-      "source_path": "monitoring_indicators",
-      "display_fields": ["name", "timeframe", "current_interpretation", "thresholds"]
-    }
-  },
-  "app_flags": {
-    "show_regime_badge": true,
-    "enable_rebalance_alerts": true,
-    "enable_drift_monitor": true,
-    "enable_macro_indicator_panel": true,
-    "enable_execution_status_tracking": true
-  },
-  "dev_notes": {
-    "cursor_usage": [
-      "Use this JSON as the canonical portfolio state object.",
-      "Split into modular files later if needed: portfolio.json, indicators.json, rebalance_rules.json.",
-      "Map asset_allocation to dashboard cards, charts, and portfolio tables.",
-      "Map rebalancing_rules into alert engine logic.",
-      "Map regime_engine into top-level portfolio state banner."
-    ],
-    "recommended_repo_paths": [
-      "/data/portfolio/gmc_portfolio_state.json",
-      "/data/portfolio/gmc_rebalance_rules.json",
-      "/data/portfolio/gmc_indicator_config.json"
     ]
   }
 }
