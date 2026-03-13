@@ -1,0 +1,35 @@
+{
+  "schema_version": "1.0.0",
+  "portfolio_id": "gmc_convex_2026_q1_snapshot",
+  "table_name": "Current Portfolio Snapshot",
+  "total_value_usd": 1646000,
+  "assets": [
+    {
+      "asset": "Real Estate (Brazil)",
+      "value_usd": 1178000,
+      "gaveta": "Tactical Brazil",
+      "role": "Illiquid duration",
+      "signal": "Structural hold; underweight tactically"
+    },
+    {
+      "asset": "Cash (IBKR)",
+      "value_usd": 460000,
+      "gaveta": "Preservation",
+      "role": "Liquidity reserve",
+      "signal": "Deploy per optimization"
+    },
+    {
+      "asset": "Physical Gold (3.2 oz)",
+      "value_usd": 8000,
+      "gaveta": "Preservation",
+      "role": "Anti-fragile reserve",
+      "signal": "Hold; geo hedge intact"
+    }
+  ],
+  "implied_allocation": {
+    "preservation_percent": 28,
+    "tactical_percent": 72,
+    "convex_growth_percent": 0
+  },
+  "notes": "Optimization deploys liquid cash to rebalance toward 60/30/10, treating real estate as non-rebalancable."
+}

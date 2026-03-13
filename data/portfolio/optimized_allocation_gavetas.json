@@ -1,0 +1,38 @@
+{
+  "schema_version": "1.0.0",
+  "portfolio_id": "gmc_convex_2026_q1_allocation",
+  "table_name": "Optimized Allocation for US$460,000",
+  "capital_usd": 460000,
+  "gavetas": [
+    {
+      "gaveta": "Preservation & Optionality",
+      "allocation_usd": 276000,
+      "percent": 60,
+      "rationale": "Anchor resilience; cash as default, or TFLO for yield without fragility."
+    },
+    {
+      "gaveta": "Convex Growth: Equities (VISA)",
+      "allocation_usd": 138000,
+      "percent": 30,
+      "rationale": "Mid-term global exposure; outperforms benchmarks on >1-year horizon."
+    },
+    {
+      "gaveta": "Convex Growth: Crypto (CFM)",
+      "allocation_usd": 46000,
+      "percent": 10,
+      "rationale": "Defensive BTC focus; fragility stable—aportes window open."
+    },
+    {
+      "gaveta": "Tactical Brazil",
+      "allocation_usd": 0,
+      "percent": 0,
+      "rationale": "No new exposure; BRL weakness signals underweight."
+    }
+  ],
+  "implementation_notes": [
+    "Use IBKR's TWS or Client Portal for trades.",
+    "For crypto: Enable permissions via Settings > Trading > Trading Permissions.",
+    "Taxes/Succession: Favor UCITS ETFs where beneficial.",
+    "Horizon: Multi-cycle; tolerate volatility for convex payoffs."
+  ]
+}

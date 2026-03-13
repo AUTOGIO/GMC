@@ -1,8 +1,13 @@
 /**
  * Loads GMC portfolio state from data/portfolio/gmc_portfolio_state.json
  * and exposes it in shapes expected by the dashboard (convexPortfolio, gmcGlobalPortfolio, convexIntegrated, portfolioState).
+ * Also loads: Current Portfolio Snapshot, Optimized Allocation Gavetas, VISA Equities, CFM Crypto.
  */
 import portfolioState from '../../data/portfolio/gmc_portfolio_state.json';
+import currentPortfolioSnapshot from '../../data/portfolio/current_portfolio_snapshot.json';
+import optimizedAllocationGavetas from '../../data/portfolio/optimized_allocation_gavetas.json';
+import detailedEquitiesVisa from '../../data/portfolio/detailed_equities_visa.json';
+import detailedCryptoCfm from '../../data/portfolio/detailed_crypto_cfm.json';
 
 const state = portfolioState;
 const totalUsd = state.portfolio_summary?.total_capital_usd ?? 0;
@@ -118,3 +123,6 @@ export const assetsSnapshotFromState = {
 
 // Raw state for regime badge, summary cards, etc.
 export { portfolioState };
+
+// Portfolio data from JSON reports (Current Snapshot, Optimized Gavetas, VISA Equities, CFM Crypto)
+export { currentPortfolioSnapshot, optimizedAllocationGavetas, detailedEquitiesVisa, detailedCryptoCfm };

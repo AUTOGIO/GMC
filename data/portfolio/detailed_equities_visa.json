@@ -1,0 +1,29 @@
+{
+  "schema_version": "1.0.0",
+  "portfolio_id": "gmc_convex_2026_q1_equities",
+  "table_name": "Portfolio Composition for Equities (VISA Ações — US$138,000)",
+  "gaveta": "Convex Growth: Equities",
+  "total_allocation_usd": 138000,
+  "instruments": [
+    { "ticker": "TFLO", "description": "Cash Equivalent ETF", "weight_percent": 50.0, "allocation_usd": 69000, "rationale": "Liquidity buffer; rebalancing tool.", "approx_shares": 1380 },
+    { "ticker": "EWZ", "description": "Brazil ETF", "weight_percent": 5.5, "allocation_usd": 7590, "rationale": "Tactical EM; opportunistic only.", "approx_shares": 220 },
+    { "ticker": "SPY", "description": "S&P 500 ETF", "weight_percent": 4.5, "allocation_usd": 6210, "rationale": "Core US growth; secular tech/IA tailwinds.", "approx_shares": 12 },
+    { "ticker": "GDX", "description": "Gold Miners ETF", "weight_percent": 4.5, "allocation_usd": 6210, "rationale": "Geo hedge; supports gold premium on Iran risks.", "approx_shares": 180 },
+    { "ticker": "XLU", "description": "Utilities ETF", "weight_percent": 2.25, "allocation_usd": 3105, "rationale": "Defensive sector; duration-like stability.", "approx_shares": 45 },
+    { "ticker": "VXX", "description": "Volatility ETN", "weight_percent": 2.25, "allocation_usd": 3105, "rationale": "Convex drawdown hedge.", "approx_shares": 210 },
+    { "ticker": "FXI", "description": "China Large-Cap ETF", "weight_percent": 5.0, "allocation_usd": 6900, "rationale": "China recovery play; new bull wave imminent.", "approx_shares": 240 },
+    { "ticker": "EWH", "description": "Hong Kong ETF", "weight_percent": 5.0, "allocation_usd": 6900, "rationale": "China proxy; undervalued asymmetry.", "approx_shares": 410 },
+    { "ticker": "BABA", "description": "Alibaba ADR", "weight_percent": 5.0, "allocation_usd": 6900, "rationale": "China tech recovery.", "approx_shares": 90 },
+    { "ticker": "BIDU", "description": "Baidu ADR", "weight_percent": 5.0, "allocation_usd": 6900, "rationale": "China AI/search; undervalued.", "approx_shares": 70 },
+    { "ticker": "MSTR", "description": "MicroStrategy", "weight_percent": 2.0, "allocation_usd": 2760, "rationale": "BTC proxy; leveraged.", "approx_shares": 2 },
+    { "ticker": "RIOT", "description": "Riot Platforms", "weight_percent": 2.0, "allocation_usd": 2760, "rationale": "BTC mining efficiency.", "approx_shares": 230 },
+    { "ticker": "CLSK", "description": "CleanSpark", "weight_percent": 2.0, "allocation_usd": 2760, "rationale": "Green BTC mining.", "approx_shares": 160 },
+    { "ticker": "COIN", "description": "Coinbase", "weight_percent": 2.0, "allocation_usd": 2760, "rationale": "Crypto ecosystem.", "approx_shares": 12 },
+    { "ticker": "TSLA", "description": "Tesla", "weight_percent": 3.0, "allocation_usd": 4140, "rationale": "EV/IA growth.", "approx_shares": 17 }
+  ],
+  "notes": [
+    "Assumed prices based on March 2026 estimates; execute at current quotes.",
+    "Alternatives: CSPX for SPY, FLOA for TFLO.",
+    "Performance: +333% BRL since 2019; convex from dólar-real, metals, BTC/China."
+  ]
+}

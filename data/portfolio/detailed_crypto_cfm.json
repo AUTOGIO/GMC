@@ -1,0 +1,18 @@
+{
+  "schema_version": "1.0.0",
+  "portfolio_id": "gmc_convex_2026_q1_crypto",
+  "table_name": "Portfolio Composition for Crypto (CFM — US$46,000; Adjusted)",
+  "gaveta": "Convex Growth: Crypto",
+  "total_allocation_usd": 46000,
+  "instruments": [
+    { "coin": "Bitcoin", "ticker": "BTC", "original_weight_percent": 64.0, "adjusted_weight_percent": 80.0, "allocation_usd": 36800, "rationale": "Reserve; positive regime.", "approx_quantity": 0.368 },
+    { "coin": "Ethereum", "ticker": "ETH", "original_weight_percent": 10.0, "adjusted_weight_percent": 12.5, "allocation_usd": 5750, "rationale": "Scaling; quantum-resilient.", "approx_quantity": 1.44 },
+    { "coin": "Litecoin", "ticker": "LTC", "original_weight_percent": 4.5, "adjusted_weight_percent": 5.6, "allocation_usd": 2576, "rationale": "Payment efficiency.", "approx_quantity": 25.8 },
+    { "coin": "Chainlink", "ticker": "LINK", "original_weight_percent": 1.5, "adjusted_weight_percent": 1.9, "allocation_usd": 874, "rationale": "Oracles; ecosystem.", "approx_quantity": 41.6 }
+  ],
+  "notes": [
+    "Assumed prices for illustration; trade at current.",
+    "Adjusted for IBKR spot availability; unsupported alts skipped.",
+    "Performance: +2,404% BRL since 2018; CAGR ~50% a.a."
+  ]
+}
