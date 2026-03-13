@@ -61,7 +61,7 @@ const GMCDashboard = () => {
   }, [properties]);
 
   // Liquid capital in USD; real estate stays in BRL (conversion only on Real Estate tab)
-  const cashPositionUsd = 320000;
+  const cashPositionUsd = 460000;
   const realEstateValueUsd = realEstateValue / exchangeRate;
   const totalPortfolioUsd = cashPositionUsd + realEstateValueUsd;
 
