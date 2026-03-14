@@ -15,8 +15,7 @@
     "notes": [
       "Portfolio derived from Macro Summary, MacroStrategy, VISA reports (March 4, 2026), Bonds report (February 2026), and Crypto Fragility Model (March 2, 2026).",
       "Primary allocation logic: preservation-first with controlled convex exposure.",
-      "Designed for dashboard ingestion and rebalancing logic inside GMC_System.",
-      "Incorporates existing assets: Brazil real estate (~US$1,178,000, structural hold), physical gold (~US$8,000, hold), total portfolio ~US$1,646,000."
+      "Designed for dashboard ingestion and rebalancing logic inside GMC_System."
     ]
   },
   "portfolio_summary": {

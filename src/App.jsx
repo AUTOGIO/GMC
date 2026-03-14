@@ -1,6 +1,7 @@
+
 import React, { useState, useEffect, useMemo } from 'react';
-import { PieChart, Pie, Cell, ResponsiveContainer } from 'recharts';
-import { Shield, TrendingUp, Building2, Wallet, Globe, AlertTriangle, Activity, Gem, Target, Layers, MapPin, Edit3, Check, X, DollarSign, ArrowRightLeft } from 'lucide-react';
+import { Shield, TrendingUp, Building2, Wallet, Globe, AlertTriangle, Activity, Gem, Target, Layers, MapPin, Edit3, DollarSign } from 'lucide-react';
+
 import {
   convexPortfolio,
   gmcGlobalPortfolio,
@@ -13,21 +14,15 @@ import {
   detailedEquitiesVisa,
   detailedCryptoCfm,
 } from './data/portfolioLoader';
-const assetsSnapshot = assetsSnapshotFromState;
-
-const gmcLogo = null;
 
 const GMCDashboard = () => {
-  const [activeTab, setActiveTab] = useState('overview');
+  // --- REAL ESTATE & OVERALL PORTFOLIO STATE ---
   const [selectedProperty, setSelectedProperty] = useState(null);
   const [editingProperty, setEditingProperty] = useState(null);
-  const [animatedValues, setAnimatedValues] = useState({ cash: 0, realEstate: 0, total: 0 });
   
   // Currency conversion state
   const [exchangeRate, setExchangeRate] = useState(5.85); // USD to BRL
   const [displayCurrency, setDisplayCurrency] = useState('BRL');
-  const [editingRate, setEditingRate] = useState(false);
-  const [tempRate, setTempRate] = useState('5.85');
 
   // Properties with configurable m² prices
   const [properties, setProperties] = useState([
@@ -60,44 +55,9 @@ const GMCDashboard = () => {
     return properties.reduce((sum, p) => sum + getCalculatedValue(p), 0);
   }, [properties]);
 
-  // Liquid capital in USD; real estate stays in BRL (conversion only on Real Estate tab)
   const cashPositionUsd = 460000;
   const realEstateValueUsd = realEstateValue / exchangeRate;
   const totalPortfolioUsd = cashPositionUsd + realEstateValueUsd;
-
-  // Format helpers: portfolio-level is always USD; Real Estate tab uses displayCurrency (BRL or USD)
-  const formatUsdOnly = (value) => new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(value);
-  const formatBRL = (value) => new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL', minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(value);
-  const formatCurrency = (value, forceType = null) => {
-    const currency = forceType || displayCurrency;
-    const converted = currency === 'USD' ? value / exchangeRate : value;
-    return currency === 'USD' ? formatUsdOnly(converted) : formatBRL(converted);
-  };
-  const formatRealEstate = (valueBRL) => displayCurrency === 'USD' ? formatUsdOnly(valueBRL / exchangeRate) : formatBRL(valueBRL);
-
-  // Animation effect
-  useEffect(() => {
-    const duration = 2000;
-    const steps = 60;
-    const interval = duration / steps;
-    let step = 0;
-
-    const timer = setInterval(() => {
-      step++;
-      const progress = step / steps;
-      const eased = 1 - Math.pow(1 - progress, 3);
-      
-      setAnimatedValues({
-        cash: Math.floor(cashPositionUsd * eased),
-        realEstate: Math.floor(realEstateValueUsd * eased),
-        total: Math.floor(totalPortfolioUsd * eased),
-      });
-
-      if (step >= steps) clearInterval(timer);
-    }, interval);
-
-    return () => clearInterval(timer);
-  }, [realEstateValue, exchangeRate]);
 
   // Update property price per m²
   const updatePropertyPrice = (propertyId, newPrice) => {
@@ -107,60 +67,19 @@ const GMCDashboard = () => {
     setEditingProperty(null);
   };
 
-  // Target allocation from gmc_portfolio_state.json (Q1 2026 USD-only)
-  const GMC_LABELS = {
-    cash: 'Cash',
-    bonds: 'Bonds',
-    gold: 'Gold',
-    equities: 'Equities',
-    bitcoin: 'Bitcoin',
-  };
-  const GMC_COLORS = ['#D4AF37', '#F59E0B', '#8B5CF6', '#10B981', '#3B82F6', '#6366F1', '#EF4444', '#64748B'];
-  const targetWeights = gmcGlobalPortfolio?.top_level_target_weights_pct || {};
-  const allocationData = Object.entries(targetWeights).map(([key, value], i) => ({
-    name: GMC_LABELS[key] || key,
-    value: Number(value) || 0,
-    color: GMC_COLORS[i % GMC_COLORS.length],
-    description: gmcGlobalPortfolio.base_currency === 'USD' ? 'USD' : '',
-  }));
+  // --- HELPERS ---
 
-  const currentAllocation = [
-    { name: 'Cash (USD)', value: cashPositionUsd, color: '#10B981' },
-    { name: 'Real Estate (USD equiv.)', value: realEstateValueUsd, color: '#6366F1' },
-  ];
+  const asOfDate = "2026-03-11";
+  
+  // Quick stats
+  const totalProperties = properties.length;
+  const totalArea = properties.reduce((sum, p) => sum + (p.area || 0), 0);
+  const cashRatio = ((cashPositionUsd / totalPortfolioUsd) * 100).toFixed(1);
 
-  // Convex allocation — from convex_portfolio_updated_holdings01 (target weights + macro)
-  const allocationObj = convexPortfolio.allocation || {};
-  const ALLOC_LABELS = { cash: 'Cash', bonds: 'Bonds', gold: 'Gold', equities: 'Equities', bitcoin: 'Bitcoin' };
-  const ALLOC_COLORS = ['#D4AF37', '#F59E0B', '#8B5CF6', '#10B981', '#3B82F6', '#6366F1', '#EF4444', '#64748B'];
-  const convexAllocationPie = Object.entries(allocationObj).map(([key, v], i) => ({ name: ALLOC_LABELS[key] || key, value: v.weight_percent ?? 0, color: ALLOC_COLORS[i % ALLOC_COLORS.length] }));
-  const macroContext = convexPortfolio.macro_context || {};
-  const formatUsd = (value) => new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(value);
-
-  // Macro signals
-  const macroSignals = [
-    { indicator: 'CFM (Crypto)', value: '10%', status: 'caution', description: 'Fragility elevated' },
-    { indicator: 'VISA Ações', value: '30%', status: 'active', description: 'Moderate exposure' },
-    { indicator: 'Gold', value: 'No cap', status: 'safe', description: 'Fully justified' },
-    { indicator: 'BRL', value: 'Underweight', status: 'caution', description: 'Tactical only' },
-  ];
-
-  const pendingAssets = [
-    { asset: 'Gold (oz)', status: 'Planned', role: 'Anti-fragile reserve' },
-    { asset: 'Bitcoin (BTC)', status: 'Planned', role: 'Convex optionality' },
-    { asset: 'Foreign ETFs', status: 'Planned', role: 'Global equities' },
-    { asset: 'USD Exposure', status: 'Planned', role: 'BRL hedge' },
-  ];
-
-  const getStatusColor = (status) => {
-    switch (status) {
-      case 'safe': return '#10B981';
-      case 'active': return '#3B82F6';
-      case 'caution': return '#F59E0B';
-      case 'danger': return '#EF4444';
-      default: return '#6B7280';
-    }
-  };
+  const formatUsdOnly = (value) => new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(value);
+  const formatBRL = (value) => new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL', minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(value);
+  const formatUsd = formatUsdOnly;
+  const formatRealEstate = (valueBRL) => displayCurrency === 'USD' ? formatUsdOnly(valueBRL / exchangeRate) : formatBRL(valueBRL);
 
   const getTypeIcon = (type) => {
     switch (type) {
@@ -174,1467 +93,163 @@ const GMCDashboard = () => {
     }
   };
 
-  // Currency Toggle Component
-  const CurrencyToggle = () => (
-    <div style={{
-      display: 'flex',
-      alignItems: 'center',
-      gap: '12px',
-      padding: '8px 16px',
-      background: 'rgba(30, 41, 59, 0.8)',
-      border: '1px solid rgba(71, 85, 105, 0.4)',
-      borderRadius: '12px',
-    }}>
-      <DollarSign size={16} style={{ color: '#D4AF37' }} />
-      
-      <button
-        onClick={() => setDisplayCurrency('BRL')}
-        style={{
-          padding: '6px 12px',
-          background: displayCurrency === 'BRL' ? 'rgba(16, 185, 129, 0.2)' : 'transparent',
-          border: displayCurrency === 'BRL' ? '1px solid rgba(16, 185, 129, 0.4)' : '1px solid transparent',
-          borderRadius: '6px',
-          color: displayCurrency === 'BRL' ? '#10B981' : '#64748B',
-          cursor: 'pointer',
-          fontFamily: "'DM Sans', sans-serif",
-          fontSize: '12px',
-          fontWeight: '600',
-        }}
-      >
-        R$ BRL
-      </button>
-      
-      <ArrowRightLeft size={14} style={{ color: '#475569' }} />
-      
-      <button
-        onClick={() => setDisplayCurrency('USD')}
-        style={{
-          padding: '6px 12px',
-          background: displayCurrency === 'USD' ? 'rgba(59, 130, 246, 0.2)' : 'transparent',
-          border: displayCurrency === 'USD' ? '1px solid rgba(59, 130, 246, 0.4)' : '1px solid transparent',
-          borderRadius: '6px',
-          color: displayCurrency === 'USD' ? '#3B82F6' : '#64748B',
-          cursor: 'pointer',
-          fontFamily: "'DM Sans', sans-serif",
-          fontSize: '12px',
-          fontWeight: '600',
-        }}
-      >
-        $ USD
-      </button>
-
-      <div style={{ 
-        width: '1px', 
-        height: '24px', 
-        background: 'rgba(71, 85, 105, 0.4)',
-        margin: '0 4px',
-      }} />
-
-      {editingRate ? (
-        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-          <span style={{ color: '#64748B', fontSize: '11px', fontFamily: "'DM Sans', sans-serif" }}>1 USD =</span>
-          <input
-            type="number"
-            value={tempRate}
-            onChange={(e) => setTempRate(e.target.value)}
-            style={{
-              width: '60px',
-              padding: '4px 8px',
-              background: 'rgba(15, 23, 42, 0.8)',
-              border: '1px solid rgba(212, 175, 55, 0.4)',
-              borderRadius: '4px',
-              color: '#F8FAFC',
-              fontSize: '12px',
-              fontFamily: "'DM Sans', sans-serif",
-            }}
-            step="0.01"
-          />
-          <span style={{ color: '#64748B', fontSize: '11px' }}>BRL</span>
-          <button
-            onClick={() => {
-              setExchangeRate(parseFloat(tempRate) || 5.85);
-              setEditingRate(false);
-            }}
-            style={{
-              padding: '4px',
-              background: 'rgba(16, 185, 129, 0.2)',
-              border: 'none',
-              borderRadius: '4px',
-              cursor: 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-            }}
-          >
-            <Check size={12} style={{ color: '#10B981' }} />
-          </button>
-          <button
-            onClick={() => {
-              setTempRate(exchangeRate.toString());
-              setEditingRate(false);
-            }}
-            style={{
-              padding: '4px',
-              background: 'rgba(239, 68, 68, 0.2)',
-              border: 'none',
-              borderRadius: '4px',
-              cursor: 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-            }}
-          >
-            <X size={12} style={{ color: '#EF4444' }} />
-          </button>
-        </div>
-      ) : (
-        <button
-          onClick={() => setEditingRate(true)}
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: '6px',
-            padding: '4px 8px',
-            background: 'transparent',
-            border: '1px dashed rgba(71, 85, 105, 0.4)',
-            borderRadius: '4px',
-            cursor: 'pointer',
-            color: '#94A3B8',
-            fontSize: '11px',
-            fontFamily: "'DM Sans', sans-serif",
-          }}
-        >
-          <span>1 USD = {exchangeRate.toFixed(2)} BRL</span>
-          <Edit3 size={10} />
-        </button>
-      )}
-    </div>
-  );
+  const assetsSnapshot = assetsSnapshotFromState;
+  
+  const pendingAssets = [
+    { asset: 'Gold (USD)', status: 'Planned', role: 'Anti-fragile reserve' },
+    { asset: 'Bitcoin (USD)', status: 'Planned', role: 'Convex optionality' },
+    { asset: 'Foreign ETFs', status: 'Planned', role: 'Global equities' },
+    { asset: 'USD Exposure', status: 'Planned', role: 'BRL hedge' },
+  ];
 
   return (
     <div style={{
       minHeight: '100vh',
-      background: 'linear-gradient(135deg, #0F172A 0%, #1E293B 50%, #0F172A 100%)',
+      background: 'linear-gradient(135deg, #0A0A0A 0%, #121212 50%, #0A0A0A 100%)',
       fontFamily: "'Cormorant Garamond', Georgia, serif",
       color: '#E2E8F0',
       padding: '24px',
     }}>
-      {/* GMC logo watermark background (optional: add Giovannini_Mare_Capital/logotype/gmc_logo.jpg) */}
-      {gmcLogo && (
-        <div style={{
-          position: 'fixed',
-          inset: 0,
-          backgroundImage: `url(${gmcLogo})`,
-          backgroundSize: 'contain',
-          backgroundPosition: 'center',
-          backgroundRepeat: 'no-repeat',
-          opacity: 0.12,
-          pointerEvents: 'none',
-          zIndex: 0,
-        }} />
-      )}
-      {/* Noise overlay */}
-      <div style={{
-        position: 'fixed',
-        inset: 0,
-        backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E")`,
-        opacity: 0.03,
-        pointerEvents: 'none',
-        zIndex: 0,
-      }} />
-
-      <div style={{ position: 'relative', zIndex: 1, maxWidth: '1400px', margin: '0 auto' }}>
-        {/* Header */}
-        <header style={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'flex-start',
-          marginBottom: '24px',
-          paddingBottom: '24px',
-          borderBottom: '1px solid rgba(212, 175, 55, 0.2)',
-          flexWrap: 'wrap',
-          gap: '16px',
-        }}>
-          <div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '4px' }}>
-              <Gem size={28} style={{ color: '#D4AF37' }} />
-              <h1 style={{
-                fontSize: '32px',
-                fontWeight: '600',
-                letterSpacing: '3px',
-                background: 'linear-gradient(135deg, #D4AF37 0%, #F4E4BC 50%, #D4AF37 100%)',
-                WebkitBackgroundClip: 'text',
-                WebkitTextFillColor: 'transparent',
-                margin: 0,
-              }}>
-                GIOVANNINI MARE CAPITAL
-              </h1>
-            </div>
-            <p style={{ color: '#94A3B8', fontSize: '14px', letterSpacing: '2px', margin: 0, fontFamily: "'DM Sans', sans-serif" }}>
+      <div style={{ position: 'relative', zIndex: 1, maxWidth: '1000px', margin: '0 auto' }}>
+        
+        {/* 1. Overview & KPI Strip */}
+        <section id="s1-overview" style={{ marginBottom: '48px', paddingBottom: '24px', borderBottom: '1px solid rgba(192, 192, 192, 0.2)' }}>
+          <div style={{ textAlign: 'center', marginBottom: '32px' }}>
+            <h1 style={{ fontSize: '36px', fontWeight: '600', letterSpacing: '3px', background: 'linear-gradient(135deg, #C0C0C0 0%, #FFFFFF 50%, #C0C0C0 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', margin: '0 0 8px 0', paddingBottom: '16px', borderBottom: '1px solid rgba(192, 192, 192,0.2)' }}>
+              GIOVANNINI MARE CAPITAL
+            </h1>
+            <p style={{ color: '#94A3B8', fontSize: '15px', letterSpacing: '2px', margin: '16px 0 8px 0', fontFamily: "'DM Sans', sans-serif" }}>
               SINGLE-FAMILY OFFICE • RISK-FIRST ALLOCATION
             </p>
+            <p style={{ color: '#D0FF00', fontSize: '14px', letterSpacing: '1px', margin: 0, fontFamily: "'DM Sans', sans-serif", fontWeight: 'bold' }}>
+              Defensive convex regime — As of: {asOfDate}
+            </p>
           </div>
-          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '12px' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-              <div style={{
+
+          <div style={{
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            flexWrap: 'wrap',
+            gap: '16px',
+            background: 'rgba(10, 10, 10, 0.6)',
+            border: '1px solid rgba(74, 78, 82, 0.3)',
+            borderRadius: '8px',
+            padding: '16px',
+            fontFamily: "'DM Sans', sans-serif",
+            fontSize: '13px'
+          }}>
+            <div style={{ padding: '0 12px', borderRight: '1px solid rgba(74, 78, 82, 0.5)' }}>
+              <span style={{ color: '#4A4E52' }}>Total Portfolio:</span> <span style={{ color: '#F8FAFC', fontWeight: 'bold' }}>{formatUsd(totalPortfolioUsd)}</span>
+            </div>
+            <div style={{ padding: '0 12px', borderRight: '1px solid rgba(74, 78, 82, 0.5)' }}>
+              <span style={{ color: '#4A4E52' }}>Liquid Capital:</span> <span style={{ color: '#D0FF00', fontWeight: 'bold' }}>{formatUsd(cashPositionUsd)}</span>
+            </div>
+            <div style={{ padding: '0 12px', borderRight: '1px solid rgba(74, 78, 82, 0.5)' }}>
+              <span style={{ color: '#4A4E52' }}>Real Estate (Brazil, structural):</span> <span style={{ color: '#C0C0C0', fontWeight: 'bold' }}>{formatUsd(realEstateValueUsd)}</span>
+            </div>
+            <div style={{ padding: '0 12px', borderRight: '1px solid rgba(74, 78, 82, 0.5)' }}>
+              <span style={{ color: '#4A4E52' }}>Properties:</span> <span style={{ color: '#F8FAFC', fontWeight: 'bold' }}>{totalProperties}</span>
+            </div>
+            <div style={{ padding: '0 12px', borderRight: '1px solid rgba(74, 78, 82, 0.5)' }}>
+              <span style={{ color: '#4A4E52' }}>Total Area:</span> <span style={{ color: '#F8FAFC', fontWeight: 'bold' }}>{totalArea} m² (Built area)</span>
+            </div>
+            <div style={{ padding: '0 12px', borderRight: '1px solid rgba(74, 78, 82, 0.5)' }}>
+              <span style={{ color: '#4A4E52' }}>Cash Ratio:</span> <span style={{ color: '#F8FAFC', fontWeight: 'bold' }}>{cashRatio}% of portfolio (USD)</span>
+            </div>
+            <div style={{ padding: '0 12px' }}>
+              <span style={{ color: '#4A4E52' }}>Regime:</span> <span style={{ color: '#D0FF00', fontWeight: 'bold' }}>Defensive convex</span>
+            </div>
+          </div>
+        </section>
+
+        {/* 2. Total Portfolio Allocation (USD vs Real Estate) */}
+        <section id="s2-allocation" style={{ marginBottom: '48px' }}>
+          <h2 style={{ fontSize: '20px', letterSpacing: '2px', color: '#C0C0C0', marginBottom: '16px', fontFamily: "'DM Sans', sans-serif" }}>
+            2. TOTAL PORTFOLIO ALLOCATION (USD VS REAL ESTATE)
+          </h2>
+          <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '14px', color: '#94A3B8', marginBottom: '24px' }}>
+            Highlights the structural tilt to BR real estate vs liquid convex USD sleeve.
+          </p>
+          <div style={{ padding: '40px', background: 'rgba(10, 10, 10, 0.4)', border: '1px dashed rgba(74, 78, 82, 0.4)', borderRadius: '12px', color: '#4A4E52', fontFamily: "monospace", textAlign: 'center', marginBottom: '24px' }}>
+            {/* CHART PLACEHOLDER: donut – USD vs Real Estate */}
+            &lt;!-- CHART PLACEHOLDER: donut – USD vs Real Estate --&gt;
+          </div>
+
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px' }}>
+            <div style={{ background: 'rgba(18, 18, 18, 0.6)', border: '1px solid rgba(74, 78, 82, 0.3)', borderRadius: '12px', padding: '20px' }}>
+              <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '12px', color: '#4A4E52', letterSpacing: '1px', marginBottom: '8px' }}>PROPERTIES</div>
+              <div style={{ fontSize: '24px', fontWeight: '500', color: '#F8FAFC' }}>{totalProperties}</div>
+            </div>
+            <div style={{ background: 'rgba(18, 18, 18, 0.6)', border: '1px solid rgba(74, 78, 82, 0.3)', borderRadius: '12px', padding: '20px' }}>
+              <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '12px', color: '#4A4E52', letterSpacing: '1px', marginBottom: '8px' }}>TOTAL AREA</div>
+              <div style={{ fontSize: '24px', fontWeight: '500', color: '#F8FAFC' }}>{totalArea} m²</div>
+            </div>
+            <div style={{ background: 'rgba(18, 18, 18, 0.6)', border: '1px solid rgba(74, 78, 82, 0.3)', borderRadius: '12px', padding: '20px' }}>
+              <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '12px', color: '#4A4E52', letterSpacing: '1px', marginBottom: '8px' }}>CASH RATIO</div>
+              <div style={{ fontSize: '24px', fontWeight: '500', color: '#F8FAFC' }}>{cashRatio}%</div>
+            </div>
+          </div>
+        </section>
+
+        {/* 2b. Real Estate / Property Inventory */}
+        <section id="s2b-realestate" style={{ marginBottom: '48px' }}>
+           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '24px' }}>
+             <h2 style={{ fontSize: '20px', letterSpacing: '2px', color: '#C0C0C0', margin: 0, fontFamily: "'DM Sans', sans-serif" }}>
+               REAL ESTATE INVENTORY (BR)
+             </h2>
+             <div style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '12px',
                 padding: '8px 16px',
-                background: 'rgba(16, 185, 129, 0.1)',
-                border: '1px solid rgba(16, 185, 129, 0.3)',
-                borderRadius: '4px',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '8px',
+                background: 'rgba(18, 18, 18, 0.8)',
+                border: '1px solid rgba(74, 78, 82, 0.4)',
+                borderRadius: '12px',
               }}>
-                <Activity size={14} style={{ color: '#10B981' }} />
-                <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '12px', color: '#10B981', letterSpacing: '1px' }}>
-                  DEFENSIVE-CONVEX
-                </span>
-              </div>
-              <span style={{ color: '#64748B', fontFamily: "'DM Sans', sans-serif", fontSize: '12px' }}>
-                Q1 2026
-              </span>
-            </div>
-            {activeTab === 'properties' && <CurrencyToggle />}
-          </div>
-        </header>
-
-        {/* Navigation */}
-        <nav style={{
-          display: 'flex',
-          gap: '8px',
-          marginBottom: '32px',
-          flexWrap: 'wrap',
-        }}>
-          {[
-            { id: 'overview', label: 'Portfolio Overview', icon: Layers },
-            { id: 'allocation', label: 'Asset Allocation', icon: PieChart },
-            { id: 'properties', label: 'Real Estate', icon: Building2 },
-            { id: 'macro', label: 'Macro Signals', icon: Globe },
-            { id: 'philosophy', label: 'Philosophy', icon: Target },
-          ].map(({ id, label, icon: Icon }) => (
-            <button
-              key={id}
-              onClick={() => setActiveTab(id)}
-              style={{
-                padding: '12px 24px',
-                background: activeTab === id 
-                  ? 'linear-gradient(135deg, rgba(212, 175, 55, 0.2) 0%, rgba(212, 175, 55, 0.1) 100%)'
-                  : 'rgba(30, 41, 59, 0.5)',
-                border: activeTab === id ? '1px solid rgba(212, 175, 55, 0.4)' : '1px solid rgba(71, 85, 105, 0.3)',
-                borderRadius: '8px',
-                color: activeTab === id ? '#D4AF37' : '#94A3B8',
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '8px',
-                fontFamily: "'DM Sans', sans-serif",
-                fontSize: '13px',
-                letterSpacing: '0.5px',
-                transition: 'all 0.3s ease',
-              }}
-            >
-              <Icon size={16} />
-              {label}
-            </button>
-          ))}
-        </nav>
-
-        {/* Overview Tab */}
-        {activeTab === 'overview' && (
-          <div style={{ animation: 'fadeIn 0.5s ease' }}>
-            {/* Key Metrics */}
-            <div style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
-              gap: '24px',
-              marginBottom: '32px',
-            }}>
-              {[
-                { label: 'Total Portfolio', value: animatedValues.total, icon: Wallet, color: '#D4AF37', gradient: 'linear-gradient(135deg, rgba(212, 175, 55, 0.15) 0%, rgba(212, 175, 55, 0.05) 100%)' },
-                { label: 'Liquid Capital', value: animatedValues.cash, icon: Shield, color: '#10B981', gradient: 'linear-gradient(135deg, rgba(16, 185, 129, 0.15) 0%, rgba(16, 185, 129, 0.05) 100%)' },
-                { label: 'Real Estate', value: animatedValues.realEstate, icon: Building2, color: '#6366F1', gradient: 'linear-gradient(135deg, rgba(99, 102, 241, 0.15) 0%, rgba(99, 102, 241, 0.05) 100%)' },
-              ].map(({ label, value, icon: Icon, color, gradient }) => (
-                <div key={label} style={{
-                  background: gradient,
-                  border: `1px solid ${color}33`,
-                  borderRadius: '16px',
-                  padding: '28px',
-                  position: 'relative',
-                  overflow: 'hidden',
-                }}>
-                  <div style={{
-                    position: 'absolute',
-                    top: '-20px',
-                    right: '-20px',
-                    width: '100px',
-                    height: '100px',
-                    background: `radial-gradient(circle, ${color}15 0%, transparent 70%)`,
-                    borderRadius: '50%',
-                  }} />
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '16px' }}>
-                    <div style={{
-                      width: '44px',
-                      height: '44px',
-                      background: `${color}20`,
-                      borderRadius: '12px',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                    }}>
-                      <Icon size={22} style={{ color }} />
-                    </div>
-                    <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '13px', color: '#94A3B8', letterSpacing: '1px' }}>
-                      {label.toUpperCase()}
-                    </span>
-                  </div>
-                  <div style={{
-                    fontSize: '32px',
-                    fontWeight: '500',
-                    color: '#F8FAFC',
-                    letterSpacing: '-1px',
-                  }}>
-                    {formatUsdOnly(value)}
-                  </div>
-                </div>
-              ))}
-            </div>
-
-            {/* 1. Top-level portfolio mix chart */}
-            <div style={{
-              background: 'rgba(30, 41, 59, 0.6)',
-              border: '1px solid rgba(71, 85, 105, 0.3)',
-              borderRadius: '16px',
-              padding: '28px',
-              marginBottom: '32px',
-            }}>
-              <h3 style={{
-                fontSize: '14px',
-                fontFamily: "'DM Sans', sans-serif",
-                letterSpacing: '2px',
-                color: '#94A3B8',
-                marginBottom: '8px',
-              }}>
-                TOTAL PORTFOLIO ALLOCATION (USD VS REAL ESTATE)
-              </h3>
-              <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '13px', color: '#64748B', marginBottom: '24px' }}>
-                Highlights the structural tilt to BR real estate vs liquid convex USD sleeve.
-              </div>
-              <div style={{ height: '300px' }}>
-                <ResponsiveContainer width="100%" height="100%">
-                  <PieChart>
-                    <Pie
-                      data={currentAllocation}
-                      cx="50%"
-                      cy="50%"
-                      innerRadius={80}
-                      outerRadius={120}
-                      paddingAngle={2}
-                      dataKey="value"
-                      stroke="none"
-                    >
-                      {currentAllocation.map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={entry.color} />
-                      ))}
-                    </Pie>
-                  </PieChart>
-                </ResponsiveContainer>
-              </div>
-            </div>
-
-            {/* Quick Stats Grid */}
-            <div style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
-              gap: '16px',
-              marginBottom: '32px',
-            }}>
-              {[
-                { label: 'Properties', value: '12', sublabel: 'Total units' },
-                { label: 'Total Area', value: `${properties.reduce((sum, p) => sum + (p.area || 0), 0).toLocaleString()} m²`, sublabel: 'Built area' },
-                { label: 'Cash Ratio', value: `${((cashPositionUsd / totalPortfolioUsd) * 100).toFixed(1)}%`, sublabel: 'of portfolio (USD)' },
-              ].map(({ label, value, sublabel }) => (
-                <div key={label} style={{
-                  background: 'rgba(30, 41, 59, 0.6)',
-                  border: '1px solid rgba(71, 85, 105, 0.3)',
-                  borderRadius: '12px',
-                  padding: '20px',
-                }}>
-                  <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '12px', color: '#64748B', letterSpacing: '1px', marginBottom: '8px' }}>
-                    {label.toUpperCase()}
-                  </div>
-                  <div style={{ fontSize: '28px', fontWeight: '500', color: '#F8FAFC', marginBottom: '4px' }}>
-                    {value}
-                  </div>
-                  <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '12px', color: '#94A3B8' }}>
-                    {sublabel}
-                  </div>
-                </div>
-              ))}
-            </div>
-
-            {/* Regime badge from portfolio state */}
-            {portfolioState?.regime_engine?.current_regime && (
-              <div style={{
-                marginBottom: '24px',
-                padding: '10px 16px',
-                background: 'rgba(99, 102, 241, 0.12)',
-                border: '1px solid rgba(99, 102, 241, 0.3)',
-                borderRadius: '10px',
-                fontSize: '12px',
-                color: '#A5B4FC',
-                fontFamily: "'DM Sans', sans-serif",
-              }}>
-                <span style={{ color: '#64748B', marginRight: '8px' }}>Regime:</span>
-                {String(portfolioState.regime_engine.current_regime).replace(/_/g, ' ')}
-              </div>
-            )}
-
-            {/* Convex allocation — from gmc_portfolio_state.json */}
-            <div style={{
-              background: 'rgba(30, 41, 59, 0.6)',
-              border: '1px solid rgba(245, 158, 11, 0.3)',
-              borderRadius: '16px',
-              padding: '28px',
-              marginBottom: '32px',
-            }}>
-              <h3 style={{
-                fontSize: '14px',
-                fontFamily: "'DM Sans', sans-serif",
-                letterSpacing: '2px',
-                color: '#F59E0B',
-                marginBottom: '8px',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '8px',
-              }}>
-                <TrendingUp size={16} />
-                {convexPortfolio.portfolio_name ?? 'Convex Allocation'} — {convexPortfolio.version ?? ''} ({convexPortfolio.base_currency})
-              </h3>
-              {Object.keys(macroContext).length > 0 && (
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))', gap: '8px', marginBottom: '20px', fontFamily: "'DM Sans', sans-serif", fontSize: '11px', color: '#94A3B8' }}>
-                  {Object.entries(macroContext).map(([k, v]) => (
-                    <div key={k} style={{ padding: '8px', background: 'rgba(71, 85, 105, 0.3)', borderRadius: '6px' }}>
-                      <span style={{ color: '#64748B' }}>{String(k).replace(/_/g, ' ')}:</span> {String(v)}
-                    </div>
-                  ))}
-                </div>
-              )}
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))', gap: '12px' }}>
-                {Object.entries(allocationObj).map(([key, v], idx) => (
-                  <div key={key} style={{
-                    background: 'rgba(245, 158, 11, 0.05)',
-                    border: '1px solid rgba(245, 158, 11, 0.2)',
-                    borderRadius: '8px',
-                    padding: '14px',
-                  }}>
-                    <div style={{ fontWeight: '500', color: '#F8FAFC', marginBottom: '4px' }}>{ALLOC_LABELS[key] || key}</div>
-                    <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '18px', color: '#F59E0B', marginBottom: '6px' }}>{v.weight_percent}%</div>
-                    {(v.vehicle_type || v.ticker || v.duration_target) && (
-                      <div style={{ fontSize: '11px', color: '#64748B', marginBottom: '6px' }}>{v.vehicle_type || v.ticker || v.duration_target}</div>
-                    )}
-                    {Array.isArray(v.tickers_examples) && v.tickers_examples.length > 0 && (
-                      <div style={{ fontSize: '11px', color: '#94A3B8', marginBottom: '6px' }}>Instruments: {v.tickers_examples.join(', ')}</div>
-                    )}
-                    {Array.isArray(v.role) && v.role.length > 0 && (
-                      <div style={{ fontSize: '11px', color: '#94A3B8' }}>{v.role.join(' · ')}</div>
-                    )}
-                  </div>
-                ))}
-              </div>
-              {convexPortfolio.review_frequency && (
-                <div style={{ marginTop: '12px', fontSize: '11px', color: '#64748B', fontFamily: "'DM Sans', sans-serif" }}>Review: {convexPortfolio.review_frequency}</div>
-              )}
-
-              {/* 2. Convex USD target allocation chart */}
-              <div style={{ marginTop: '24px', paddingTop: '24px', borderTop: '1px solid rgba(71, 85, 105, 0.3)' }}>
-                <h4 style={{
-                  fontSize: '13px',
-                  fontFamily: "'DM Sans', sans-serif",
-                  letterSpacing: '1px',
-                  color: '#E2E8F0',
-                  marginBottom: '8px',
-                }}>
-                  CONVEX PORTFOLIO TARGET ALLOCATION (USD SLEEVE)
-                </h4>
-                <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '12px', color: '#94A3B8', marginBottom: '16px' }}>
-                  Visually reinforces the 60/40 Survival vs Convex structure via asset class weights.
-                </div>
-                <div style={{ height: '300px' }}>
-                  <ResponsiveContainer width="100%" height="100%">
-                    <PieChart>
-                      <Pie
-                        data={convexAllocationPie}
-                        cx="50%"
-                        cy="50%"
-                        innerRadius={80}
-                        outerRadius={120}
-                        paddingAngle={2}
-                        dataKey="value"
-                        stroke="none"
-                      >
-                        {convexAllocationPie.map((entry, index) => (
-                          <Cell key={`convex-${index}`} fill={entry.color} />
-                        ))}
-                      </Pie>
-                    </PieChart>
-                  </ResponsiveContainer>
-                </div>
-              </div>
-            </div>
-
-            {/* Real Holdings — physical/cash (from Assets_) */}
-            {assetsSnapshot?.real_holdings && (
-              <div style={{
-                background: 'rgba(30, 41, 59, 0.6)',
-                border: '1px solid rgba(212, 175, 55, 0.3)',
-                borderRadius: '16px',
-                padding: '28px',
-                marginBottom: '32px',
-              }}>
-                <h3 style={{
-                  fontSize: '14px',
-                  fontFamily: "'DM Sans', sans-serif",
-                  letterSpacing: '2px',
-                  color: '#D4AF37',
-                  marginBottom: '16px',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '8px',
-                }}>
-                  <Shield size={16} />
-                  Real Holdings (no valuation / no FX)
-                </h3>
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(160px, 1fr))', gap: '12px' }}>
-                  {Object.entries(assetsSnapshot.real_holdings).map(([key, val]) => (
-                    <div key={key} style={{
-                      background: 'rgba(212, 175, 55, 0.06)',
-                      border: '1px solid rgba(212, 175, 55, 0.2)',
-                      borderRadius: '8px',
-                      padding: '14px',
-                    }}>
-                      <div style={{ fontSize: '11px', color: '#64748B', letterSpacing: '1px', marginBottom: '4px' }}>
-                        {key.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase())}
-                      </div>
-                      <div style={{ fontSize: '18px', fontWeight: '600', color: '#F8FAFC' }}>
-                        {typeof val === 'number' && key.includes('oz') ? `${val} oz` : typeof val === 'number' && key.includes('btc') ? `${val.toFixed(8)} BTC` : typeof val === 'number' && key.includes('chf') ? `${val.toLocaleString('en-US')} CHF` : typeof val === 'number' && (key.includes('usd') || key.includes('bank')) ? formatUsd(val) : typeof val === 'number' ? formatUsd(val) : String(val)}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* Current Portfolio Snapshot — from 1. Current Portfolio Snapshot JSON */}
-            {currentPortfolioSnapshot && (
-              <div style={{
-                background: 'rgba(30, 41, 59, 0.6)',
-                border: '1px solid rgba(212, 175, 55, 0.3)',
-                borderRadius: '16px',
-                padding: '28px',
-                marginBottom: '32px',
-              }}>
-                <h3 style={{
-                  fontSize: '14px',
-                  fontFamily: "'DM Sans', sans-serif",
-                  letterSpacing: '2px',
-                  color: '#D4AF37',
-                  marginBottom: '8px',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '8px',
-                }}>
-                  <Wallet size={16} />
-                  {currentPortfolioSnapshot.table_name}
-                </h3>
-                <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '12px', color: '#64748B', marginBottom: '16px' }}>
-                  Total: <strong style={{ color: '#10B981' }}>{formatUsd(currentPortfolioSnapshot.total_value_usd ?? 0)}</strong>
-                </div>
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '12px', marginBottom: '16px' }}>
-                  {(currentPortfolioSnapshot.assets || []).map((a, i) => (
-                    <div key={i} style={{
-                      background: 'rgba(212, 175, 55, 0.06)',
-                      border: '1px solid rgba(212, 175, 55, 0.2)',
-                      borderRadius: '8px',
-                      padding: '14px',
-                    }}>
-                      <div style={{ fontWeight: '500', color: '#F8FAFC', marginBottom: '4px' }}>{a.asset}</div>
-                      <div style={{ fontSize: '16px', color: '#D4AF37', marginBottom: '4px' }}>{formatUsd(a.value_usd ?? 0)}</div>
-                      <div style={{ fontSize: '11px', color: '#64748B' }}>Gaveta: {a.gaveta}</div>
-                      <div style={{ fontSize: '11px', color: '#94A3B8' }}>{a.role} · {a.signal}</div>
-                    </div>
-                  ))}
-                </div>
-                {currentPortfolioSnapshot.implied_allocation && (
-                  <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap', marginBottom: '8px', fontSize: '12px', color: '#94A3B8' }}>
-                    <span>Preservation: {currentPortfolioSnapshot.implied_allocation.preservation_percent}%</span>
-                    <span>Tactical: {currentPortfolioSnapshot.implied_allocation.tactical_percent}%</span>
-                    <span>Convex growth: {currentPortfolioSnapshot.implied_allocation.convex_growth_percent}%</span>
-                  </div>
-                )}
-                {currentPortfolioSnapshot.notes && (
-                  <div style={{ fontSize: '11px', color: '#64748B', fontStyle: 'italic' }}>{currentPortfolioSnapshot.notes}</div>
-                )}
-              </div>
-            )}
-
-            {/* Optimized Allocation Gavetas — from 2. Optimized Allocation Gavetas JSON */}
-            {optimizedAllocationGavetas && (
-              <div style={{
-                background: 'rgba(30, 41, 59, 0.6)',
-                border: '1px solid rgba(245, 158, 11, 0.3)',
-                borderRadius: '16px',
-                padding: '28px',
-                marginBottom: '32px',
-              }}>
-                <h3 style={{
-                  fontSize: '14px',
-                  fontFamily: "'DM Sans', sans-serif",
-                  letterSpacing: '2px',
-                  color: '#F59E0B',
-                  marginBottom: '4px',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '8px',
-                }}>
-                  <Target size={16} />
-                  {optimizedAllocationGavetas.table_name}
-                </h3>
-                <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '12px', color: '#64748B', marginBottom: '16px' }}>
-                  Capital: {formatUsd(optimizedAllocationGavetas.capital_usd ?? 0)}
-                </div>
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))', gap: '12px', marginBottom: '16px' }}>
-                  {(optimizedAllocationGavetas.gavetas || []).map((g, i) => (
-                    <div key={i} style={{
-                      background: 'rgba(245, 158, 11, 0.05)',
-                      border: '1px solid rgba(245, 158, 11, 0.2)',
-                      borderRadius: '8px',
-                      padding: '14px',
-                    }}>
-                      <div style={{ fontWeight: '500', color: '#F8FAFC', marginBottom: '4px' }}>{g.gaveta}</div>
-                      <div style={{ fontSize: '18px', color: '#F59E0B', marginBottom: '4px' }}>{g.percent}% · {formatUsd(g.allocation_usd ?? 0)}</div>
-                      <div style={{ fontSize: '11px', color: '#94A3B8' }}>{g.rationale}</div>
-                    </div>
-                  ))}
-                </div>
-                {(optimizedAllocationGavetas.implementation_notes || []).length > 0 && (
-                  <div style={{ marginTop: '12px', padding: '12px', background: 'rgba(15, 23, 42, 0.4)', borderRadius: '8px', fontSize: '12px', color: '#94A3B8' }}>
-                    <strong style={{ color: '#E2E8F0' }}>Implementation:</strong>
-                    <ul style={{ margin: '8px 0 0 0', paddingLeft: '20px' }}>
-                      {(optimizedAllocationGavetas.implementation_notes || []).map((n, i) => (
-                        <li key={i} style={{ marginBottom: '4px' }}>{n}</li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
-
-                {/* 3. Gavetas structure chart */}
-                <div style={{ marginTop: '24px' }}>
-                  <h4 style={{
-                    fontSize: '13px',
-                    fontFamily: "'DM Sans', sans-serif",
-                    letterSpacing: '1px',
-                    color: '#E2E8F0',
-                    marginBottom: '8px',
-                  }}>
-                    GAVETAS: SURVIVAL & OPTIONALITY VS CONVEX GROWTH
-                  </h4>
-                  <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '12px', color: '#94A3B8', marginBottom: '16px' }}>
-                    Emphasizes preservation-first orientation.
-                  </div>
-                  {/* ASCII/HTML-based Stacked Bar visual */}
-                  <div style={{
-                    display: 'flex',
-                    height: '32px',
+                <DollarSign size={16} style={{ color: '#C0C0C0' }} />
+                <button
+                  onClick={() => setDisplayCurrency('BRL')}
+                  style={{
+                    padding: '6px 12px',
+                    background: displayCurrency === 'BRL' ? 'rgba(208, 255, 0, 0.2)' : 'transparent',
+                    border: displayCurrency === 'BRL' ? '1px solid rgba(208, 255, 0, 0.4)' : '1px solid transparent',
                     borderRadius: '6px',
-                    overflow: 'hidden',
-                    marginBottom: '12px'
-                  }}>
-                    <div style={{ width: '60%', background: '#10B981', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#000', fontSize: '12px', fontWeight: 'bold' }}>
-                      Survival (60%)
-                    </div>
-                    <div style={{ width: '40%', background: '#3B82F6', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontSize: '12px', fontWeight: 'bold' }}>
-                      Convex (40%)
-                    </div>
-                  </div>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11px', color: '#64748B' }}>
-                    <span>US$276,000</span>
-                    <span>US$184,000</span>
-                  </div>
-                </div>
-
-              </div>
-            )}
-
-            {/* Convex USD Snapshot — from Assets_ (live-updates when JSON changes) */}
-            {assetsSnapshot && (
-              <div style={{
-                background: 'rgba(30, 41, 59, 0.6)',
-                border: '1px solid rgba(16, 185, 129, 0.3)',
-                borderRadius: '16px',
-                padding: '28px',
-                marginBottom: '32px',
-              }}>
-                <h3 style={{
-                  fontSize: '14px',
-                  fontFamily: "'DM Sans', sans-serif",
-                  letterSpacing: '2px',
-                  color: '#10B981',
-                  marginBottom: '8px',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '8px',
-                }}>
-                  <Wallet size={16} />
-                  Convex USD Snapshot
-                </h3>
-                <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '12px', color: '#64748B', marginBottom: '16px' }}>
-                  Source: <code style={{ background: 'rgba(71, 85, 105, 0.4)', padding: '2px 6px', borderRadius: '4px' }}>data/portfolio/gmc_portfolio_state.json</code>
-                </div>
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(140px, 1fr))', gap: '12px', marginBottom: '20px' }}>
-                  <div style={{
-                    background: 'rgba(16, 185, 129, 0.08)',
-                    border: '1px solid rgba(16, 185, 129, 0.2)',
-                    borderRadius: '8px',
-                    padding: '14px',
-                  }}>
-                    <div style={{ fontSize: '11px', color: '#64748B', letterSpacing: '1px', marginBottom: '4px' }}>TOTAL (USD)</div>
-                    <div style={{ fontSize: '22px', fontWeight: '600', color: '#10B981' }}>{formatUsd(assetsSnapshot.total_usd_value ?? 0)}</div>
-                  </div>
-                  {assetsSnapshot.breakdown && (() => {
-                    const pctKey = { bitcoin_usd: 'btc_pct', gold_usd: 'gold_pct', usd_bank: 'usd_bank_pct', usd_cash: 'usd_cash_pct' };
-                    return Object.entries(assetsSnapshot.breakdown).map(([key, val]) => (
-                      <div key={key} style={{
-                        background: 'rgba(71, 85, 105, 0.2)',
-                        border: '1px solid rgba(71, 85, 105, 0.3)',
-                        borderRadius: '8px',
-                        padding: '14px',
-                      }}>
-                        <div style={{ fontSize: '11px', color: '#64748B', letterSpacing: '1px', marginBottom: '4px' }}>
-                          {key.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase())}
-                        </div>
-                        <div style={{ fontSize: '16px', fontWeight: '500', color: '#F8FAFC' }}>{formatUsd(val)}</div>
-                        {assetsSnapshot.normalized_percentages?.[pctKey[key]] != null && (
-                          <div style={{ fontSize: '12px', color: '#94A3B8', marginTop: '4px' }}>
-                            {Number(assetsSnapshot.normalized_percentages[pctKey[key]]).toFixed(1)}%
-                          </div>
-                        )}
-                      </div>
-                    ));
-                  })()}
-                </div>
-                {assetsSnapshot.normalized_percentages && assetsSnapshot.targets && (
-                  <div style={{ marginTop: '12px', padding: '12px', background: 'rgba(15, 23, 42, 0.4)', borderRadius: '8px', fontSize: '12px', color: '#94A3B8' }}>
-                    <strong style={{ color: '#E2E8F0' }}>Current vs target (%):</strong> Gold {assetsSnapshot.normalized_percentages.gold_pct?.toFixed(1)}% (target {assetsSnapshot.targets.gold}%) · BTC {assetsSnapshot.normalized_percentages.btc_pct?.toFixed(1)}% (target {assetsSnapshot.targets.btc}%) · Liquidity (bank+cash) {((assetsSnapshot.normalized_percentages.usd_bank_pct ?? 0) + (assetsSnapshot.normalized_percentages.usd_cash_pct ?? 0)).toFixed(1)}% (target {assetsSnapshot.targets.liquidity_bucket}%)
-                  </div>
-                )}
-
-                {/* 4. Current vs target snapshot chart */}
-                {assetsSnapshot.normalized_percentages && assetsSnapshot.targets && (
-                  <div style={{ marginTop: '24px' }}>
-                    <h4 style={{
-                      fontSize: '13px',
-                      fontFamily: "'DM Sans', sans-serif",
-                      letterSpacing: '1px',
-                      color: '#E2E8F0',
-                      marginBottom: '8px',
-                    }}>
-                      CURRENT VS TARGET (CONVEX USD SLEEVE)
-                    </h4>
-                    <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '12px', color: '#94A3B8', marginBottom: '16px' }}>
-                      Grouped bars can later show target deviation plainly.
-                    </div>
-                    {/* ASCII/HTML-based Grouped Bar visual placeholder */}
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                      {[
-                        { label: 'Liquidity', current: (assetsSnapshot.normalized_percentages.usd_bank_pct ?? 0) + (assetsSnapshot.normalized_percentages.usd_cash_pct ?? 0), target: assetsSnapshot.targets.liquidity_bucket, color: '#10B981' },
-                        { label: 'Gold', current: assetsSnapshot.normalized_percentages.gold_pct ?? 0, target: assetsSnapshot.targets.gold, color: '#D4AF37' },
-                        { label: 'Bitcoin', current: assetsSnapshot.normalized_percentages.btc_pct ?? 0, target: assetsSnapshot.targets.btc, color: '#F59E0B' }
-                      ].map(item => (
-                        <div key={item.label} style={{ display: 'grid', gridTemplateColumns: '80px 1fr', alignItems: 'center', gap: '12px' }}>
-                          <span style={{ fontSize: '12px', color: '#94A3B8' }}>{item.label}</span>
-                          <div>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', height: '12px', marginBottom: '2px' }}>
-                              <div style={{ width: `${item.current}%`, background: item.color, height: '100%', borderRadius: '2px' }}></div>
-                              <span style={{ fontSize: '10px', color: item.color }}>{item.current.toFixed(1)}% (Cur)</span>
-                            </div>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', height: '12px' }}>
-                              <div style={{ width: `${item.target}%`, background: 'rgba(71, 85, 105, 0.4)', height: '100%', borderRadius: '2px' }}></div>
-                              <span style={{ fontSize: '10px', color: '#64748B' }}>{item.target.toFixed(1)}% (Tgt)</span>
-                            </div>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-              </div>
-            )}
-
-            {/* Rebalance Engine — steps + inputs (from Assets_.rebalance_engine) */}
-            {assetsSnapshot?.rebalance_engine && (
-              <div style={{
-                background: 'rgba(30, 41, 59, 0.6)',
-                border: '1px solid rgba(99, 102, 241, 0.3)',
-                borderRadius: '16px',
-                padding: '28px',
-                marginBottom: '32px',
-              }}>
-                <h3 style={{
-                  fontSize: '14px',
-                  fontFamily: "'DM Sans', sans-serif",
-                  letterSpacing: '2px',
-                  color: '#6366F1',
-                  marginBottom: '8px',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '8px',
-                }}>
-                  <Target size={16} />
-                  Rebalance Engine
-                </h3>
-                {assetsSnapshot.rebalance_engine.inputs && (
-                  <div style={{ marginBottom: '16px', fontFamily: "'DM Sans', sans-serif", fontSize: '12px' }}>
-                    <div style={{ color: '#64748B', marginBottom: '8px' }}>Deviation threshold: {assetsSnapshot.rebalance_engine.inputs.deviation_threshold_pct}%</div>
-                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(120px, 1fr))', gap: '8px', color: '#94A3B8' }}>
-                      {assetsSnapshot.rebalance_engine.inputs.current_usd_values && Object.entries(assetsSnapshot.rebalance_engine.inputs.current_usd_values).map(([k, v]) => (
-                        <span key={k}>{k.replace(/_/g, ' ')}: {formatUsd(v)}</span>
-                      ))}
-                    </div>
-                  </div>
-                )}
-                <ol style={{ margin: 0, paddingLeft: '20px', color: '#E2E8F0', fontSize: '13px', lineHeight: '1.8' }}>
-                  {(assetsSnapshot.rebalance_engine.steps || []).map((step, idx) => (
-                    <li key={idx}>
-                      <strong style={{ color: '#A5B4FC' }}>{step.name}</strong> — {step.action}
-                    </li>
-                  ))}
-                </ol>
-              </div>
-            )}
-
-            {/* Convex Integrated Portfolio — gavetas from gmc_portfolio_state.json */}
-            {convexIntegrated?.portfolio_name && (
-              <div style={{
-                background: 'rgba(30, 41, 59, 0.6)',
-                border: '1px solid rgba(245, 158, 11, 0.3)',
-                borderRadius: '16px',
-                padding: '28px',
-                marginBottom: '32px',
-              }}>
-                <h3 style={{
-                  fontSize: '14px',
-                  fontFamily: "'DM Sans', sans-serif",
-                  letterSpacing: '2px',
-                  color: '#F59E0B',
-                  marginBottom: '4px',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '8px',
-                }}>
-                  <TrendingUp size={16} />
-                  {convexIntegrated.portfolio_name}
-                </h3>
-                <div style={{ fontSize: '12px', color: '#64748B', marginBottom: '16px' }}>Structure: {convexIntegrated.structure_reference}</div>
-                {convexIntegrated.buckets && Object.entries(convexIntegrated.buckets).map(([bucketKey, bucket]) => (
-                  <div key={bucketKey} style={{ marginBottom: '20px' }}>
-                    <div style={{ fontSize: '12px', color: '#94A3B8', marginBottom: '8px' }}>
-                      {bucket.name} — {(bucket.target_weight * 100).toFixed(0)}% · {formatUsd(bucket.target_amount_usd ?? 0)}
-                    </div>
-                    <div style={{ fontSize: '11px', color: '#64748B', marginBottom: '8px' }}>{bucket.role}</div>
-                    {bucket.components?.length > 0 && (
-                      <div style={{ overflowX: 'auto' }}>
-                        <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '12px' }}>
-                          <thead>
-                            <tr style={{ borderBottom: '1px solid rgba(71, 85, 105, 0.5)' }}>
-                              <th style={{ padding: '8px', textAlign: 'left', color: '#64748B' }}>Asset Class</th>
-                              <th style={{ padding: '8px', textAlign: 'right', color: '#64748B' }}>Weight</th>
-                              <th style={{ padding: '8px', textAlign: 'right', color: '#64748B' }}>Amount USD</th>
-                            </tr>
-                          </thead>
-                          <tbody>
-                            {bucket.components.map((c, i) => (
-                              <tr key={i} style={{ borderBottom: '1px solid rgba(71, 85, 105, 0.2)' }}>
-                                <td style={{ padding: '8px', color: '#F8FAFC' }}>{c.asset_class}</td>
-                                <td style={{ padding: '8px', textAlign: 'right', color: '#F59E0B' }}>{(c.weight * 100).toFixed(0)}%</td>
-                                <td style={{ padding: '8px', textAlign: 'right', color: '#94A3B8' }}>{formatUsd(c.amount_usd ?? 0)}</td>
-                              </tr>
-                            ))}
-                          </tbody>
-                        </table>
-                      </div>
-                    )}
-                  </div>
-                ))}
-                {convexIntegrated.notes?.length > 0 && (
-                  <div style={{ marginTop: '12px', fontSize: '11px', color: '#64748B' }}>
-                    {convexIntegrated.notes.map((n, i) => (
-                      <div key={i} style={{ marginBottom: '4px' }}>• {n}</div>
-                    ))}
-                  </div>
-                )}
-              </div>
-            )}
-
-            {/* Instrument table from gmc_portfolio_state.json */}
-            {allInstruments?.length > 0 && (
-              <div style={{
-                background: 'rgba(30, 41, 59, 0.6)',
-                border: '1px solid rgba(71, 85, 105, 0.3)',
-                borderRadius: '16px',
-                padding: '28px',
-                marginBottom: '32px',
-              }}>
-                <h3 style={{
-                  fontSize: '14px',
-                  fontFamily: "'DM Sans', sans-serif",
-                  letterSpacing: '2px',
-                  color: '#94A3B8',
-                  marginBottom: '16px',
-                }}>
-                  PORTFOLIO INSTRUMENTS (TARGET)
-                </h3>
-
-                {/* 5. Instrument concentration chart */}
-                <div style={{ marginBottom: '32px' }}>
-                  <h4 style={{
-                    fontSize: '13px',
+                    color: displayCurrency === 'BRL' ? '#D0FF00' : '#4A4E52',
+                    cursor: 'pointer',
                     fontFamily: "'DM Sans', sans-serif",
-                    letterSpacing: '1px',
-                    color: '#E2E8F0',
-                    marginBottom: '8px',
-                  }}>
-                    EQUITIES & DIGITAL ASSETS BY INSTRUMENT (USD AMOUNT)
-                  </h4>
-                  <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '12px', color: '#94A3B8', marginBottom: '16px' }}>
-                    Quick sense of concentration across instruments.
-                  </div>
-                  {/* ASCII/HTML-based Horizontal Bar visual placeholder */}
-                  <div style={{ display: 'grid', gridTemplateColumns: 'minmax(60px, auto) 1fr', gap: '8px 16px', alignItems: 'center' }}>
-                    {allInstruments
-                      .filter(i => i.asset_class === 'Equities' || i.asset_class === 'Bitcoin')
-                      .sort((a, b) => (b.amount_usd || 0) - (a.amount_usd || 0))
-                      .map(item => {
-                        // Max value for scaling
-                        const maxVal = Math.max(...allInstruments.filter(i => i.asset_class === 'Equities' || i.asset_class === 'Bitcoin').map(i => i.amount_usd || 0));
-                        const pct = maxVal > 0 ? ((item.amount_usd || 0) / maxVal) * 100 : 0;
-                        const barColor = item.asset_class === 'Equities' ? '#10B981' : '#F59E0B';
-                        return (
-                          <React.Fragment key={item.ticker}>
-                            <div style={{ fontSize: '12px', color: '#E2E8F0', fontWeight: '500', textAlign: 'right' }}>{item.ticker}</div>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                              <div style={{ width: `${pct}%`, background: barColor, height: '16px', borderRadius: '4px', minWidth: '4px' }}></div>
-                              <span style={{ fontSize: '11px', color: '#94A3B8' }}>{formatUsdOnly(item.amount_usd ?? 0)}</span>
-                            </div>
-                          </React.Fragment>
-                        );
-                      })}
-                  </div>
-                </div>
-
-                <div style={{ overflowX: 'auto' }}>
-                  <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '12px' }}>
-                    <thead>
-                      <tr style={{ borderBottom: '1px solid rgba(71, 85, 105, 0.5)' }}>
-                        <th style={{ padding: '8px', textAlign: 'left', color: '#64748B' }}>Asset</th>
-                        <th style={{ padding: '8px', textAlign: 'left', color: '#64748B' }}>Name</th>
-                        <th style={{ padding: '8px', textAlign: 'left', color: '#64748B' }}>Ticker</th>
-                        <th style={{ padding: '8px', textAlign: 'right', color: '#64748B' }}>Amount USD</th>
-                        <th style={{ padding: '8px', textAlign: 'left', color: '#64748B' }}>Status</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {allInstruments.map((inst, i) => (
-                        <tr key={i} style={{ borderBottom: '1px solid rgba(71, 85, 105, 0.2)' }}>
-                          <td style={{ padding: '8px', color: '#F8FAFC' }}>{inst.asset_class}</td>
-                          <td style={{ padding: '8px', color: '#E2E8F0' }}>{inst.name}</td>
-                          <td style={{ padding: '8px', color: '#94A3B8' }}>{inst.ticker ?? '—'}</td>
-                          <td style={{ padding: '8px', textAlign: 'right', color: '#10B981' }}>{formatUsd(inst.amount_usd ?? 0)}</td>
-                          <td style={{ padding: '8px', color: '#F59E0B' }}>{inst.execution_status ?? 'planned'}</td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
+                    fontSize: '12px',
+                  }}
+                >
+                  BRL
+                </button>
+                <button
+                  onClick={() => setDisplayCurrency('USD')}
+                  style={{
+                    padding: '6px 12px',
+                    background: displayCurrency === 'USD' ? 'rgba(208, 255, 0, 0.2)' : 'transparent',
+                    border: displayCurrency === 'USD' ? '1px solid rgba(208, 255, 0, 0.4)' : '1px solid transparent',
+                    borderRadius: '6px',
+                    color: displayCurrency === 'USD' ? '#D0FF00' : '#4A4E52',
+                    cursor: 'pointer',
+                    fontFamily: "'DM Sans', sans-serif",
+                    fontSize: '12px',
+                  }}
+                >
+                  USD
+                </button>
               </div>
-            )}
-
-            {/* Detailed Equities (VISA Ações) — from 3. Detailed Equities Composition JSON */}
-            {detailedEquitiesVisa?.instruments?.length > 0 && (
-              <div style={{
-                background: 'rgba(30, 41, 59, 0.6)',
-                border: '1px solid rgba(59, 130, 246, 0.3)',
-                borderRadius: '16px',
-                padding: '28px',
-                marginBottom: '32px',
-              }}>
-                <h3 style={{
-                  fontSize: '14px',
-                  fontFamily: "'DM Sans', sans-serif",
-                  letterSpacing: '2px',
-                  color: '#3B82F6',
-                  marginBottom: '4px',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '8px',
-                }}>
-                  <TrendingUp size={16} />
-                  {detailedEquitiesVisa.table_name}
-                </h3>
-                <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '12px', color: '#64748B', marginBottom: '16px' }}>
-                  Total: {formatUsd(detailedEquitiesVisa.total_allocation_usd ?? 0)}
-                </div>
-                <div style={{ overflowX: 'auto' }}>
-                  <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '12px' }}>
-                    <thead>
-                      <tr style={{ borderBottom: '1px solid rgba(71, 85, 105, 0.5)' }}>
-                        <th style={{ padding: '8px', textAlign: 'left', color: '#64748B' }}>Ticker</th>
-                        <th style={{ padding: '8px', textAlign: 'left', color: '#64748B' }}>Description</th>
-                        <th style={{ padding: '8px', textAlign: 'right', color: '#64748B' }}>Weight %</th>
-                        <th style={{ padding: '8px', textAlign: 'right', color: '#64748B' }}>Allocation USD</th>
-                        <th style={{ padding: '8px', textAlign: 'right', color: '#64748B' }}>≈ Shares</th>
-                        <th style={{ padding: '8px', textAlign: 'left', color: '#64748B' }}>Rationale</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {detailedEquitiesVisa.instruments.map((inst, i) => (
-                        <tr key={i} style={{ borderBottom: '1px solid rgba(71, 85, 105, 0.2)' }}>
-                          <td style={{ padding: '8px', color: '#3B82F6', fontWeight: '500' }}>{inst.ticker}</td>
-                          <td style={{ padding: '8px', color: '#E2E8F0' }}>{inst.description}</td>
-                          <td style={{ padding: '8px', textAlign: 'right', color: '#94A3B8' }}>{inst.weight_percent}%</td>
-                          <td style={{ padding: '8px', textAlign: 'right', color: '#10B981' }}>{formatUsd(inst.allocation_usd ?? 0)}</td>
-                          <td style={{ padding: '8px', textAlign: 'right', color: '#94A3B8' }}>{inst.approx_shares ?? '—'}</td>
-                          <td style={{ padding: '8px', color: '#94A3B8', fontSize: '11px' }}>{inst.rationale}</td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-                {(detailedEquitiesVisa.notes || []).length > 0 && (
-                  <div style={{ marginTop: '12px', fontSize: '11px', color: '#64748B' }}>
-                    {(detailedEquitiesVisa.notes || []).map((n, i) => (
-                      <div key={i} style={{ marginBottom: '4px' }}>• {n}</div>
-                    ))}
-                  </div>
-                )}
-              </div>
-            )}
-
-            {/* Detailed Crypto (CFM) — from 4. Detailed Crypto Composition JSON */}
-            {detailedCryptoCfm?.instruments?.length > 0 && (
-              <div style={{
-                background: 'rgba(30, 41, 59, 0.6)',
-                border: '1px solid rgba(139, 92, 246, 0.3)',
-                borderRadius: '16px',
-                padding: '28px',
-                marginBottom: '32px',
-              }}>
-                <h3 style={{
-                  fontSize: '14px',
-                  fontFamily: "'DM Sans', sans-serif",
-                  letterSpacing: '2px',
-                  color: '#8B5CF6',
-                  marginBottom: '4px',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '8px',
-                }}>
-                  <TrendingUp size={16} />
-                  {detailedCryptoCfm.table_name}
-                </h3>
-                <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '12px', color: '#64748B', marginBottom: '16px' }}>
-                  Total: {formatUsd(detailedCryptoCfm.total_allocation_usd ?? 0)}
-                </div>
-                <div style={{ overflowX: 'auto' }}>
-                  <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '12px' }}>
-                    <thead>
-                      <tr style={{ borderBottom: '1px solid rgba(71, 85, 105, 0.5)' }}>
-                        <th style={{ padding: '8px', textAlign: 'left', color: '#64748B' }}>Coin</th>
-                        <th style={{ padding: '8px', textAlign: 'left', color: '#64748B' }}>Ticker</th>
-                        <th style={{ padding: '8px', textAlign: 'right', color: '#64748B' }}>Adj. Weight %</th>
-                        <th style={{ padding: '8px', textAlign: 'right', color: '#64748B' }}>Allocation USD</th>
-                        <th style={{ padding: '8px', textAlign: 'right', color: '#64748B' }}>≈ Qty</th>
-                        <th style={{ padding: '8px', textAlign: 'left', color: '#64748B' }}>Rationale</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {detailedCryptoCfm.instruments.map((inst, i) => (
-                        <tr key={i} style={{ borderBottom: '1px solid rgba(71, 85, 105, 0.2)' }}>
-                          <td style={{ padding: '8px', color: '#F8FAFC' }}>{inst.coin}</td>
-                          <td style={{ padding: '8px', color: '#8B5CF6', fontWeight: '500' }}>{inst.ticker}</td>
-                          <td style={{ padding: '8px', textAlign: 'right', color: '#94A3B8' }}>{inst.adjusted_weight_percent ?? inst.original_weight_percent}%</td>
-                          <td style={{ padding: '8px', textAlign: 'right', color: '#10B981' }}>{formatUsd(inst.allocation_usd ?? 0)}</td>
-                          <td style={{ padding: '8px', textAlign: 'right', color: '#94A3B8' }}>{inst.approx_quantity ?? '—'}</td>
-                          <td style={{ padding: '8px', color: '#94A3B8', fontSize: '11px' }}>{inst.rationale}</td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-                {(detailedCryptoCfm.notes || []).length > 0 && (
-                  <div style={{ marginTop: '12px', fontSize: '11px', color: '#64748B' }}>
-                    {(detailedCryptoCfm.notes || []).map((n, i) => (
-                      <div key={i} style={{ marginBottom: '4px' }}>• {n}</div>
-                    ))}
-                  </div>
-                )}
-              </div>
-            )}
-
-            {/* Pending Assets */}
-            <div style={{
-              background: 'rgba(30, 41, 59, 0.6)',
-              border: '1px solid rgba(71, 85, 105, 0.3)',
-              borderRadius: '16px',
-              padding: '28px',
-            }}>
-              <h3 style={{
-                fontSize: '14px',
-                fontFamily: "'DM Sans', sans-serif",
-                letterSpacing: '2px',
-                color: '#F59E0B',
-                marginBottom: '20px',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '8px',
-              }}>
-                <AlertTriangle size={16} />
-                PENDING ASSET ADDITIONS
-              </h3>
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px' }}>
-                {pendingAssets.map(({ asset, status, role }) => (
-                  <div key={asset} style={{
-                    background: 'rgba(245, 158, 11, 0.05)',
-                    border: '1px solid rgba(245, 158, 11, 0.2)',
-                    borderRadius: '8px',
-                    padding: '16px',
-                  }}>
-                    <div style={{ fontWeight: '500', marginBottom: '4px', color: '#F8FAFC' }}>{asset}</div>
-                    <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '12px', color: '#94A3B8' }}>{role}</div>
-                    <div style={{
-                      marginTop: '8px',
-                      padding: '4px 8px',
-                      background: 'rgba(245, 158, 11, 0.1)',
-                      borderRadius: '4px',
-                      fontSize: '11px',
-                      fontFamily: "'DM Sans', sans-serif",
-                      color: '#F59E0B',
-                      display: 'inline-block',
-                    }}>
-                      {status}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Allocation Tab */}
-        {activeTab === 'allocation' && (
-          <div style={{ animation: 'fadeIn 0.5s ease' }}>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(400px, 1fr))', gap: '24px' }}>
-              {/* Target Allocation */}
-              <div style={{
-                background: 'rgba(30, 41, 59, 0.6)',
-                border: '1px solid rgba(71, 85, 105, 0.3)',
-                borderRadius: '16px',
-                padding: '28px',
-              }}>
-                <h3 style={{
-                  fontSize: '14px',
-                  fontFamily: "'DM Sans', sans-serif",
-                  letterSpacing: '2px',
-                  color: '#D4AF37',
-                  marginBottom: '24px',
-                }}>
-                  {gmcGlobalPortfolio?.portfolio_name ?? 'TARGET ALLOCATION'} — {gmcGlobalPortfolio?.as_of_date ?? 'Q1 2026'} ({gmcGlobalPortfolio?.base_currency ?? 'USD'})
-                </h3>
-                <div style={{ height: '280px' }}>
-                  <ResponsiveContainer width="100%" height="100%">
-                    <PieChart>
-                      <Pie
-                        data={allocationData}
-                        cx="50%"
-                        cy="50%"
-                        innerRadius={70}
-                        outerRadius={110}
-                        paddingAngle={3}
-                        dataKey="value"
-                        stroke="none"
-                      >
-                        {allocationData.map((entry, index) => (
-                          <Cell key={`cell-${index}`} fill={entry.color} />
-                        ))}
-                      </Pie>
-                    </PieChart>
-                  </ResponsiveContainer>
-                </div>
-                <div style={{ marginTop: '20px' }}>
-                  {allocationData.map(({ name, value, color, description }) => (
-                    <div key={name} style={{
-                      display: 'flex',
-                      justifyContent: 'space-between',
-                      alignItems: 'center',
-                      padding: '12px 0',
-                      borderBottom: '1px solid rgba(71, 85, 105, 0.2)',
-                    }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                        <div style={{ width: '12px', height: '12px', borderRadius: '3px', background: color }} />
-                        <div>
-                          <div style={{ fontWeight: '500', color: '#F8FAFC' }}>{name}</div>
-                          <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '12px', color: '#64748B' }}>{description}</div>
-                        </div>
-                      </div>
-                      <div style={{ fontSize: '20px', fontWeight: '500', color }}>{value}%</div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              {/* Current Allocation */}
-              <div style={{
-                background: 'rgba(30, 41, 59, 0.6)',
-                border: '1px solid rgba(71, 85, 105, 0.3)',
-                borderRadius: '16px',
-                padding: '28px',
-              }}>
-                <h3 style={{
-                  fontSize: '14px',
-                  fontFamily: "'DM Sans', sans-serif",
-                  letterSpacing: '2px',
-                  color: '#D4AF37',
-                  marginBottom: '24px',
-                }}>
-                  CURRENT ALLOCATION
-                </h3>
-                <div style={{ height: '280px' }}>
-                  <ResponsiveContainer width="100%" height="100%">
-                    <PieChart>
-                      <Pie
-                        data={currentAllocation}
-                        cx="50%"
-                        cy="50%"
-                        innerRadius={70}
-                        outerRadius={110}
-                        paddingAngle={3}
-                        dataKey="value"
-                        stroke="none"
-                      >
-                        {currentAllocation.map((entry, index) => (
-                          <Cell key={`cell-${index}`} fill={entry.color} />
-                        ))}
-                      </Pie>
-                    </PieChart>
-                  </ResponsiveContainer>
-                </div>
-                <div style={{ marginTop: '20px' }}>
-                  {currentAllocation.map(({ name, value, color }) => (
-                    <div key={name} style={{
-                      display: 'flex',
-                      justifyContent: 'space-between',
-                      alignItems: 'center',
-                      padding: '12px 0',
-                      borderBottom: '1px solid rgba(71, 85, 105, 0.2)',
-                    }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                        <div style={{ width: '12px', height: '12px', borderRadius: '3px', background: color }} />
-                        <span style={{ fontWeight: '500', color: '#F8FAFC' }}>{name}</span>
-                      </div>
-                      <div>
-                        <span style={{ fontSize: '18px', fontWeight: '500', color }}>{formatUsdOnly(value)}</span>
-                        <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '12px', color: '#64748B', marginLeft: '8px' }}>
-                          ({((value / totalPortfolioUsd) * 100).toFixed(1)}%)
-                        </span>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              {/* Convex target allocation (holdings01) */}
-              <div style={{
-                background: 'rgba(30, 41, 59, 0.6)',
-                border: '1px solid rgba(245, 158, 11, 0.3)',
-                borderRadius: '16px',
-                padding: '28px',
-              }}>
-                <h3 style={{
-                  fontSize: '14px',
-                  fontFamily: "'DM Sans', sans-serif",
-                  letterSpacing: '2px',
-                  color: '#F59E0B',
-                  marginBottom: '8px',
-                }}>
-                  CONVEX TARGET — {convexPortfolio.portfolio_name ?? 'Global USD'} ({convexPortfolio.total_weight_check ?? 100}%)
-                </h3>
-                <div style={{ height: '280px' }}>
-                  <ResponsiveContainer width="100%" height="100%">
-                    <PieChart>
-                      <Pie
-                        data={convexAllocationPie}
-                        cx="50%"
-                        cy="50%"
-                        innerRadius={70}
-                        outerRadius={110}
-                        paddingAngle={2}
-                        dataKey="value"
-                        stroke="none"
-                      >
-                        {convexAllocationPie.map((entry, index) => (
-                          <Cell key={`convex-${index}`} fill={entry.color} />
-                        ))}
-                      </Pie>
-                    </PieChart>
-                  </ResponsiveContainer>
-                </div>
-                <div style={{ marginTop: '20px' }}>
-                  {convexAllocationPie.map(({ name, value, color }) => (
-                    <div key={name} style={{
-                      display: 'flex',
-                      justifyContent: 'space-between',
-                      alignItems: 'center',
-                      padding: '10px 0',
-                      borderBottom: '1px solid rgba(71, 85, 105, 0.2)',
-                    }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                        <div style={{ width: '12px', height: '12px', borderRadius: '3px', background: color }} />
-                        <span style={{ fontWeight: '500', color: '#F8FAFC' }}>{name}</span>
-                      </div>
-                      <span style={{ fontSize: '14px', fontWeight: '500', color }}>{value}%</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-
-            {/* Barbell Strategy */}
-            <div style={{
-              background: 'rgba(30, 41, 59, 0.6)',
-              border: '1px solid rgba(71, 85, 105, 0.3)',
-              borderRadius: '16px',
-              padding: '28px',
-              marginTop: '24px',
-            }}>
-              <h3 style={{
-                fontSize: '14px',
-                fontFamily: "'DM Sans', sans-serif",
-                letterSpacing: '2px',
-                color: '#D4AF37',
-                marginBottom: '24px',
-              }}>
-                BARBELL STRATEGY — CONVEX ALLOCATION
-              </h3>
-              <div style={{
-                display: 'grid',
-                gridTemplateColumns: '1fr auto 1fr',
-                gap: '32px',
-                alignItems: 'center',
-              }}>
-                <div style={{
-                  background: 'linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(16, 185, 129, 0.05) 100%)',
-                  border: '1px solid rgba(16, 185, 129, 0.3)',
-                  borderRadius: '12px',
-                  padding: '24px',
-                }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '16px' }}>
-                    <Shield size={20} style={{ color: '#10B981' }} />
-                    <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '13px', letterSpacing: '1px', color: '#10B981' }}>
-                      PROTECTION SIDE
-                    </span>
-                  </div>
-                  <div style={{ fontWeight: '500', marginBottom: '4px' }}>Don't Die</div>
-                  <ul style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '13px', color: '#94A3B8', margin: '12px 0', paddingLeft: '20px' }}>
-                    <li style={{ marginBottom: '6px' }}>Cash / T-bills</li>
-                    <li style={{ marginBottom: '6px' }}>USD exposure</li>
-                    <li style={{ marginBottom: '6px' }}>Gold / Reserve assets</li>
-                    <li>Sovereign bonds</li>
-                  </ul>
-                </div>
-
-                <div style={{
-                  width: '80px',
-                  height: '80px',
-                  borderRadius: '50%',
-                  background: 'linear-gradient(135deg, rgba(212, 175, 55, 0.2) 0%, rgba(212, 175, 55, 0.1) 100%)',
-                  border: '2px solid rgba(212, 175, 55, 0.4)',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  fontFamily: "'DM Sans', sans-serif",
-                  fontSize: '11px',
-                  color: '#D4AF37',
-                  textAlign: 'center',
-                  letterSpacing: '1px',
-                }}>
-                  REBALANCE<br/>ENGINE
-                </div>
-
-                <div style={{
-                  background: 'linear-gradient(135deg, rgba(245, 158, 11, 0.1) 0%, rgba(245, 158, 11, 0.05) 100%)',
-                  border: '1px solid rgba(245, 158, 11, 0.3)',
-                  borderRadius: '12px',
-                  padding: '24px',
-                }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '16px' }}>
-                    <TrendingUp size={20} style={{ color: '#F59E0B' }} />
-                    <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '13px', letterSpacing: '1px', color: '#F59E0B' }}>
-                      OPTIONALITY SIDE
-                    </span>
-                  </div>
-                  <div style={{ fontWeight: '500', marginBottom: '4px' }}>Asymmetric Upside</div>
-                  <ul style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '13px', color: '#94A3B8', margin: '12px 0', paddingLeft: '20px' }}>
-                    <li style={{ marginBottom: '6px' }}>Bitcoin / Crypto</li>
-                    <li style={{ marginBottom: '6px' }}>Select equities</li>
-                    <li style={{ marginBottom: '6px' }}>Commodities</li>
-                    <li>REITs / Real assets</li>
-                  </ul>
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Properties Tab */}
-        {activeTab === 'properties' && (
-          <div style={{ animation: 'fadeIn 0.5s ease' }}>
-            {/* Property Summary */}
-            <div style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))',
-              gap: '12px',
-              marginBottom: '24px',
-            }}>
-              {[
-                { label: 'Total Properties', value: '12' },
-                { label: 'Apartments', value: properties.filter(p => p.type === 'Apartamento').length },
-                { label: 'Houses', value: properties.filter(p => p.type === 'Casa').length },
-                { label: 'Parking', value: properties.filter(p => p.type === 'Vaga').length },
-                { label: 'Land', value: properties.filter(p => p.type === 'Terreno').length },
-                { label: 'Total Area', value: `${properties.reduce((sum, p) => sum + (p.area || 0), 0).toLocaleString()} m²` },
-              ].map(({ label, value }) => (
-                <div key={label} style={{
-                  background: 'rgba(99, 102, 241, 0.05)',
-                  border: '1px solid rgba(99, 102, 241, 0.2)',
-                  borderRadius: '8px',
-                  padding: '14px',
-                  textAlign: 'center',
-                }}>
-                  <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '10px', color: '#64748B', letterSpacing: '1px', marginBottom: '4px' }}>
-                    {label.toUpperCase()}
-                  </div>
-                  <div style={{ fontSize: '22px', fontWeight: '500', color: '#6366F1' }}>{value}</div>
-                </div>
-              ))}
-            </div>
-
-            {/* Property Cards */}
-            <div style={{
-              background: 'rgba(30, 41, 59, 0.6)',
-              border: '1px solid rgba(71, 85, 105, 0.3)',
+           </div>
+           
+           <div style={{
+              background: 'rgba(18, 18, 18, 0.6)',
+              border: '1px solid rgba(74, 78, 82, 0.3)',
               borderRadius: '16px',
               overflow: 'hidden',
             }}>
               <div style={{
                 padding: '20px 24px',
-                borderBottom: '1px solid rgba(71, 85, 105, 0.3)',
+                borderBottom: '1px solid rgba(74, 78, 82, 0.3)',
                 display: 'flex',
                 justifyContent: 'space-between',
                 alignItems: 'center',
@@ -1643,18 +258,18 @@ const GMCDashboard = () => {
                   fontSize: '14px',
                   fontFamily: "'DM Sans', sans-serif",
                   letterSpacing: '2px',
-                  color: '#D4AF37',
+                  color: '#C0C0C0',
                   margin: 0,
                 }}>
-                  PROPERTY INVENTORY — CLICK TO EDIT m² PRICE
+                  PROPERTY INVENTORY — EXPOSURE SUMMARY
                 </h3>
                 <div style={{
                   fontFamily: "'DM Sans', sans-serif",
                   fontSize: '12px',
-                  color: '#64748B',
+                  color: '#4A4E52',
                 }}>
-                  Total: <span style={{ color: '#10B981', fontWeight: '600' }}>{formatRealEstate(realEstateValue)}</span>
-                  <span style={{ marginLeft: '8px', fontSize: '11px', color: '#64748B' }}>
+                  Total: <span style={{ color: '#D0FF00', fontWeight: '600' }}>{formatRealEstate(realEstateValue)}</span>
+                  <span style={{ marginLeft: '8px', fontSize: '11px', color: '#4A4E52' }}>
                     ({displayCurrency === 'USD' ? formatBRL(realEstateValue) : formatUsdOnly(realEstateValueUsd)})
                   </span>
                 </div>
@@ -1670,11 +285,11 @@ const GMCDashboard = () => {
                       key={property.id}
                       style={{
                         background: selectedProperty === property.id 
-                          ? 'rgba(99, 102, 241, 0.1)' 
-                          : 'rgba(15, 23, 42, 0.5)',
+                          ? 'rgba(192, 192, 192, 0.1)' 
+                          : 'rgba(10, 10, 10, 0.5)',
                         border: selectedProperty === property.id 
-                          ? '1px solid rgba(99, 102, 241, 0.4)'
-                          : '1px solid rgba(71, 85, 105, 0.2)',
+                          ? '1px solid rgba(192, 192, 192, 0.4)'
+                          : '1px solid rgba(74, 78, 82, 0.2)',
                         borderRadius: '12px',
                         padding: '16px',
                         cursor: 'pointer',
@@ -1690,16 +305,16 @@ const GMCDashboard = () => {
                               {property.type}
                               {property.building && <span style={{ color: '#94A3B8', fontWeight: '400' }}> — {property.building}</span>}
                             </div>
-                            <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '12px', color: '#64748B' }}>
+                            <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '12px', color: '#4A4E52' }}>
                               ID: {property.id} {property.matricula && `• Matrícula: ${property.matricula}`}
                             </div>
                           </div>
                         </div>
                         <div style={{ textAlign: 'right' }}>
-                          <div style={{ fontSize: '20px', fontWeight: '500', color: '#10B981' }}>
+                          <div style={{ fontSize: '20px', fontWeight: '500', color: '#D0FF00' }}>
                             {formatRealEstate(calculatedValue)}
                           </div>
-                          <div style={{ fontSize: '12px', color: '#64748B', fontFamily: "'DM Sans', sans-serif" }}>
+                          <div style={{ fontSize: '12px', color: '#4A4E52', fontFamily: "'DM Sans', sans-serif" }}>
                             {displayCurrency === 'USD' ? formatBRL(calculatedValue) : formatUsdOnly(calculatedValue / exchangeRate)}
                           </div>
                         </div>
@@ -1713,11 +328,11 @@ const GMCDashboard = () => {
                         {property.area && (
                           <div style={{
                             padding: '6px 12px',
-                            background: 'rgba(59, 130, 246, 0.1)',
+                            background: 'rgba(192, 192, 192, 0.1)',
                             borderRadius: '6px',
                             fontFamily: "'DM Sans', sans-serif",
                             fontSize: '12px',
-                            color: '#3B82F6',
+                            color: '#C0C0C0',
                           }}>
                             📐 {property.area} m²
                           </div>
@@ -1731,12 +346,12 @@ const GMCDashboard = () => {
                             }}
                             style={{
                               padding: '6px 12px',
-                              background: isEditing ? 'rgba(212, 175, 55, 0.2)' : 'rgba(212, 175, 55, 0.1)',
-                              border: '1px dashed rgba(212, 175, 55, 0.4)',
+                              background: isEditing ? 'rgba(192, 192, 192, 0.2)' : 'rgba(192, 192, 192, 0.1)',
+                              border: '1px dashed rgba(192, 192, 192, 0.4)',
                               borderRadius: '6px',
                               fontFamily: "'DM Sans', sans-serif",
                               fontSize: '12px',
-                              color: '#D4AF37',
+                              color: '#C0C0C0',
                               display: 'flex',
                               alignItems: 'center',
                               gap: '6px',
@@ -1763,8 +378,8 @@ const GMCDashboard = () => {
                                   style={{
                                     width: '70px',
                                     padding: '2px 6px',
-                                    background: 'rgba(15, 23, 42, 0.8)',
-                                    border: '1px solid rgba(212, 175, 55, 0.4)',
+                                    background: 'rgba(10, 10, 10, 0.8)',
+                                    border: '1px solid rgba(192, 192, 192, 0.4)',
                                     borderRadius: '4px',
                                     color: '#F8FAFC',
                                     fontSize: '12px',
@@ -1784,11 +399,11 @@ const GMCDashboard = () => {
                         {property.garages && (
                           <div style={{
                             padding: '6px 12px',
-                            background: 'rgba(139, 92, 246, 0.1)',
+                            background: 'rgba(192, 192, 192, 0.1)',
                             borderRadius: '6px',
                             fontFamily: "'DM Sans', sans-serif",
                             fontSize: '12px',
-                            color: '#8B5CF6',
+                            color: '#C0C0C0',
                           }}>
                             🚗 {property.garages} vagas
                           </div>
@@ -1802,12 +417,12 @@ const GMCDashboard = () => {
                             onClick={(e) => e.stopPropagation()}
                             style={{
                               padding: '6px 12px',
-                              background: 'rgba(16, 185, 129, 0.1)',
-                              border: '1px solid rgba(16, 185, 129, 0.3)',
+                              background: 'rgba(208, 255, 0, 0.1)',
+                              border: '1px solid rgba(208, 255, 0, 0.3)',
                               borderRadius: '6px',
                               fontFamily: "'DM Sans', sans-serif",
                               fontSize: '12px',
-                              color: '#10B981',
+                              color: '#D0FF00',
                               textDecoration: 'none',
                               display: 'flex',
                               alignItems: 'center',
@@ -1824,345 +439,303 @@ const GMCDashboard = () => {
                   );
                 })}
               </div>
+           </div>
+        </section>
 
-              <div style={{
-                padding: '16px 24px',
-                background: 'rgba(15, 23, 42, 0.5)',
-                display: 'flex',
-                justifyContent: 'space-between',
-                fontFamily: "'DM Sans', sans-serif",
-                fontSize: '14px',
-                borderTop: '1px solid rgba(71, 85, 105, 0.3)',
-              }}>
-                <span style={{ color: '#64748B' }}>Total Market Value</span>
-                <div>
-                  <span style={{ color: '#10B981', fontWeight: '600', fontSize: '18px' }}>{formatRealEstate(realEstateValue)}</span>
-                  <span style={{ color: '#64748B', marginLeft: '12px' }}>
-                    ({displayCurrency === 'USD' ? formatBRL(realEstateValue) : formatUsdOnly(realEstateValueUsd)})
-                  </span>
+        {/* 3. Convex Portfolio Regime & Doctrine */}
+        <section id="s3-regime" style={{ marginBottom: '48px' }}>
+          <h2 style={{ fontSize: '20px', letterSpacing: '2px', color: '#C0C0C0', marginBottom: '24px', fontFamily: "'DM Sans', sans-serif" }}>
+            3. GMC CONVEX PORTFOLIO
+          </h2>
+          <div style={{ background: 'rgba(18, 18, 18, 0.6)', border: '1px solid rgba(74, 78, 82, 0.3)', borderRadius: '16px', padding: '28px' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '24px', marginBottom: '24px' }}>
+              <div>
+                <div style={{ fontSize: '12px', color: '#4A4E52', fontFamily: "'DM Sans', sans-serif", letterSpacing: '1px', marginBottom: '8px' }}>STRATEGY STYLE</div>
+                <div style={{ fontSize: '16px', color: '#F8FAFC' }}>Macro-driven, regime-aware</div>
+              </div>
+              <div>
+                <div style={{ fontSize: '12px', color: '#4A4E52', fontFamily: "'DM Sans', sans-serif", letterSpacing: '1px', marginBottom: '8px' }}>CURRENT REGIME</div>
+                <div style={{ fontSize: '16px', color: '#D0FF00', fontWeight: 'bold' }}>Defensive convex</div>
+              </div>
+              <div>
+                <div style={{ fontSize: '12px', color: '#4A4E52', fontFamily: "'DM Sans', sans-serif", letterSpacing: '1px', marginBottom: '8px' }}>REVIEW FREQUENCY</div>
+                <div style={{ fontSize: '16px', color: '#F8FAFC' }}>Quarterly</div>
+              </div>
+            </div>
+            
+            <div style={{ padding: '20px', background: 'rgba(10, 10, 10, 0.4)', borderRadius: '12px', borderLeft: '4px solid #C0C0C0' }}>
+              <div style={{ fontSize: '13px', color: '#C0C0C0', fontFamily: "'DM Sans', sans-serif", letterSpacing: '1px', marginBottom: '12px', fontWeight: 'bold' }}>INVESTMENT DOCTRINE</div>
+              <ul style={{ margin: 0, paddingLeft: '20px', color: '#CBD5E1', fontFamily: "'DM Sans', sans-serif", fontSize: '14px', lineHeight: '1.6' }}>
+                <li style={{ marginBottom: '8px' }}>Preserve purchasing power first.</li>
+                <li style={{ marginBottom: '8px' }}>Deploy aggressively only when asymmetry is clear.</li>
+                <li>Maintain liquidity and optionality for future rebalancing.</li>
+              </ul>
+            </div>
+
+            <p style={{ marginTop: '24px', fontSize: '14px', color: '#94A3B8', fontFamily: "'DM Sans', sans-serif", lineHeight: '1.6' }}>
+              Structure targets a standard <strong>25/15/20/30/10</strong> model (Cash/Bonds/Gold/Equities/Bitcoin) to maintain a highly resilient barbell approach. This explicitly maps into <strong>60% Survival & Optionality</strong> (Cash, Bonds, and Gold) and <strong>40% Convex Growth</strong> (Equities and Bitcoin).
+            </p>
+          </div>
+        </section>
+
+        {/* 4. Convex USD Snapshot (Current vs Target) */}
+        <section id="s4-usd-snapshot" style={{ marginBottom: '48px' }}>
+          <h2 style={{ fontSize: '20px', letterSpacing: '2px', color: '#C0C0C0', marginBottom: '16px', fontFamily: "'DM Sans', sans-serif" }}>
+            4. CONVEX USD SNAPSHOT (CURRENT VS TARGET)
+          </h2>
+          <div style={{ background: 'rgba(18, 18, 18, 0.6)', border: '1px solid rgba(208, 255, 0, 0.3)', borderRadius: '16px', padding: '28px' }}>
+             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '16px', marginBottom: '32px' }}>
+                <div style={{ background: 'rgba(208, 255, 0, 0.08)', border: '1px solid rgba(208, 255, 0, 0.2)', borderRadius: '8px', padding: '20px' }}>
+                  <div style={{ fontSize: '12px', color: '#4A4E52', fontFamily: "'DM Sans', sans-serif", letterSpacing: '1px', marginBottom: '8px' }}>TOTAL LIQUID (USD)</div>
+                  <div style={{ fontSize: '28px', fontWeight: '600', color: '#D0FF00' }}>{formatUsd(460000)}</div>
                 </div>
+                {assetsSnapshot?.breakdown && ['usd_bank', 'usd_cash', 'gold_usd', 'bitcoin_usd'].map(key => {
+                  const val = assetsSnapshot.breakdown[key] || 0;
+                  const label = key === 'usd_bank' ? 'Bank (USD)' : key === 'usd_cash' ? 'Cash (USD)' : key === 'gold_usd' ? 'Gold (USD)' : 'Bitcoin (USD)';
+                  const targetGrp = key.includes('gold') ? 20 : key.includes('bitcoin') ? 10 : 25; // 25 for liquid
+                  const currentPct = ((val / 460000) * 100).toFixed(1);
+                  return (
+                    <div key={key} style={{ background: 'rgba(74, 78, 82, 0.2)', border: '1px solid rgba(74, 78, 82, 0.3)', borderRadius: '8px', padding: '20px' }}>
+                      <div style={{ fontSize: '12px', color: '#4A4E52', fontFamily: "'DM Sans', sans-serif", letterSpacing: '1px', marginBottom: '8px' }}>{label.toUpperCase()}</div>
+                      <div style={{ fontSize: '20px', fontWeight: '500', color: '#F8FAFC' }}>{formatUsd(val)}</div>
+                      <div style={{ fontSize: '13px', color: '#94A3B8', marginTop: '8px', fontFamily: "'DM Sans', sans-serif" }}>
+                        Cur: {currentPct}% <span style={{color: '#4A4E52'}}>| Tgt: {targetGrp}%</span>
+                      </div>
+                    </div>
+                  );
+                })}
+             </div>
+
+             <div style={{ padding: '40px', background: 'rgba(10, 10, 10, 0.4)', border: '1px dashed rgba(74, 78, 82, 0.4)', borderRadius: '12px', color: '#4A4E52', fontFamily: "monospace", textAlign: 'center' }}>
+               {/* CHART PLACEHOLDER: bar – CURRENT VS TARGET (CONVEX USD SLEEVE) */}
+               &lt;!-- CHART PLACEHOLDER: bar – CURRENT VS TARGET (CONVEX USD SLEEVE) --&gt;
+             </div>
+          </div>
+        </section>
+
+        {/* 5. Gavetas: Survival & Optionality vs Convex Growth */}
+        <section id="s5-gavetas" style={{ marginBottom: '48px' }}>
+          <h2 style={{ fontSize: '20px', letterSpacing: '2px', color: '#C0C0C0', marginBottom: '24px', fontFamily: "'DM Sans', sans-serif" }}>
+            5. GAVETAS: SURVIVAL & OPTIONALITY VS CONVEX GROWTH
+          </h2>
+          <div style={{ background: 'rgba(18, 18, 18, 0.6)', border: '1px solid rgba(74, 78, 82, 0.3)', borderRadius: '16px', padding: '28px' }}>
+            <div style={{ display: 'flex', height: '40px', borderRadius: '8px', overflow: 'hidden', marginBottom: '16px', fontFamily: "'DM Sans', sans-serif" }}>
+               <div style={{ width: '60%', background: '#D0FF00', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#000', fontSize: '14px', fontWeight: 'bold' }}>
+                 Survival (60%) - {formatUsd(276000)}
+               </div>
+               <div style={{ width: '40%', background: '#C0C0C0', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontSize: '14px', fontWeight: 'bold' }}>
+                 Convex (40%) - {formatUsd(184000)}
+               </div>
+            </div>
+
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '24px', marginTop: '32px' }}>
+              <div style={{ background: 'rgba(208, 255, 0, 0.05)', border: '1px solid rgba(208, 255, 0, 0.3)', borderRadius: '12px', padding: '24px' }}>
+                <h3 style={{ fontSize: '16px', color: '#D0FF00', marginBottom: '16px', fontFamily: "'DM Sans', sans-serif", fontWeight: 'bold' }}>Survival & Optionality</h3>
+                <table style={{ width: '100%', fontSize: '14px', fontFamily: "'DM Sans', sans-serif" }}>
+                  <tbody>
+                    <tr style={{ borderBottom: '1px solid rgba(74, 78, 82, 0.3)' }}><td style={{ padding: '8px 0', color: '#E2E8F0' }}>Cash</td><td style={{ textAlign: 'right', color: '#94A3B8' }}>25%</td><td style={{ textAlign: 'right', color: '#D0FF00' }}>{formatUsd(115000)}</td></tr>
+                    <tr style={{ borderBottom: '1px solid rgba(74, 78, 82, 0.3)' }}><td style={{ padding: '8px 0', color: '#E2E8F0' }}>Bonds</td><td style={{ textAlign: 'right', color: '#94A3B8' }}>15%</td><td style={{ textAlign: 'right', color: '#D0FF00' }}>{formatUsd(69000)}</td></tr>
+                    <tr><td style={{ padding: '8px 0', color: '#E2E8F0' }}>Gold</td><td style={{ textAlign: 'right', color: '#94A3B8' }}>20%</td><td style={{ textAlign: 'right', color: '#D0FF00' }}>{formatUsd(92000)}</td></tr>
+                  </tbody>
+                </table>
+              </div>
+              
+              <div style={{ background: 'rgba(192, 192, 192, 0.05)', border: '1px solid rgba(192, 192, 192, 0.3)', borderRadius: '12px', padding: '24px' }}>
+                <h3 style={{ fontSize: '16px', color: '#C0C0C0', marginBottom: '16px', fontFamily: "'DM Sans', sans-serif", fontWeight: 'bold' }}>Convex Growth</h3>
+                <table style={{ width: '100%', fontSize: '14px', fontFamily: "'DM Sans', sans-serif" }}>
+                  <tbody>
+                    <tr style={{ borderBottom: '1px solid rgba(74, 78, 82, 0.3)' }}><td style={{ padding: '8px 0', color: '#E2E8F0' }}>Equities</td><td style={{ textAlign: 'right', color: '#94A3B8' }}>30%</td><td style={{ textAlign: 'right', color: '#C0C0C0' }}>{formatUsd(138000)}</td></tr>
+                    <tr><td style={{ padding: '8px 0', color: '#E2E8F0' }}>Bitcoin</td><td style={{ textAlign: 'right', color: '#94A3B8' }}>10%</td><td style={{ textAlign: 'right', color: '#C0C0C0' }}>{formatUsd(46000)}</td></tr>
+                  </tbody>
+                </table>
               </div>
             </div>
           </div>
-        )}
+        </section>
 
-        {/* Macro Tab */}
-        {activeTab === 'macro' && (
-          <div style={{ animation: 'fadeIn 0.5s ease' }}>
-            <div style={{
-              background: 'linear-gradient(135deg, rgba(16, 185, 129, 0.08) 0%, rgba(30, 41, 59, 0.6) 100%)',
-              border: '1px solid rgba(16, 185, 129, 0.3)',
-              borderRadius: '16px',
-              padding: '28px',
-              marginBottom: '24px',
-            }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '16px' }}>
-                <Globe size={24} style={{ color: '#10B981' }} />
-                <h3 style={{ fontSize: '18px', margin: 0, color: '#F8FAFC' }}>Current Macro Environment — Q1 2026</h3>
-              </div>
-              <div style={{
-                display: 'grid',
-                gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
-                gap: '16px',
-                fontFamily: "'DM Sans', sans-serif",
-                fontSize: '14px',
-                color: '#CBD5E1',
-              }}>
-                <div style={{ padding: '12px', background: 'rgba(15, 23, 42, 0.4)', borderRadius: '8px' }}>
-                  <strong style={{ color: '#F59E0B' }}>Geopolitical:</strong> Iran in existential crisis → elevated oil/commodity risk premium
+        {/* 6. Optimized Allocation for US$460,000 */}
+        <section id="s6-optimized-alloc" style={{ marginBottom: '48px' }}>
+          <h2 style={{ fontSize: '20px', letterSpacing: '2px', color: '#C0C0C0', marginBottom: '24px', fontFamily: "'DM Sans', sans-serif" }}>
+            6. OPTIMIZED ALLOCATION FOR US$460,000
+          </h2>
+          <div style={{ background: 'rgba(18, 18, 18, 0.6)', border: '1px solid rgba(192, 192, 192, 0.3)', borderRadius: '16px', padding: '28px' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))', gap: '16px', marginBottom: '24px' }}>
+              {(optimizedAllocationGavetas?.gavetas || []).map((g, i) => (
+                <div key={i} style={{ background: 'rgba(192, 192, 192, 0.05)', border: '1px solid rgba(192, 192, 192, 0.2)', borderRadius: '12px', padding: '20px' }}>
+                  <div style={{ fontWeight: 'bold', color: '#F8FAFC', marginBottom: '8px', fontSize: '15px', fontFamily: "'DM Sans', sans-serif" }}>{g.gaveta}</div>
+                  <div style={{ fontSize: '20px', color: '#C0C0C0', marginBottom: '8px' }}>{g.percent}% · {formatUsd(g.allocation_usd ?? 0)}</div>
+                  <div style={{ fontSize: '13px', color: '#94A3B8', fontFamily: "'DM Sans', sans-serif", lineHeight: '1.5' }}>{g.rationale}</div>
                 </div>
-                <div style={{ padding: '12px', background: 'rgba(15, 23, 42, 0.4)', borderRadius: '8px' }}>
-                  <strong style={{ color: '#F59E0B' }}>US Macro:</strong> Potential debt monetization → USD structural fragility building
-                </div>
-                <div style={{ padding: '12px', background: 'rgba(15, 23, 42, 0.4)', borderRadius: '8px' }}>
-                  <strong style={{ color: '#F59E0B' }}>Brazil:</strong> BRL under pressure → structural underweight, tactical only
-                </div>
-              </div>
+              ))}
             </div>
 
-            <div style={{
-              background: 'rgba(30, 41, 59, 0.6)',
-              border: '1px solid rgba(71, 85, 105, 0.3)',
-              borderRadius: '16px',
-              padding: '28px',
-            }}>
-              <h3 style={{
-                fontSize: '14px',
-                fontFamily: "'DM Sans', sans-serif",
-                letterSpacing: '2px',
-                color: '#D4AF37',
-                marginBottom: '24px',
-              }}>
-                ALLOCATION SIGNALS
-              </h3>
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '16px' }}>
-                {macroSignals.map(({ indicator, value, status, description }) => (
-                  <div key={indicator} style={{
-                    background: 'rgba(15, 23, 42, 0.5)',
-                    border: `1px solid ${getStatusColor(status)}33`,
-                    borderRadius: '12px',
-                    padding: '20px',
-                    position: 'relative',
-                    overflow: 'hidden',
-                  }}>
-                    <div style={{
-                      position: 'absolute',
-                      top: '12px',
-                      right: '12px',
-                      width: '10px',
-                      height: '10px',
-                      borderRadius: '50%',
-                      background: getStatusColor(status),
-                      boxShadow: `0 0 8px ${getStatusColor(status)}`,
-                    }} />
-                    <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '12px', color: '#64748B', letterSpacing: '1px', marginBottom: '8px' }}>
-                      {indicator.toUpperCase()}
-                    </div>
-                    <div style={{ fontSize: '28px', fontWeight: '500', color: getStatusColor(status), marginBottom: '4px' }}>
-                      {value}
-                    </div>
-                    <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '12px', color: '#94A3B8' }}>
-                      {description}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Philosophy Tab */}
-        {activeTab === 'philosophy' && (
-          <div style={{ animation: 'fadeIn 0.5s ease' }}>
-            <div style={{
-              background: 'linear-gradient(135deg, rgba(212, 175, 55, 0.1) 0%, rgba(30, 41, 59, 0.6) 100%)',
-              border: '1px solid rgba(212, 175, 55, 0.3)',
-              borderRadius: '16px',
-              padding: '40px',
-              marginBottom: '24px',
-              textAlign: 'center',
-            }}>
-              <div style={{ fontSize: '13px', fontFamily: "'DM Sans', sans-serif", letterSpacing: '3px', color: '#D4AF37', marginBottom: '20px' }}>
-                CORE DOCTRINE
-              </div>
-              <blockquote style={{
-                fontSize: '22px',
-                fontStyle: 'italic',
-                color: '#F8FAFC',
-                lineHeight: '1.6',
-                margin: '0 auto',
-                maxWidth: '800px',
-              }}>
-                "Capital is preserved by surviving adverse regimes and compounded by exploiting asymmetries — not by prediction, leverage, or constant activity."
-              </blockquote>
-            </div>
-
-            <div style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
-              gap: '24px',
-              marginBottom: '24px',
-            }}>
-              <div style={{
-                background: 'rgba(30, 41, 59, 0.6)',
-                border: '1px solid rgba(71, 85, 105, 0.3)',
-                borderRadius: '16px',
-                padding: '28px',
-              }}>
-                <h3 style={{
-                  fontSize: '14px',
-                  fontFamily: "'DM Sans', sans-serif",
-                  letterSpacing: '2px',
-                  color: '#D4AF37',
-                  marginBottom: '20px',
-                }}>
-                  CORE OBJECTIVES (HIERARCHY)
-                </h3>
-                <ol style={{ margin: 0, paddingLeft: '24px' }}>
-                  {[
-                    'Avoid permanent capital loss',
-                    'Preserve purchasing power (BRL-real terms)',
-                    'Exploit macro regime transitions',
-                    'Capture convex asymmetries',
-                    'Compound capital selectively',
-                  ].map((item, idx) => (
-                    <li key={idx} style={{
-                      padding: '12px 0',
-                      borderBottom: idx < 4 ? '1px solid rgba(71, 85, 105, 0.2)' : 'none',
-                      fontFamily: "'DM Sans', sans-serif",
-                      color: idx === 0 ? '#EF4444' : idx === 1 ? '#F59E0B' : '#94A3B8',
-                      fontWeight: idx < 2 ? '500' : '400',
-                    }}>
-                      {item}
-                    </li>
-                  ))}
-                </ol>
-              </div>
-
-              <div style={{
-                background: 'rgba(30, 41, 59, 0.6)',
-                border: '1px solid rgba(71, 85, 105, 0.3)',
-                borderRadius: '16px',
-                padding: '28px',
-              }}>
-                <h3 style={{
-                  fontSize: '14px',
-                  fontFamily: "'DM Sans', sans-serif",
-                  letterSpacing: '2px',
-                  color: '#EF4444',
-                  marginBottom: '20px',
-                }}>
-                  PROHIBITED PRACTICES
-                </h3>
-                <ul style={{ margin: 0, paddingLeft: '20px' }}>
-                  {[
-                    'Excess leverage (any form)',
-                    'Illiquid structured products',
-                    'Benchmark hugging',
-                    'Yield-chasing without risk asymmetry',
-                    'Short-term trading as core strategy',
-                    'Home-country bias (Brazil overweight)',
-                  ].map((item, idx) => (
-                    <li key={idx} style={{
-                      padding: '10px 0',
-                      fontFamily: "'DM Sans', sans-serif",
-                      fontSize: '13px',
-                      color: '#94A3B8',
-                    }}>
-                      {item}
-                    </li>
+            {(optimizedAllocationGavetas?.implementation_notes || []).length > 0 && (
+              <div style={{ padding: '20px', background: 'rgba(10, 10, 10, 0.4)', borderRadius: '12px', fontFamily: "'DM Sans', sans-serif" }}>
+                <strong style={{ color: '#E2E8F0', fontSize: '14px' }}>Implementation:</strong>
+                <ul style={{ margin: '12px 0 0 0', paddingLeft: '20px', color: '#94A3B8', fontSize: '14px', lineHeight: '1.6' }}>
+                  {(optimizedAllocationGavetas.implementation_notes || []).map((n, i) => (
+                    <li key={i} style={{ marginBottom: '6px' }}>{n}</li>
                   ))}
                 </ul>
               </div>
+            )}
+          </div>
+        </section>
+
+        {/* 7. Portfolio Instruments (Target) */}
+        <section id="s7-instruments" style={{ marginBottom: '48px' }}>
+          <h2 style={{ fontSize: '20px', letterSpacing: '2px', color: '#C0C0C0', marginBottom: '24px', fontFamily: "'DM Sans', sans-serif" }}>
+            7. PORTFOLIO INSTRUMENTS (TARGET)
+          </h2>
+          <div style={{ background: 'rgba(18, 18, 18, 0.6)', border: '1px solid rgba(74, 78, 82, 0.3)', borderRadius: '16px', padding: '28px', marginBottom: '32px' }}>
+            <div style={{ overflowX: 'auto' }}>
+              <table style={{ width: '100%', borderCollapse: 'collapse', fontFamily: "'DM Sans', sans-serif", fontSize: '13px' }}>
+                <thead>
+                  <tr style={{ borderBottom: '1px solid rgba(74, 78, 82, 0.5)' }}>
+                    <th style={{ padding: '12px 8px', textAlign: 'left', color: '#4A4E52' }}>Asset Class</th>
+                    <th style={{ padding: '12px 8px', textAlign: 'left', color: '#4A4E52' }}>Name</th>
+                    <th style={{ padding: '12px 8px', textAlign: 'left', color: '#4A4E52' }}>Ticker</th>
+                    <th style={{ padding: '12px 8px', textAlign: 'right', color: '#4A4E52' }}>Amount (USD)</th>
+                    <th style={{ padding: '12px 8px', textAlign: 'left', color: '#4A4E52' }}>Status</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {(allInstruments || []).map((inst, i) => (
+                    <tr key={i} style={{ borderBottom: '1px solid rgba(74, 78, 82, 0.2)' }}>
+                      <td style={{ padding: '12px 8px', color: '#F8FAFC' }}>{inst.asset_class}</td>
+                      <td style={{ padding: '12px 8px', color: '#E2E8F0' }}>{inst.name}</td>
+                      <td style={{ padding: '12px 8px', color: '#94A3B8' }}>{inst.ticker ?? '—'}</td>
+                      <td style={{ padding: '12px 8px', textAlign: 'right', color: '#D0FF00', fontWeight: '500' }}>{formatUsd(inst.amount_usd ?? 0)}</td>
+                      <td style={{ padding: '12px 8px', color: '#C0C0C0', textTransform: 'capitalize' }}>{(inst.execution_status || 'planned').replace(/_/g, ' ')}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
 
-            <div style={{
-              background: 'linear-gradient(135deg, rgba(239, 68, 68, 0.08) 0%, rgba(30, 41, 59, 0.6) 100%)',
-              border: '1px solid rgba(239, 68, 68, 0.2)',
-              borderRadius: '16px',
-              padding: '28px',
-            }}>
-              <h3 style={{
-                fontSize: '14px',
-                fontFamily: "'DM Sans', sans-serif",
-                letterSpacing: '2px',
-                color: '#EF4444',
-                marginBottom: '20px',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '8px',
-              }}>
-                <AlertTriangle size={18} />
-                RISK DEFINITION
-              </h3>
-              <div style={{
-                display: 'grid',
-                gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
-                gap: '16px',
-              }}>
-                {[
-                  'Permanent capital impairment',
-                  'Forced liquidation',
-                  'Loss of optionality during crises',
-                ].map((risk, idx) => (
-                  <div key={idx} style={{
-                    background: 'rgba(239, 68, 68, 0.05)',
-                    border: '1px solid rgba(239, 68, 68, 0.2)',
-                    borderRadius: '8px',
-                    padding: '16px',
-                    fontFamily: "'DM Sans', sans-serif",
-                    color: '#F8FAFC',
-                  }}>
-                    {risk}
+            <div style={{ padding: '40px', marginTop: '32px', background: 'rgba(10, 10, 10, 0.4)', border: '1px dashed rgba(74, 78, 82, 0.4)', borderRadius: '12px', color: '#4A4E52', fontFamily: "monospace", textAlign: 'center' }}>
+               {/* CHART PLACEHOLDER: bar – EQUITIES & DIGITAL ASSETS BY INSTRUMENT */}
+               &lt;!-- CHART PLACEHOLDER: bar – EQUITIES & DIGITAL ASSETS BY INSTRUMENT --&gt;
+            </div>
+          </div>
+          
+          {/* EQUITIES (VISA) & CRYPTO (CFM) TABLES */}
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '32px' }}>
+            {detailedEquitiesVisa?.instruments?.length > 0 && (
+              <div style={{ background: 'rgba(18, 18, 18, 0.6)', border: '1px solid rgba(192, 192, 192, 0.3)', borderRadius: '16px', padding: '28px' }}>
+                <h3 style={{ fontSize: '16px', color: '#C0C0C0', marginBottom: '16px', fontFamily: "'DM Sans', sans-serif" }}>Equities (VISA) Composition</h3>
+                <div style={{ overflowX: 'auto' }}>
+                  <table style={{ width: '100%', borderCollapse: 'collapse', fontFamily: "'DM Sans', sans-serif", fontSize: '13px' }}>
+                    <thead>
+                      <tr style={{ borderBottom: '1px solid rgba(74, 78, 82, 0.5)' }}>
+                        <th style={{ padding: '12px 8px', textAlign: 'left', color: '#4A4E52' }}>Ticker</th>
+                        <th style={{ padding: '12px 8px', textAlign: 'right', color: '#4A4E52' }}>Weight %</th>
+                        <th style={{ padding: '12px 8px', textAlign: 'right', color: '#4A4E52' }}>Amount (USD)</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {detailedEquitiesVisa.instruments.map((inst, i) => (
+                        <tr key={i} style={{ borderBottom: '1px solid rgba(74, 78, 82, 0.2)' }}>
+                          <td style={{ padding: '12px 8px', color: '#C0C0C0', fontWeight: '500' }}>{inst.ticker}</td>
+                          <td style={{ padding: '12px 8px', textAlign: 'right', color: '#94A3B8' }}>{inst.weight_percent}%</td>
+                          <td style={{ padding: '12px 8px', textAlign: 'right', color: '#D0FF00' }}>{formatUsd(inst.allocation_usd ?? 0)}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            )}
+            
+            {detailedCryptoCfm?.instruments?.length > 0 && (
+              <div style={{ background: 'rgba(18, 18, 18, 0.6)', border: '1px solid rgba(192, 192, 192, 0.3)', borderRadius: '16px', padding: '28px' }}>
+                <h3 style={{ fontSize: '16px', color: '#C0C0C0', marginBottom: '16px', fontFamily: "'DM Sans', sans-serif" }}>Crypto (CFM) Composition</h3>
+                <div style={{ overflowX: 'auto' }}>
+                  <table style={{ width: '100%', borderCollapse: 'collapse', fontFamily: "'DM Sans', sans-serif", fontSize: '13px' }}>
+                    <thead>
+                      <tr style={{ borderBottom: '1px solid rgba(74, 78, 82, 0.5)' }}>
+                        <th style={{ padding: '12px 8px', textAlign: 'left', color: '#4A4E52' }}>Ticker</th>
+                        <th style={{ padding: '12px 8px', textAlign: 'right', color: '#4A4E52' }}>Weight %</th>
+                        <th style={{ padding: '12px 8px', textAlign: 'right', color: '#4A4E52' }}>Amount (USD)</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {detailedCryptoCfm.instruments.map((inst, i) => (
+                        <tr key={i} style={{ borderBottom: '1px solid rgba(74, 78, 82, 0.2)' }}>
+                          <td style={{ padding: '12px 8px', color: '#C0C0C0', fontWeight: '500' }}>{inst.ticker}</td>
+                          <td style={{ padding: '12px 8px', textAlign: 'right', color: '#94A3B8' }}>{inst.adjusted_weight_percent ?? inst.original_weight_percent}%</td>
+                          <td style={{ padding: '12px 8px', textAlign: 'right', color: '#D0FF00' }}>{formatUsd(inst.allocation_usd ?? 0)}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            )}
+          </div>
+        </section>
+
+        {/* 8. Pending Asset Additions & FX View */}
+        <section id="s8-pending" style={{ marginBottom: '48px' }}>
+          <h2 style={{ fontSize: '20px', letterSpacing: '2px', color: '#C0C0C0', marginBottom: '24px', fontFamily: "'DM Sans', sans-serif" }}>
+            8. PENDING ASSET ADDITIONS & FX VIEW
+          </h2>
+          <div style={{ background: 'rgba(18, 18, 18, 0.6)', border: '1px solid rgba(74, 78, 82, 0.3)', borderRadius: '16px', padding: '28px' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px', marginBottom: '32px' }}>
+              {pendingAssets.map(({ asset, status, role }) => (
+                <div key={asset} style={{ background: 'rgba(192, 192, 192, 0.05)', border: '1px solid rgba(192, 192, 192, 0.2)', borderRadius: '12px', padding: '20px' }}>
+                  <div style={{ fontWeight: '600', marginBottom: '8px', color: '#F8FAFC', fontFamily: "'DM Sans', sans-serif" }}>{asset}</div>
+                  <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '13px', color: '#94A3B8' }}>{role}</div>
+                  <div style={{ marginTop: '12px', padding: '4px 10px', background: 'rgba(192, 192, 192, 0.1)', borderRadius: '4px', fontSize: '11px', fontFamily: "'DM Sans', sans-serif", color: '#C0C0C0', display: 'inline-block' }}>
+                    {status}
                   </div>
-                ))}
-              </div>
-              <div style={{
-                marginTop: '20px',
-                padding: '16px',
-                background: 'rgba(16, 185, 129, 0.1)',
-                borderRadius: '8px',
-                fontFamily: "'DM Sans', sans-serif",
-                fontSize: '14px',
-                color: '#10B981',
-                textAlign: 'center',
-              }}>
-                <strong>Volatility alone is NOT risk.</strong>
-              </div>
+                </div>
+              ))}
+            </div>
+
+            <div style={{ padding: '20px', background: 'rgba(10, 10, 10, 0.4)', borderRadius: '12px', borderLeft: '4px solid #D0FF00' }}>
+               <h3 style={{ fontSize: '14px', color: '#D0FF00', margin: '0 0 8px 0', fontFamily: "'DM Sans', sans-serif", letterSpacing: '1px' }}>FX RATE</h3>
+               <p style={{ margin: 0, fontSize: '16px', fontFamily: "'DM Sans', sans-serif", color: '#E2E8F0', fontWeight: '500' }}>1 USD = 5.85 BRL</p>
             </div>
           </div>
-        )}
+        </section>
 
-        {/* Footer */}
-        <footer style={{
-          marginTop: '48px',
-          paddingTop: '24px',
-          borderTop: '1px solid rgba(71, 85, 105, 0.3)',
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          fontFamily: "'DM Sans', sans-serif",
-          fontSize: '12px',
-          color: '#64748B',
-          flexWrap: 'wrap',
-          gap: '12px',
-        }}>
-          <div>
-            © 2026 Giovannini Mare Capital LLC — Single-Family Office
+        {/* 9. Historical Snapshots */}
+        <section id="s9-historical" style={{ marginBottom: '48px' }}>
+          <h2 style={{ fontSize: '20px', letterSpacing: '2px', color: '#C0C0C0', marginBottom: '24px', fontFamily: "'DM Sans', sans-serif" }}>
+            9. HISTORICAL SNAPSHOTS
+          </h2>
+          <div style={{ background: 'rgba(18, 18, 18, 0.6)', border: '1px solid rgba(74, 78, 82, 0.3)', borderRadius: '16px', padding: '28px' }}>
+            <h3 style={{ fontSize: '16px', color: '#E2E8F0', marginBottom: '12px', fontFamily: "'DM Sans', sans-serif" }}>### Historical Snapshot (as of 2026-02-23)</h3>
+            <p style={{ color: '#94A3B8', fontSize: '14px', fontFamily: "'DM Sans', sans-serif", fontStyle: 'italic', marginBottom: '12px' }}>
+              Historical snapshot for comparison only.
+            </p>
+            <div style={{ padding: '16px', background: 'rgba(10, 10, 10, 0.4)', borderRadius: '8px', borderLeft: '2px solid rgba(74, 78, 82, 0.6)' }}>
+              <p style={{ color: '#CBD5E1', fontSize: '14px', fontFamily: "'DM Sans', sans-serif", margin: 0, lineHeight: '1.6' }}>
+                Total portfolio: ~US$1,646,000. Incorporates structural BR real estate (~US$1,178,000) and physical gold (~US$8,000).
+              </p>
+            </div>
           </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-            <span>Last Updated: February 23, 2026</span>
-            <span style={{ color: '#475569' }}>|</span>
-            <span>Convex Research Framework</span>
-            <span style={{ color: '#475569' }}>|</span>
-            <span>Rate: 1 USD = {exchangeRate.toFixed(2)} BRL</span>
+        </section>
+
+        {/* 10. Footer & Changelog */}
+        <footer style={{ borderTop: '1px solid rgba(74, 78, 82, 0.3)', paddingTop: '32px', paddingBottom: '32px' }}>
+          <section id="changelog" style={{ marginBottom: '32px' }}>
+             <h3 style={{ fontSize: '16px', color: '#E2E8F0', marginBottom: '16px', fontFamily: "'DM Sans', sans-serif" }}>### Changelog</h3>
+             <ul style={{ color: '#94A3B8', fontSize: '14px', fontFamily: "'DM Sans', sans-serif", paddingLeft: '20px', margin: 0 }}>
+               <li>2026-03-13: Automated structural and consistency pass (totals, doctrine, mission-control header) by Antigravity agent.</li>
+               <li>2026-03-13: Restored real estate Property Inventory correctly into dynamic view.</li>
+               <li>2026-03-11: Automated structural and consistency pass by Antigravity agent.</li>
+             </ul>
+          </section>
+
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontFamily: "'DM Sans', sans-serif", fontSize: '13px', color: '#4A4E52', flexWrap: 'wrap', gap: '16px' }}>
+            <div>© 2026 Giovannini Mare Capital LLC — Single-Family Office</div>
+            <div>Convex Research Framework | 1 USD = 5.85 BRL</div>
           </div>
         </footer>
-      </div>
 
-      <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=DM+Sans:wght@400;500;600&display=swap');
-        
-        @keyframes fadeIn {
-          from { opacity: 0; transform: translateY(10px); }
-          to { opacity: 1; transform: translateY(0); }
-        }
-        
-        * {
-          box-sizing: border-box;
-        }
-        
-        ::-webkit-scrollbar {
-          width: 8px;
-          height: 8px;
-        }
-        
-        ::-webkit-scrollbar-track {
-          background: rgba(15, 23, 42, 0.5);
-        }
-        
-        ::-webkit-scrollbar-thumb {
-          background: rgba(212, 175, 55, 0.3);
-          border-radius: 4px;
-        }
-        
-        ::-webkit-scrollbar-thumb:hover {
-          background: rgba(212, 175, 55, 0.5);
-        }
-        
-        button:hover {
-          filter: brightness(1.1);
-        }
-        
-        a:hover {
-          filter: brightness(1.2);
-        }
-        
-        input:focus {
-          outline: none;
-          border-color: rgba(212, 175, 55, 0.6) !important;
-        }
-      `}</style>
+      </div>
     </div>
   );
 };
