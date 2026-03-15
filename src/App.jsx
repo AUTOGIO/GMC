@@ -613,9 +613,45 @@ const GMCDashboard = () => {
               </table>
             </div>
 
-            <div style={{ padding: '40px', marginTop: '32px', background: 'rgba(10, 10, 10, 0.4)', border: '1px dashed rgba(74, 78, 82, 0.4)', borderRadius: '12px', color: '#4A4E52', fontFamily: "monospace", textAlign: 'center' }}>
-               {/* CHART PLACEHOLDER: bar – EQUITIES & DIGITAL ASSETS BY INSTRUMENT */}
-               &lt;!-- CHART PLACEHOLDER: bar – EQUITIES & DIGITAL ASSETS BY INSTRUMENT --&gt;
+            <div style={{ padding: '24px', marginTop: '32px', background: 'rgba(10, 10, 10, 0.4)', border: '1px solid rgba(74, 78, 82, 0.2)', borderRadius: '12px' }}>
+               <h3 style={{ fontSize: '12px', color: '#94A3B8', marginBottom: '20px', fontFamily: "'DM Sans', sans-serif", letterSpacing: '1px', textTransform: 'uppercase' }}>Equities & Digital Assets Exposure</h3>
+               <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+                 {(() => {
+                   const filtered = (allInstruments || []).filter(i => 
+                     ['Equities', 'Digital Assets', 'Crypto'].some(c => (i.asset_class || '').includes(c))
+                   );
+                   
+                   if (filtered.length === 0) {
+                     return <div style={{color: '#4A4E52', fontSize: '13px', textAlign: 'center', fontFamily: "'DM Sans', sans-serif"}}>Awaiting instrument data...</div>;
+                   }
+                   
+                   const maxVal = Math.max(...filtered.map(i => i.amount_usd || 0), 1000);
+                   
+                   return filtered.sort((a, b) => (b.amount_usd || 0) - (a.amount_usd || 0)).map((inst, i) => {
+                     const pct = ((inst.amount_usd || 0) / maxVal) * 100;
+                     const isCrypto = (inst.asset_class || '').includes('Digital') || (inst.asset_class || '').includes('Crypto');
+                     
+                     return (
+                       <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+                         <div style={{ width: '100px', fontSize: '12px', color: '#C0C0C0', fontFamily: "'DM Sans', sans-serif", fontWeight: '500', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                           {inst.ticker || inst.name}
+                         </div>
+                         <div style={{ flex: 1, height: '6px', background: 'rgba(74, 78, 82, 0.3)', borderRadius: '3px', overflow: 'hidden' }}>
+                           <div style={{ 
+                             width: `${pct}%`, 
+                             height: '100%', 
+                             background: isCrypto ? 'linear-gradient(90deg, #4A4E52 0%, #C0C0C0 100%)' : 'linear-gradient(90deg, #4A4E52 0%, #D0FF00 100%)',
+                             borderRadius: '3px'
+                           }} />
+                         </div>
+                         <div style={{ width: '80px', textAlign: 'right', fontSize: '13px', color: '#F8FAFC', fontFamily: "'DM Sans', sans-serif", fontWeight: '500' }}>
+                           {formatUsd(inst.amount_usd || 0)}
+                         </div>
+                       </div>
+                     );
+                   });
+                 })()}
+               </div>
             </div>
           </div>
           
