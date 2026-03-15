@@ -675,35 +675,10 @@ const GMCDashboard = () => {
           </div>
         </section>
 
-        {/* 8. Pending Asset Additions & FX View */}
-        <section id="s8-pending" style={{ marginBottom: '48px' }}>
+        {/* 8. Historical Snapshots */}
+        <section id="s8-historical" style={{ marginBottom: '48px' }}>
           <h2 style={{ fontSize: '20px', letterSpacing: '2px', color: '#C0C0C0', marginBottom: '24px', fontFamily: "'DM Sans', sans-serif" }}>
-            8. PENDING ASSET ADDITIONS & FX VIEW
-          </h2>
-          <div style={{ background: 'rgba(18, 18, 18, 0.6)', border: '1px solid rgba(74, 78, 82, 0.3)', borderRadius: '16px', padding: '28px' }}>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px', marginBottom: '32px' }}>
-              {pendingAssets.map(({ asset, status, role }) => (
-                <div key={asset} style={{ background: 'rgba(192, 192, 192, 0.05)', border: '1px solid rgba(192, 192, 192, 0.2)', borderRadius: '12px', padding: '20px' }}>
-                  <div style={{ fontWeight: '600', marginBottom: '8px', color: '#F8FAFC', fontFamily: "'DM Sans', sans-serif" }}>{asset}</div>
-                  <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '13px', color: '#94A3B8' }}>{role}</div>
-                  <div style={{ marginTop: '12px', padding: '4px 10px', background: 'rgba(192, 192, 192, 0.1)', borderRadius: '4px', fontSize: '11px', fontFamily: "'DM Sans', sans-serif", color: '#C0C0C0', display: 'inline-block' }}>
-                    {status}
-                  </div>
-                </div>
-              ))}
-            </div>
-
-            <div style={{ padding: '20px', background: 'rgba(10, 10, 10, 0.4)', borderRadius: '12px', borderLeft: '4px solid #D0FF00' }}>
-               <h3 style={{ fontSize: '14px', color: '#D0FF00', margin: '0 0 8px 0', fontFamily: "'DM Sans', sans-serif", letterSpacing: '1px' }}>FX RATE</h3>
-               <p style={{ margin: 0, fontSize: '16px', fontFamily: "'DM Sans', sans-serif", color: '#E2E8F0', fontWeight: '500' }}>1 USD = 5.85 BRL</p>
-            </div>
-          </div>
-        </section>
-
-        {/* 9. Historical Snapshots */}
-        <section id="s9-historical" style={{ marginBottom: '48px' }}>
-          <h2 style={{ fontSize: '20px', letterSpacing: '2px', color: '#C0C0C0', marginBottom: '24px', fontFamily: "'DM Sans', sans-serif" }}>
-            9. HISTORICAL SNAPSHOTS
+            8. HISTORICAL SNAPSHOTS
           </h2>
           <div style={{ background: 'rgba(18, 18, 18, 0.6)', border: '1px solid rgba(74, 78, 82, 0.3)', borderRadius: '16px', padding: '28px' }}>
             <h3 style={{ fontSize: '16px', color: '#E2E8F0', marginBottom: '12px', fontFamily: "'DM Sans', sans-serif" }}>### Historical Snapshot (as of 2026-02-23)</h3>
