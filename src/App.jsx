@@ -1,6 +1,8 @@
 
 import React, { useState, useEffect, useMemo } from 'react';
 import { Shield, TrendingUp, Building2, Wallet, Globe, AlertTriangle, Activity, Gem, Target, Layers, MapPin, Edit3, DollarSign } from 'lucide-react';
+import ReportsSection from './ReportsSection';
+import IntelligenceChatSection from './IntelligenceChatSection';
 
 import {
   convexPortfolio,
@@ -14,6 +16,49 @@ import {
   detailedEquitiesVisa,
   detailedCryptoCfm,
 } from './data/portfolioLoader';
+
+import {
+  ResponsiveContainer,
+  PieChart,
+  Pie,
+  Cell,
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend
+} from 'recharts';
+
+const CustomTooltip = ({ active, payload, label, currency = 'USD' }) => {
+  if (active && payload && payload.length) {
+    return (
+      <div style={{
+        background: 'rgba(10, 10, 10, 0.95)',
+        border: '1px solid rgba(74, 78, 82, 0.5)',
+        borderRadius: '8px',
+        padding: '12px',
+        boxShadow: '0 4px 20px rgba(0,0,0,0.5)',
+        fontFamily: "'DM Sans', sans-serif"
+      }}>
+        <p style={{ color: '#E2E8F0', margin: '0 0 8px 0', fontSize: '13px', fontWeight: 'bold' }}>{label || payload[0].name}</p>
+        {payload.map((entry, index) => (
+          <div key={index} style={{ display: 'flex', justifyContent: 'space-between', gap: '24px', fontSize: '12px', marginBottom: index === payload.length - 1 ? 0 : '4px' }}>
+            <span style={{ color: entry.color }}>{entry.name}:</span>
+            <span style={{ color: '#F8FAFC', fontWeight: '500' }}>
+              {currency === 'USD' 
+                ? new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(entry.value)
+                : new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL', minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(entry.value)
+              }
+            </span>
+          </div>
+        ))}
+      </div>
+    );
+  }
+  return null;
+};
 
 const GMCDashboard = () => {
   // --- REAL ESTATE & OVERALL PORTFOLIO STATE ---
@@ -171,9 +216,45 @@ const GMCDashboard = () => {
           <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '14px', color: '#94A3B8', marginBottom: '24px' }}>
             Highlights the structural tilt to BR real estate vs liquid convex USD sleeve.
           </p>
-          <div style={{ padding: '40px', background: 'rgba(10, 10, 10, 0.4)', border: '1px dashed rgba(74, 78, 82, 0.4)', borderRadius: '12px', color: '#4A4E52', fontFamily: "monospace", textAlign: 'center', marginBottom: '24px' }}>
-            {/* CHART PLACEHOLDER: donut – USD vs Real Estate */}
-            &lt;!-- CHART PLACEHOLDER: donut – USD vs Real Estate --&gt;
+          <div style={{ height: '350px', width: '100%', marginBottom: '24px' }}>
+            <ResponsiveContainer width="100%" height="100%">
+              <PieChart>
+                <Pie
+                  data={[
+                    { name: 'Liquid USD', value: cashPositionUsd },
+                    { name: 'Real Estate (BR)', value: realEstateValueUsd }
+                  ]}
+                  innerRadius={80}
+                  outerRadius={120}
+                  paddingAngle={5}
+                  dataKey="value"
+                  stroke="none"
+                >
+                  <Cell fill="#D0FF00" />
+                  <Cell fill="#4A4E52" />
+                </Pie>
+                <Tooltip content={<CustomTooltip />} />
+                <text
+                  x="50%"
+                  y="50%"
+                  textAnchor="middle"
+                  dominantBaseline="middle"
+                  style={{
+                    fill: '#F8FAFC',
+                    fontSize: '20px',
+                    fontFamily: "'DM Sans', sans-serif",
+                    fontWeight: 'bold'
+                  }}
+                >
+                  {formatUsd(totalPortfolioUsd)}
+                </text>
+                <Legend 
+                  verticalAlign="bottom" 
+                  height={36}
+                  formatter={(value) => <span style={{ color: '#94A3B8', fontSize: '12px', textTransform: 'uppercase', letterSpacing: '1px' }}>{value}</span>}
+                />
+              </PieChart>
+            </ResponsiveContainer>
           </div>
 
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px' }}>
@@ -506,9 +587,41 @@ const GMCDashboard = () => {
                 })}
              </div>
 
-             <div style={{ padding: '40px', background: 'rgba(10, 10, 10, 0.4)', border: '1px dashed rgba(74, 78, 82, 0.4)', borderRadius: '12px', color: '#4A4E52', fontFamily: "monospace", textAlign: 'center' }}>
-               {/* CHART PLACEHOLDER: bar – CURRENT VS TARGET (CONVEX USD SLEEVE) */}
-               &lt;!-- CHART PLACEHOLDER: bar – CURRENT VS TARGET (CONVEX USD SLEEVE) --&gt;
+             <div style={{ height: '300px', width: '100%' }}>
+               <ResponsiveContainer width="100%" height="100%">
+                 <BarChart
+                   data={[
+                     { name: 'Bank', current: assetsSnapshot?.breakdown?.usd_bank || 0, target: 460000 * 0.25 },
+                     { name: 'Cash', current: assetsSnapshot?.breakdown?.usd_cash || 0, target: 460000 * 0.25 },
+                     { name: 'Gold', current: assetsSnapshot?.breakdown?.gold_usd || 0, target: 460000 * 0.20 },
+                     { name: 'Bitcoin', current: assetsSnapshot?.breakdown?.bitcoin_usd || 0, target: 460000 * 0.10 }
+                   ]}
+                   margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
+                 >
+                   <CartesianGrid strokeDasharray="3 3" stroke="rgba(74, 78, 82, 0.2)" vertical={false} />
+                   <XAxis 
+                     dataKey="name" 
+                     axisLine={false} 
+                     tickLine={false} 
+                     tick={{ fill: '#4A4E52', fontSize: 12 }} 
+                   />
+                   <YAxis 
+                     axisLine={false} 
+                     tickLine={false} 
+                     tick={{ fill: '#4A4E52', fontSize: 12 }}
+                     tickFormatter={(value) => `$${value/1000}k`}
+                   />
+                   <Tooltip content={<CustomTooltip />} cursor={{ fill: 'rgba(208, 255, 0, 0.05)' }} />
+                   <Legend 
+                     verticalAlign="top" 
+                     align="right"
+                     wrapperStyle={{ paddingBottom: '20px' }}
+                     formatter={(value) => <span style={{ color: '#94A3B8', fontSize: '11px', textTransform: 'uppercase' }}>{value}</span>}
+                   />
+                   <Bar dataKey="current" name="Current" fill="#D0FF00" radius={[4, 4, 0, 0]} barSize={30} />
+                   <Bar dataKey="target" name="Target" fill="#4A4E52" radius={[4, 4, 0, 0]} barSize={30} />
+                 </BarChart>
+               </ResponsiveContainer>
              </div>
           </div>
         </section>
@@ -745,6 +858,12 @@ const GMCDashboard = () => {
             <div>Convex Research Framework | 1 USD = 5.85 BRL</div>
           </div>
         </footer>
+
+        {/* REPORTS — Convex Research Library (GMC NEXUS) */}
+        <ReportsSection />
+
+        {/* INTELLIGENCE CHAT — Grounded on Convex Research (GMC NEXUS) */}
+        <IntelligenceChatSection />
 
       </div>
     </div>
