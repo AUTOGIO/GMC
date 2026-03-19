@@ -1,0 +1,1409 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sistema de Monitoramento Imobiliário — Campinas/SP</title>
+<style>
+  :root {
+    --bg: #0f1117;
+    --surface: #1a1d27;
+    --surface2: #222635;
+    --border: #2e3347;
+    --accent: #4f8ef7;
+    --accent2: #7c5cfc;
+    --green: #22c55e;
+    --yellow: #f59e0b;
+    --red: #ef4444;
+    --orange: #f97316;
+    --text: #e2e8f0;
+    --muted: #8892a4;
+    --code-bg: #141720;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    font-size: 14px;
+    line-height: 1.65;
+  }
+
+  /* Header */
+  .header {
+    background: linear-gradient(135deg, #1a1d27 0%, #0f1117 100%);
+    border-bottom: 1px solid var(--border);
+    padding: 40px 48px 32px;
+  }
+  .header-tag {
+    display: inline-block;
+    background: rgba(79,142,247,0.15);
+    color: var(--accent);
+    border: 1px solid rgba(79,142,247,0.3);
+    border-radius: 4px;
+    padding: 3px 10px;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-bottom: 16px;
+  }
+  .header h1 {
+    font-size: 28px;
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 8px;
+  }
+  .header .subtitle {
+    color: var(--muted);
+    font-size: 15px;
+    margin-bottom: 20px;
+  }
+  .meta-pills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .pill {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 4px 12px;
+    font-size: 12px;
+    color: var(--muted);
+  }
+  .pill span { color: var(--text); font-weight: 600; }
+
+  /* Real Estate entry block */
+  .re-block-wrap {
+    display: flex;
+    gap: 14px;
+    margin-top: 28px;
+    flex-wrap: wrap;
+  }
+  .re-block {
+    display: inline-flex;
+    align-items: center;
+    gap: 14px;
+    background: linear-gradient(135deg, rgba(79,142,247,0.18) 0%, rgba(124,92,252,0.14) 100%);
+    border: 1px solid rgba(79,142,247,0.35);
+    border-radius: 10px;
+    padding: 14px 22px;
+    text-decoration: none;
+    cursor: pointer;
+    transition: border-color 0.2s, background 0.2s, transform 0.15s;
+  }
+  .re-block:hover {
+    background: linear-gradient(135deg, rgba(79,142,247,0.28) 0%, rgba(124,92,252,0.22) 100%);
+    border-color: rgba(79,142,247,0.65);
+    transform: translateY(-2px);
+  }
+  .re-block .re-icon {
+    font-size: 26px;
+    line-height: 1;
+  }
+  .re-block .re-text {
+    display: flex;
+    flex-direction: column;
+  }
+  .re-block .re-label {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 2px;
+  }
+  .re-block .re-title {
+    font-size: 15px;
+    font-weight: 700;
+    color: #fff;
+  }
+  .re-block .re-sub {
+    font-size: 11px;
+    color: var(--muted);
+    margin-top: 1px;
+  }
+  .re-block .re-arrow {
+    margin-left: 6px;
+    color: var(--accent);
+    font-size: 18px;
+    transition: transform 0.2s;
+  }
+  .re-block:hover .re-arrow { transform: translateX(4px); }
+
+  /* Nav */
+  .nav {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 0 48px;
+    display: flex;
+    gap: 0;
+    overflow-x: auto;
+  }
+  .nav a {
+    color: var(--muted);
+    text-decoration: none;
+    padding: 14px 18px;
+    font-size: 13px;
+    font-weight: 500;
+    border-bottom: 2px solid transparent;
+    white-space: nowrap;
+    transition: color 0.2s, border-color 0.2s;
+  }
+  .nav a:hover { color: var(--text); border-bottom-color: var(--accent); }
+
+  /* Main layout */
+  .container { max-width: 1200px; margin: 0 auto; padding: 40px 48px; }
+
+  /* Section */
+  .section { margin-bottom: 56px; }
+  .section-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 24px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--border);
+  }
+  .step-badge {
+    background: var(--accent);
+    color: #fff;
+    border-radius: 6px;
+    padding: 4px 10px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+  .section-title {
+    font-size: 20px;
+    font-weight: 700;
+    color: #fff;
+  }
+
+  /* Overview cards */
+  .overview-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 16px;
+    margin-bottom: 24px;
+  }
+  .kpi-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 20px;
+  }
+  .kpi-card .label { color: var(--muted); font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 6px; }
+  .kpi-card .value { font-size: 22px; font-weight: 700; color: var(--accent); }
+  .kpi-card .desc { color: var(--muted); font-size: 12px; margin-top: 4px; }
+
+  /* Tables */
+  .table-wrap { overflow-x: auto; border-radius: 10px; border: 1px solid var(--border); }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    background: var(--surface);
+  }
+  thead tr { background: var(--surface2); }
+  th {
+    text-align: left;
+    padding: 12px 16px;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    color: var(--muted);
+    border-bottom: 1px solid var(--border);
+    white-space: nowrap;
+  }
+  td {
+    padding: 11px 16px;
+    border-bottom: 1px solid rgba(46,51,71,0.6);
+    font-size: 13px;
+    vertical-align: top;
+  }
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: rgba(255,255,255,0.02); }
+
+  /* Reliability badges */
+  .badge {
+    display: inline-block;
+    border-radius: 4px;
+    padding: 2px 8px;
+    font-size: 11px;
+    font-weight: 600;
+    white-space: nowrap;
+  }
+  .badge-high { background: rgba(34,197,94,0.15); color: var(--green); border: 1px solid rgba(34,197,94,0.25); }
+  .badge-med  { background: rgba(245,158,11,0.15); color: var(--yellow); border: 1px solid rgba(245,158,11,0.25); }
+  .badge-low  { background: rgba(239,68,68,0.15); color: var(--red); border: 1px solid rgba(239,68,68,0.25); }
+  .badge-blue { background: rgba(79,142,247,0.15); color: var(--accent); border: 1px solid rgba(79,142,247,0.25); }
+  .type-badge {
+    display: inline-block;
+    border-radius: 4px;
+    padding: 2px 8px;
+    font-size: 11px;
+    font-weight: 600;
+  }
+  .type-listing  { background: rgba(79,142,247,0.1); color: #7ab8ff; }
+  .type-gov      { background: rgba(124,92,252,0.1); color: #a78bfa; }
+  .type-index    { background: rgba(249,115,22,0.1); color: #fdba74; }
+  .type-local    { background: rgba(34,197,94,0.1); color: #86efac; }
+  .type-registry { background: rgba(20,207,198,0.1); color: #5eead4; }
+
+  /* Code blocks */
+  .code-block {
+    background: var(--code-bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 20px 24px;
+    font-family: 'Fira Code', 'Cascadia Code', 'Consolas', monospace;
+    font-size: 12.5px;
+    line-height: 1.8;
+    overflow-x: auto;
+    margin: 16px 0;
+  }
+  .code-block .comment { color: #5c6370; }
+  .code-block .keyword { color: #c678dd; }
+  .code-block .string  { color: #98c379; }
+  .code-block .number  { color: #d19a66; }
+  .code-block .func    { color: #61afef; }
+  .code-block .var     { color: #e06c75; }
+  .code-block .op      { color: #56b6c2; }
+
+  /* Formula box */
+  .formula-box {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--accent);
+    border-radius: 8px;
+    padding: 20px 24px;
+    margin: 16px 0;
+  }
+  .formula-box .formula-title {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--accent);
+    font-weight: 700;
+    margin-bottom: 10px;
+  }
+  .formula-box .formula-text {
+    font-family: 'Fira Code', monospace;
+    font-size: 14px;
+    color: #fff;
+    margin-bottom: 12px;
+  }
+  .formula-box .legend {
+    font-size: 12px;
+    color: var(--muted);
+    line-height: 1.9;
+  }
+  .formula-box .legend b { color: var(--text); }
+
+  /* Alert box */
+  .alert {
+    border-radius: 8px;
+    padding: 14px 18px;
+    margin: 16px 0;
+    font-size: 13px;
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+  }
+  .alert-info  { background: rgba(79,142,247,0.08); border: 1px solid rgba(79,142,247,0.2); }
+  .alert-warn  { background: rgba(245,158,11,0.08); border: 1px solid rgba(245,158,11,0.2); color: #fcd34d; }
+  .alert-ok    { background: rgba(34,197,94,0.08); border: 1px solid rgba(34,197,94,0.2); color: #86efac; }
+  .alert-icon  { font-size: 16px; line-height: 1.4; }
+
+  /* MPI scale */
+  .mpi-scale {
+    display: flex;
+    border-radius: 8px;
+    overflow: hidden;
+    border: 1px solid var(--border);
+    margin: 16px 0;
+  }
+  .mpi-zone {
+    flex: 1;
+    padding: 16px 12px;
+    text-align: center;
+  }
+  .mpi-cold   { background: rgba(79,142,247,0.15); }
+  .mpi-cool   { background: rgba(34,197,94,0.12); }
+  .mpi-warm   { background: rgba(245,158,11,0.12); }
+  .mpi-hot    { background: rgba(249,115,22,0.15); }
+  .mpi-fire   { background: rgba(239,68,68,0.15); }
+  .mpi-zone .range { font-size: 16px; font-weight: 700; color: #fff; }
+  .mpi-zone .label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em; margin-top: 4px; }
+  .mpi-zone .desc  { font-size: 11px; color: var(--muted); margin-top: 4px; }
+  .mpi-cold .label  { color: #93c5fd; }
+  .mpi-cool .label  { color: var(--green); }
+  .mpi-warm .label  { color: var(--yellow); }
+  .mpi-hot .label   { color: var(--orange); }
+  .mpi-fire .label  { color: var(--red); }
+
+  /* Architecture diagram */
+  .arch-diagram {
+    background: var(--code-bg);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 28px 32px;
+    font-family: 'Fira Code', monospace;
+    font-size: 12px;
+    line-height: 1.9;
+    overflow-x: auto;
+  }
+  .arch-layer { color: var(--accent); font-weight: 700; }
+  .arch-node  { color: #e2e8f0; }
+  .arch-arrow { color: var(--muted); }
+  .arch-note  { color: #5c6370; font-style: italic; }
+
+  /* Steps list */
+  .steps-list { list-style: none; }
+  .steps-list li {
+    display: flex;
+    gap: 16px;
+    padding: 16px 0;
+    border-bottom: 1px solid rgba(46,51,71,0.5);
+    align-items: flex-start;
+  }
+  .steps-list li:last-child { border-bottom: none; }
+  .step-num {
+    background: var(--accent2);
+    color: #fff;
+    border-radius: 50%;
+    width: 26px;
+    height: 26px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: 700;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+  .step-content h4 { color: #fff; font-size: 14px; margin-bottom: 4px; }
+  .step-content p  { color: var(--muted); font-size: 13px; }
+  .step-content code {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 3px;
+    padding: 1px 6px;
+    font-family: monospace;
+    font-size: 11.5px;
+    color: #98c379;
+  }
+
+  /* Two-column layout */
+  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+  @media (max-width: 768px) { .two-col { grid-template-columns: 1fr; } }
+
+  .panel {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 20px;
+  }
+  .panel h4 {
+    color: var(--accent);
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    font-weight: 700;
+    margin-bottom: 12px;
+  }
+  .panel ul { list-style: none; }
+  .panel ul li {
+    padding: 5px 0;
+    font-size: 13px;
+    color: var(--muted);
+    border-bottom: 1px solid rgba(46,51,71,0.4);
+  }
+  .panel ul li:last-child { border-bottom: none; }
+  .panel ul li b { color: var(--text); }
+
+  /* Tags inline */
+  .tag {
+    display: inline-block;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 1px 7px;
+    font-size: 11px;
+    color: var(--muted);
+    margin: 2px 2px;
+  }
+
+  /* Frequency table */
+  .freq-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 12px;
+    margin: 16px 0;
+  }
+  .freq-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 16px;
+  }
+  .freq-card .freq { font-size: 18px; font-weight: 700; color: var(--accent2); }
+  .freq-card .title { color: var(--text); font-size: 13px; font-weight: 600; margin-top: 4px; }
+  .freq-card .items { color: var(--muted); font-size: 12px; margin-top: 6px; }
+
+  /* Footer */
+  .footer {
+    background: var(--surface);
+    border-top: 1px solid var(--border);
+    padding: 24px 48px;
+    color: var(--muted);
+    font-size: 12px;
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  h3 { color: #fff; font-size: 15px; margin: 20px 0 12px; }
+  p  { color: var(--muted); font-size: 13px; margin-bottom: 10px; }
+  strong { color: var(--text); }
+</style>
+</head>
+<body>
+
+<!-- Header -->
+<div class="header">
+  <div class="header-tag">Sistema de Monitoramento</div>
+  <h1>Monitor Imobiliário Campinas/SP</h1>
+  <div class="subtitle">Arquitetura de dados para análise de preço/m² e pressão de mercado — nível CEP e rua</div>
+  <div class="meta-pills">
+    <div class="pill">Cidade: <span>Campinas/SP</span></div>
+    <div class="pill">CEP ref.: <span>13070-161</span></div>
+    <div class="pill">Versão: <span>1.0</span></div>
+    <div class="pill">Data: <span>Março 2026</span></div>
+    <div class="pill">Granularidade: <span>CEP + Bairro + Tipo</span></div>
+  </div>
+
+  <!-- REAL ESTATE entry block -->
+  <div class="re-block-wrap">
+    <a class="re-block" href="#overview">
+      <div class="re-icon">🏢</div>
+      <div class="re-text">
+        <div class="re-label">Real Estate</div>
+        <div class="re-title">Monitor Panel — Campinas/SP</div>
+        <div class="re-sub">Preço/m² · MPI · Alertas · Séries históricas</div>
+      </div>
+      <div class="re-arrow">→</div>
+    </a>
+    <a class="re-block" href="#mpi">
+      <div class="re-icon">📊</div>
+      <div class="re-text">
+        <div class="re-label">Real Estate</div>
+        <div class="re-title">Market Pressure Index</div>
+        <div class="re-sub">Escala 0–100 · Oferta vs. Demanda · Por CEP</div>
+      </div>
+      <div class="re-arrow">→</div>
+    </a>
+  </div>
+</div>
+
+<!-- Nav -->
+<nav class="nav">
+  <a href="#overview">Visão Geral</a>
+  <a href="#fontes">Fontes de Dados</a>
+  <a href="#preco">Preço/m²</a>
+  <a href="#mpi">Índice MPI</a>
+  <a href="#arquitetura">Arquitetura</a>
+  <a href="#automacao">Automação</a>
+  <a href="#plano">Plano de Ação</a>
+</nav>
+
+<div class="container">
+
+  <!-- OVERVIEW -->
+  <section class="section" id="overview">
+    <div class="section-header">
+      <div class="step-badge">Overview</div>
+      <div class="section-title">Visão Geral do Sistema</div>
+    </div>
+
+    <div class="overview-grid">
+      <div class="kpi-card">
+        <div class="label">Fontes Primárias</div>
+        <div class="value">11</div>
+        <div class="desc">Portais + registros + índices nacionais</div>
+      </div>
+      <div class="kpi-card">
+        <div class="label">Granularidade</div>
+        <div class="value">CEP + Rua</div>
+        <div class="desc">Aggregação por CEP, bairro e logradouro</div>
+      </div>
+      <div class="kpi-card">
+        <div class="label">Índice Principal</div>
+        <div class="value">MPI</div>
+        <div class="desc">Market Pressure Index — escala 0–100</div>
+      </div>
+      <div class="kpi-card">
+        <div class="label">Update Mínimo</div>
+        <div class="value">Semanal</div>
+        <div class="desc">Dados de listagem; alertas diários</div>
+      </div>
+    </div>
+
+    <div class="two-col">
+      <div class="panel">
+        <h4>Componentes do Sistema</h4>
+        <ul>
+          <li><b>Ingestão:</b> Scraping estruturado + APIs (ZAP/VivaReal) + planilhas manuais</li>
+          <li><b>Processamento:</b> Normalização de área, tipo, CEP + detecção de outliers</li>
+          <li><b>Armazenamento:</b> PostgreSQL local ou Google Sheets (no-code)</li>
+          <li><b>Dashboard:</b> Looker Studio / Power BI / HTML estático</li>
+          <li><b>Alertas:</b> Email/WhatsApp via Make.com ou Python cron</li>
+        </ul>
+      </div>
+      <div class="panel">
+        <h4>Outputs Gerados</h4>
+        <ul>
+          <li><b>R$/m² mediano</b> por CEP, bairro e tipo de imóvel</li>
+          <li><b>Variação semanal/mensal</b> de preços</li>
+          <li><b>MPI score</b> (0–100) com classificação de pressão</li>
+          <li><b>Tempo médio de anúncio</b> (proxy de velocidade de venda)</li>
+          <li><b>Heatmap de preços</b> por logradouro</li>
+          <li><b>Alertas automáticos</b> de anomalias</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- STEP 1: FONTES -->
+  <section class="section" id="fontes">
+    <div class="section-header">
+      <div class="step-badge">Step 1</div>
+      <div class="section-title">Fontes de Dados</div>
+    </div>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Fonte</th>
+            <th>Tipo</th>
+            <th>Dados Fornecidos</th>
+            <th>Acesso</th>
+            <th>Confiabilidade</th>
+            <th>Prioridade</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>ZAP Imóveis</strong><br><small style="color:var(--muted)">zapimoveis.com.br</small></td>
+            <td><span class="type-badge type-listing">Listagem</span></td>
+            <td>Preço, área, tipo, bairro, CEP, fotos, tempo de anúncio</td>
+            <td>Scraping / API parceira (OLX Group)</td>
+            <td><span class="badge badge-high">Alta</span></td>
+            <td><span class="badge badge-blue">P1</span></td>
+          </tr>
+          <tr>
+            <td><strong>VivaReal</strong><br><small style="color:var(--muted)">vivareal.com.br</small></td>
+            <td><span class="type-badge type-listing">Listagem</span></td>
+            <td>Preço, área, tipo, CEP, geolocalização, dorm/vagas</td>
+            <td>Scraping (mesma base ZAP/OLX Group)</td>
+            <td><span class="badge badge-high">Alta</span></td>
+            <td><span class="badge badge-blue">P1</span></td>
+          </tr>
+          <tr>
+            <td><strong>OLX Imóveis</strong><br><small style="color:var(--muted)">olx.com.br</small></td>
+            <td><span class="type-badge type-listing">Listagem</span></td>
+            <td>Preço, área, bairro, data de publicação, telefone</td>
+            <td>Scraping HTML / app mobile</td>
+            <td><span class="badge badge-med">Média</span></td>
+            <td><span class="badge badge-blue">P1</span></td>
+          </tr>
+          <tr>
+            <td><strong>QuintoAndar</strong><br><small style="color:var(--muted)">quintoandar.com</small></td>
+            <td><span class="type-badge type-listing">Listagem</span></td>
+            <td>Aluguel + venda; área, condomínio, localização precisa</td>
+            <td>Scraping (JavaScript-heavy, usar Playwright)</td>
+            <td><span class="badge badge-high">Alta</span></td>
+            <td><span class="badge badge-blue">P2</span></td>
+          </tr>
+          <tr>
+            <td><strong>Imovelweb</strong><br><small style="color:var(--muted)">imovelweb.com.br</small></td>
+            <td><span class="type-badge type-listing">Listagem</span></td>
+            <td>Preço, área, tipo, bairro (cobertura de imobiliárias locais)</td>
+            <td>Scraping HTML</td>
+            <td><span class="badge badge-med">Média</span></td>
+            <td><span class="badge badge-blue">P2</span></td>
+          </tr>
+          <tr>
+            <td><strong>CRECI-SP</strong><br><small style="color:var(--muted)">crecisp.gov.br</small></td>
+            <td><span class="type-badge type-registry">Registro</span></td>
+            <td>Cadastro de imobiliárias ativas em Campinas, relatórios regionais</td>
+            <td>Manual / download PDF</td>
+            <td><span class="badge badge-med">Média</span></td>
+            <td><span class="badge badge-blue">P3</span></td>
+          </tr>
+          <tr>
+            <td><strong>Cartório RGI Campinas</strong><br><small style="color:var(--muted)">rgi.com.br / ONR</small></td>
+            <td><span class="type-badge type-registry">Cartório</span></td>
+            <td>Transações reais de compra/venda (valor declarado), matrículas</td>
+            <td>API ONR (Ofício Notarial em Rede) — custo por consulta</td>
+            <td><span class="badge badge-high">Muito Alta</span></td>
+            <td><span class="badge badge-blue">P2</span></td>
+          </tr>
+          <tr>
+            <td><strong>Prefeitura Campinas — IPTU</strong><br><small style="color:var(--muted)">campinas.sp.gov.br</small></td>
+            <td><span class="type-badge type-gov">Gov</span></td>
+            <td>Valor venal por CEP, planta genérica de valores (PGV)</td>
+            <td>Portal de dados abertos / arquivo shapefile</td>
+            <td><span class="badge badge-high">Alta</span></td>
+            <td><span class="badge badge-blue">P2</span></td>
+          </tr>
+          <tr>
+            <td><strong>FIPE ZAP+ Index</strong><br><small style="color:var(--muted)">fipezap.zapimoveis.com.br</small></td>
+            <td><span class="type-badge type-index">Índice</span></td>
+            <td>Variação mensal R$/m² por cidade e tipo; série histórica</td>
+            <td>Download CSV gratuito</td>
+            <td><span class="badge badge-high">Alta</span></td>
+            <td><span class="badge badge-blue">P1</span></td>
+          </tr>
+          <tr>
+            <td><strong>ABECIP IGMI-R</strong><br><small style="color:var(--muted)">abecip.org.br</small></td>
+            <td><span class="type-badge type-index">Índice</span></td>
+            <td>Índice Geral do Mercado Imobiliário Residencial — séries estaduais</td>
+            <td>Download PDF/Excel mensal</td>
+            <td><span class="badge badge-high">Alta</span></td>
+            <td><span class="badge badge-blue">P2</span></td>
+          </tr>
+          <tr>
+            <td><strong>FGV IVAR</strong><br><small style="color:var(--muted)">portalibre.fgv.br</small></td>
+            <td><span class="type-badge type-index">Índice</span></td>
+            <td>Índice de Variação de Aluguéis Residenciais — mensal</td>
+            <td>Download Excel</td>
+            <td><span class="badge badge-high">Alta</span></td>
+            <td><span class="badge badge-blue">P2</span></td>
+          </tr>
+          <tr>
+            <td><strong>Imobiliárias Locais</strong><br><small style="color:var(--muted)">Lopes, RE/MAX local, Graal</small></td>
+            <td><span class="type-badge type-local">Local</span></td>
+            <td>Listagens exclusivas, preço de fechamento (negociação direta)</td>
+            <td>Scraping dos sites individuais + contato direto</td>
+            <td><span class="badge badge-med">Média</span></td>
+            <td><span class="badge badge-blue">P3</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="alert alert-info" style="margin-top:20px;">
+      <span class="alert-icon">ℹ️</span>
+      <div><strong>Deduplicação crítica:</strong> ZAP e VivaReal compartilham base (OLX Group). Use o campo <code>id_anuncio</code> + hash de (endereço, área, preço) para identificar duplicatas entre os dois portais antes de qualquer agregação.</div>
+    </div>
+  </section>
+
+  <!-- STEP 2: PREÇO/M² -->
+  <section class="section" id="preco">
+    <div class="section-header">
+      <div class="step-badge">Step 2</div>
+      <div class="section-title">Modelo de Cálculo — Preço por m²</div>
+    </div>
+
+    <h3>Fórmula Base</h3>
+    <div class="formula-box">
+      <div class="formula-title">Fórmula de Preço/m² por Listagem</div>
+      <div class="formula-text">
+        ppm2_i = preco_total_i / area_util_i<br><br>
+        ppm2_cep = mediana({ ppm2_i : CEP_i = cep, tipo_i = tipo, |z_score(ppm2_i)| &lt; 2.5 })
+      </div>
+      <div class="legend">
+        <b>ppm2_i</b> = preço/m² do anúncio individual i (R$/m²)<br>
+        <b>preco_total_i</b> = preço pedido do anúncio (R$)<br>
+        <b>area_util_i</b> = área útil em m² (preferência sobre área total quando disponível)<br>
+        <b>ppm2_cep</b> = mediana ajustada por CEP e tipo, após remoção de outliers (z-score > 2.5)<br>
+        <b>Mediana</b> preferida sobre média por robustez a anúncios com preços atípicos
+      </div>
+    </div>
+
+    <h3>Normalização e Limpeza</h3>
+    <div class="two-col">
+      <div class="panel">
+        <h4>Regras de Filtro</h4>
+        <ul>
+          <li><b>Área mínima:</b> apartamento ≥ 20m², casa ≥ 40m²</li>
+          <li><b>Área máxima:</b> apartamento ≤ 500m², casa ≤ 2.000m²</li>
+          <li><b>Preço mínimo:</b> R$ 60.000 (abaixo = dado suspeito)</li>
+          <li><b>Preço máximo:</b> R$ 30.000.000 (acima = segmento alto — segmentar separadamente)</li>
+          <li><b>Outlier R$/m²:</b> excluir se z-score > 2.5 dentro do grupo CEP+tipo</li>
+          <li><b>Duplicatas:</b> hash(CEP+área+quartos+preço) → manter só 1 por semana</li>
+        </ul>
+      </div>
+      <div class="panel">
+        <h4>Campos Obrigatórios</h4>
+        <ul>
+          <li><b>preco_total</b> — valor numérico em R$</li>
+          <li><b>area_util</b> — m² (aceitar area_total se util ausente, com flag)</li>
+          <li><b>tipo</b> — {apartamento, casa, terreno, comercial}</li>
+          <li><b>cep</b> — 8 dígitos (validar via ViaCEP API)</li>
+          <li><b>bairro</b> — normalizado via tabela de-para (CEP → bairro oficial)</li>
+          <li><b>data_coleta</b> — timestamp ISO 8601</li>
+          <li><b>fonte</b> — identificador do portal</li>
+        </ul>
+      </div>
+    </div>
+
+    <h3>Pipeline de Dados (Python)</h3>
+    <div class="code-block">
+<span class="comment"># Pipeline de extração e normalização — Campinas/SP</span>
+<span class="comment"># Dependências: requests, beautifulsoup4, pandas, sqlalchemy</span>
+
+<span class="keyword">import</span> pandas <span class="keyword">as</span> pd
+<span class="keyword">import</span> numpy <span class="keyword">as</span> np
+<span class="keyword">from</span> scipy <span class="keyword">import</span> stats
+<span class="keyword">import</span> requests
+
+<span class="comment"># ── 1. COLETA ─────────────────────────────────────────────────────────</span>
+<span class="keyword">def</span> <span class="func">scrape_zapimoveis</span>(cidade=<span class="string">"campinas-sp"</span>, tipo=<span class="string">"apartamentos"</span>, paginas=<span class="number">50</span>):
+    <span class="comment">"""Retorna lista de dicts com campos normalizados."""</span>
+    base_url = <span class="string">f"https://www.zapimoveis.com.br/venda/{tipo}/{cidade}/"</span>
+    <span class="comment"># Headers para simular browser real</span>
+    headers = {<span class="string">"User-Agent"</span>: <span class="string">"Mozilla/5.0 ..."</span>, <span class="string">"Accept-Language"</span>: <span class="string">"pt-BR"</span>}
+    listings = []
+    <span class="keyword">for</span> page <span class="keyword">in</span> range(<span class="number">1</span>, paginas + <span class="number">1</span>):
+        <span class="comment"># Parse JSON embutido no __NEXT_DATA__ da página</span>
+        r = requests.get(<span class="string">f"{base_url}?pagina={page}"</span>, headers=headers, timeout=<span class="number">15</span>)
+        data = <span class="func">extract_next_data</span>(r.text)   <span class="comment"># parse do script JSON</span>
+        listings.extend(<span class="func">parse_listings</span>(data))
+    <span class="keyword">return</span> listings
+
+<span class="comment"># ── 2. NORMALIZAÇÃO ───────────────────────────────────────────────────</span>
+<span class="keyword">def</span> <span class="func">normalize</span>(df: pd.DataFrame) -> pd.DataFrame:
+    <span class="comment"># Converter preço para numérico</span>
+    df[<span class="string">"preco"</span>] = pd.to_numeric(df[<span class="string">"preco"</span>].str.replace(<span class="string">r"[R$\.\s]"</span>, <span class="string">""</span>, regex=<span class="keyword">True</span>), errors=<span class="string">"coerce"</span>)
+    df[<span class="string">"area"</span>]  = pd.to_numeric(df[<span class="string">"area"</span>].str.replace(<span class="string">r"[m²\s]"</span>, <span class="string">""</span>, regex=<span class="keyword">True</span>), errors=<span class="string">"coerce"</span>)
+    <span class="comment"># Filtrar valores inválidos</span>
+    df = df.dropna(subset=[<span class="string">"preco"</span>, <span class="string">"area"</span>, <span class="string">"cep"</span>])
+    df = df[(df[<span class="string">"preco"</span>] > <span class="number">60_000</span>) & (df[<span class="string">"preco"</span>] < <span class="number">30_000_000</span>)]
+    df = df[(df[<span class="string">"area"</span>] > <span class="number">15</span>)  & (df[<span class="string">"area"</span>] < <span class="number">2_000</span>)]
+    <span class="comment"># Calcular R$/m²</span>
+    df[<span class="string">"ppm2"</span>] = df[<span class="string">"preco"</span>] / df[<span class="string">"area"</span>]
+    <span class="keyword">return</span> df
+
+<span class="comment"># ── 3. REMOÇÃO DE OUTLIERS POR GRUPO ──────────────────────────────────</span>
+<span class="keyword">def</span> <span class="func">remove_outliers</span>(df, grupo=[<span class="string">"cep"</span>, <span class="string">"tipo"</span>], threshold=<span class="number">2.5</span>):
+    <span class="keyword">def</span> <span class="func">zscore_filter</span>(g):
+        z = np.abs(stats.zscore(g[<span class="string">"ppm2"</span>].dropna()))
+        <span class="keyword">return</span> g[z < threshold]
+    <span class="keyword">return</span> df.groupby(grupo, group_keys=<span class="keyword">False</span>).apply(zscore_filter)
+
+<span class="comment"># ── 4. AGREGAÇÃO POR CEP ──────────────────────────────────────────────</span>
+<span class="keyword">def</span> <span class="func">aggregate_by_cep</span>(df) -> pd.DataFrame:
+    <span class="keyword">return</span> (
+        df.groupby([<span class="string">"cep"</span>, <span class="string">"bairro"</span>, <span class="string">"tipo"</span>])
+          .agg(
+              ppm2_mediana = (<span class="string">"ppm2"</span>,  <span class="string">"median"</span>),
+              ppm2_p25     = (<span class="string">"ppm2"</span>,  <span class="keyword">lambda</span> x: x.quantile(<span class="number">0.25</span>)),
+              ppm2_p75     = (<span class="string">"ppm2"</span>,  <span class="keyword">lambda</span> x: x.quantile(<span class="number">0.75</span>)),
+              n_anuncios   = (<span class="string">"ppm2"</span>,  <span class="string">"count"</span>),
+              preco_min    = (<span class="string">"preco"</span>, <span class="string">"min"</span>),
+              preco_max    = (<span class="string">"preco"</span>, <span class="string">"max"</span>),
+          )
+          .reset_index()
+    )
+    </div>
+
+    <h3>Estratégia de Agregação por Granularidade</h3>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Nível</th>
+            <th>Agrupamento</th>
+            <th>Mínimo de amostras</th>
+            <th>Métrica principal</th>
+            <th>Atualização</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Rua</strong></td>
+            <td>logradouro + tipo</td>
+            <td>≥ 5 anúncios ativos</td>
+            <td>Mediana ppm2 + variação 30d</td>
+            <td>Semanal</td>
+          </tr>
+          <tr>
+            <td><strong>CEP</strong></td>
+            <td>CEP (8 dígitos) + tipo</td>
+            <td>≥ 10 anúncios</td>
+            <td>Mediana + P25/P75 + série histórica</td>
+            <td>Semanal</td>
+          </tr>
+          <tr>
+            <td><strong>Bairro</strong></td>
+            <td>bairro_normalizado + tipo</td>
+            <td>≥ 20 anúncios</td>
+            <td>Mediana + tendência 90d</td>
+            <td>Quinzenal</td>
+          </tr>
+          <tr>
+            <td><strong>Cidade</strong></td>
+            <td>Campinas + tipo</td>
+            <td>Sem mínimo</td>
+            <td>Mediana + comparativo FIPE ZAP+</td>
+            <td>Mensal</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="alert alert-warn">
+      <span class="alert-icon">⚠️</span>
+      <div><strong>Área útil vs. área total:</strong> ZAP e VivaReal frequentemente misturam os dois campos. Sempre registre qual campo foi usado (<code>area_flag: "util" | "total"</code>) e aplique fator de correção de 0.85–0.90 quando apenas área total estiver disponível para apartamentos.</div>
+    </div>
+  </section>
+
+  <!-- STEP 3: MPI -->
+  <section class="section" id="mpi">
+    <div class="section-header">
+      <div class="step-badge">Step 3</div>
+      <div class="section-title">Market Pressure Index (MPI)</div>
+    </div>
+
+    <p>O MPI é uma pontuação de 0 a 100 que sintetiza sinais de oferta e demanda em um mercado local (nível CEP ou bairro). Scores altos = mercado aquecido (vendedores no controle). Scores baixos = excesso de oferta (compradores no controle).</p>
+
+    <h3>Fórmula do MPI</h3>
+    <div class="formula-box">
+      <div class="formula-title">Market Pressure Index — Fórmula Composta</div>
+      <div class="formula-text">
+        MPI = 0.35 × S_score + 0.35 × D_score + 0.20 × V_score + 0.10 × P_score
+      </div>
+      <div class="legend">
+        <b>S_score</b> (Supply Score) = sinal de oferta normalizado 0–100<br>
+        <b>D_score</b> (Demand Score) = sinal de demanda normalizado 0–100<br>
+        <b>V_score</b> (Velocity Score) = velocidade de absorção do mercado<br>
+        <b>P_score</b> (Price Score) = tendência de preço recente<br>
+        <b>Pesos:</b> Supply e Demand têm peso igual e dominante (70% juntos); ajustáveis por contexto
+      </div>
+    </div>
+
+    <h3>Componentes Detalhados</h3>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Componente</th>
+            <th>Variável</th>
+            <th>Cálculo</th>
+            <th>Sinal → Pressão Alta</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>S1 — Estoque</strong></td>
+            <td>N° anúncios ativos</td>
+            <td><code>1 - normalize(n_ativos)</code><br><small>Menos estoque = mais pressão</small></td>
+            <td>Estoque baixo vs. média histórica (6 meses)</td>
+          </tr>
+          <tr>
+            <td><strong>S2 — Novos anúncios</strong></td>
+            <td>Novos listings/semana</td>
+            <td><code>1 - normalize(novos_7d)</code></td>
+            <td>Pouca reposição de oferta</td>
+          </tr>
+          <tr>
+            <td><strong>S3 — Tempo on-market</strong></td>
+            <td>Dias médios até remoção</td>
+            <td><code>1 - normalize(dom_mediano)</code><br><small>DoM = Days on Market</small></td>
+            <td>Anúncios saem rápido (&lt; 30 dias)</td>
+          </tr>
+          <tr>
+            <td><strong>D1 — Absorção</strong></td>
+            <td>Taxa de remoção semanal</td>
+            <td><code>normalize(removidos / ativos)</code></td>
+            <td>Alta taxa de saída de anúncios</td>
+          </tr>
+          <tr>
+            <td><strong>D2 — Pressão de preço</strong></td>
+            <td>% anúncios com preço aumentado</td>
+            <td><code>normalize(n_aumentos / n_total)</code></td>
+            <td>Proprietários subindo preço = confiança</td>
+          </tr>
+          <tr>
+            <td><strong>D3 — Redução zero</strong></td>
+            <td>% anúncios sem desconto</td>
+            <td><code>normalize(1 - taxa_reducao)</code></td>
+            <td>Sem descontos = demanda forte</td>
+          </tr>
+          <tr>
+            <td><strong>V — Velocidade</strong></td>
+            <td>Absorption Rate mensal</td>
+            <td><code>normalize(vendas_estimadas / estoque)</code></td>
+            <td>Absorção &gt; 20% ao mês = mercado quente</td>
+          </tr>
+          <tr>
+            <td><strong>P — Tendência</strong></td>
+            <td>Variação R$/m² 30d</td>
+            <td><code>normalize(delta_ppm2_30d)</code></td>
+            <td>Preço subindo &gt; 2% no mês</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>Normalização dos Sub-scores</h3>
+    <div class="formula-box">
+      <div class="formula-title">Min-Max Normalização com Winsorizing</div>
+      <div class="formula-text">
+        normalize(x) = (x_w - min_hist) / (max_hist - min_hist)<br><br>
+        x_w = clip(x, percentil_5, percentil_95)
+      </div>
+      <div class="legend">
+        <b>min_hist</b> e <b>max_hist</b> = valores de referência dos últimos 12 meses para o mesmo CEP/bairro<br>
+        <b>Winsorizing</b> (clip ao P5–P95) evita que eventos extremos distorçam a escala<br>
+        <b>Resultado</b>: cada sub-score entre 0 (sem pressão) e 1 (máxima pressão)
+      </div>
+    </div>
+
+    <h3>Escala de Interpretação</h3>
+    <div class="mpi-scale">
+      <div class="mpi-zone mpi-cold">
+        <div class="range">0–20</div>
+        <div class="label">❄️ Mercado Frio</div>
+        <div class="desc">Excesso de oferta; preços em queda ou estáveis; imóveis demoram &gt;120 dias</div>
+      </div>
+      <div class="mpi-zone mpi-cool">
+        <div class="range">21–40</div>
+        <div class="label">🟢 Oferta Equilibrada</div>
+        <div class="desc">Equilíbrio leve de oferta; comprador tem poder de negociação</div>
+      </div>
+      <div class="mpi-zone mpi-warm">
+        <div class="range">41–60</div>
+        <div class="label">🟡 Mercado Neutro</div>
+        <div class="desc">Oferta e demanda balanceadas; negociações típicas de 5–10% de desconto</div>
+      </div>
+      <div class="mpi-zone mpi-hot">
+        <div class="range">61–80</div>
+        <div class="label">🟠 Mercado Aquecido</div>
+        <div class="desc">Demanda supera oferta; imóveis saem em &lt;45 dias; poucos descontos</div>
+      </div>
+      <div class="mpi-zone mpi-fire">
+        <div class="range">81–100</div>
+        <div class="label">🔴 Alta Pressão</div>
+        <div class="desc">Mercado muito competitivo; guerras de preço; imóveis saem em &lt;15 dias</div>
+      </div>
+    </div>
+
+    <h3>Cálculo do S_score e D_score (código)</h3>
+    <div class="code-block">
+<span class="keyword">import</span> pandas <span class="keyword">as</span> pd
+<span class="keyword">import</span> numpy <span class="keyword">as</span> np
+
+<span class="keyword">def</span> <span class="func">winsorize_normalize</span>(series, hist_df, col):
+    <span class="comment">"""Normaliza com base no histórico de 12 meses."""</span>
+    p5  = hist_df[col].quantile(<span class="number">0.05</span>)
+    p95 = hist_df[col].quantile(<span class="number">0.95</span>)
+    clipped = np.clip(series, p5, p95)
+    <span class="keyword">return</span> (clipped - p5) / (p95 - p5 + <span class="number">1e-9</span>)
+
+<span class="keyword">def</span> <span class="func">compute_mpi</span>(current: pd.Series, hist: pd.DataFrame) -> <span class="func">float</span>:
+    <span class="comment"># Supply Score (alta = pouca oferta = mais pressão)</span>
+    s1 = <span class="number">1</span> - <span class="func">winsorize_normalize</span>(current[<span class="string">"n_ativos"</span>],    hist, <span class="string">"n_ativos"</span>)
+    s2 = <span class="number">1</span> - <span class="func">winsorize_normalize</span>(current[<span class="string">"novos_7d"</span>],   hist, <span class="string">"novos_7d"</span>)
+    s3 = <span class="number">1</span> - <span class="func">winsorize_normalize</span>(current[<span class="string">"dom_mediano"</span>], hist, <span class="string">"dom_mediano"</span>)
+    S_score = (s1 + s2 + s3) / <span class="number">3</span>
+
+    <span class="comment"># Demand Score (alta = absorção forte = mais pressão)</span>
+    d1 = <span class="func">winsorize_normalize</span>(current[<span class="string">"taxa_absorcao"</span>], hist, <span class="string">"taxa_absorcao"</span>)
+    d2 = <span class="func">winsorize_normalize</span>(current[<span class="string">"pct_aumentos"</span>],  hist, <span class="string">"pct_aumentos"</span>)
+    d3 = <span class="number">1</span> - <span class="func">winsorize_normalize</span>(current[<span class="string">"taxa_reducao"</span>], hist, <span class="string">"taxa_reducao"</span>)
+    D_score = (d1 + d2 + d3) / <span class="number">3</span>
+
+    <span class="comment"># Velocity Score</span>
+    V_score = <span class="func">winsorize_normalize</span>(current[<span class="string">"absorption_rate"</span>], hist, <span class="string">"absorption_rate"</span>)
+
+    <span class="comment"># Price Trend Score</span>
+    P_score = <span class="func">winsorize_normalize</span>(current[<span class="string">"delta_ppm2_30d"</span>], hist, <span class="string">"delta_ppm2_30d"</span>)
+
+    <span class="comment"># MPI final (0–100)</span>
+    mpi = (<span class="number">0.35</span> * S_score + <span class="number">0.35</span> * D_score + <span class="number">0.20</span> * V_score + <span class="number">0.10</span> * P_score) * <span class="number">100</span>
+    <span class="keyword">return</span> round(mpi, <span class="number">1</span>)
+    </div>
+  </section>
+
+  <!-- STEP 4: ARQUITETURA -->
+  <section class="section" id="arquitetura">
+    <div class="section-header">
+      <div class="step-badge">Step 4</div>
+      <div class="section-title">Arquitetura do Sistema</div>
+    </div>
+
+    <h3>Diagrama de Arquitetura (Texto)</h3>
+    <div class="arch-diagram">
+<span class="arch-layer">╔══════════════════════════════════════════════════════════════════╗
+║                    CAMADA DE INGESTÃO                           ║
+╚══════════════════════════════════════════════════════════════════╝</span>
+
+  <span class="arch-node">[ZAP/VivaReal] ──→ [Scrapy Spider]</span>         <span class="arch-note"># Python scrapy + rotating proxies</span>
+  <span class="arch-node">[OLX Imóveis]  ──→ [Playwright]</span>            <span class="arch-note"># JS-rendered pages</span>
+  <span class="arch-node">[FIPE ZAP+ CSV]──→ [CSV Downloader]</span>        <span class="arch-note"># download automático mensal</span>
+  <span class="arch-node">[IPTU Prefeitura]→ [GeoJSON Parser]</span>        <span class="arch-note"># Planta Genérica de Valores</span>
+  <span class="arch-node">[ONR / Cartório]──→ [API Client]</span>           <span class="arch-note"># transações reais (custo por query)</span>
+                          │
+                          ▼
+<span class="arch-layer">╔══════════════════════════════════════════════════════════════════╗
+║                  CAMADA DE PROCESSAMENTO                        ║
+╚══════════════════════════════════════════════════════════════════╝</span>
+
+  <span class="arch-node">[Raw Collector]</span>
+      │
+      ├──→ <span class="arch-node">[Validador]</span>         <span class="arch-note"># schema check, tipo, CEP via ViaCEP</span>
+      ├──→ <span class="arch-node">[Deduplicador]</span>      <span class="arch-note"># hash(CEP+área+quartos+preço)</span>
+      ├──→ <span class="arch-node">[Normalizador]</span>      <span class="arch-note"># R$/m², area_flag, tipo padronizado</span>
+      ├──→ <span class="arch-node">[Outlier Remover]</span>   <span class="arch-note"># z-score &gt; 2.5 por grupo CEP+tipo</span>
+      └──→ <span class="arch-node">[MPI Calculator]</span>    <span class="arch-note"># S_score, D_score, V_score, P_score</span>
+                          │
+                          ▼
+<span class="arch-layer">╔══════════════════════════════════════════════════════════════════╗
+║                    CAMADA DE ARMAZENAMENTO                      ║
+╚══════════════════════════════════════════════════════════════════╝</span>
+
+  <span class="arch-node">[PostgreSQL + PostGIS]</span>
+      ├── listings_raw         <span class="arch-note"># todos os anúncios coletados</span>
+      ├── listings_clean       <span class="arch-note"># pós-normalização e dedup</span>
+      ├── ppm2_snapshot_weekly <span class="arch-note"># série histórica por CEP+tipo</span>
+      ├── mpi_snapshot_weekly  <span class="arch-note"># MPI por CEP+tipo por semana</span>
+      └── geo_campinas         <span class="arch-note"># polígonos de bairros e CEPs</span>
+                          │
+                          ▼
+<span class="arch-layer">╔══════════════════════════════════════════════════════════════════╗
+║                    CAMADA DE VISUALIZAÇÃO                       ║
+╚══════════════════════════════════════════════════════════════════╝</span>
+
+  <span class="arch-node">[Looker Studio]</span>       <span class="arch-note"># dashboard principal (gratuito, conecta ao PostgreSQL via BigQuery)</span>
+  <span class="arch-node">[Kepler.gl]</span>           <span class="arch-note"># mapa geoespacial de calor de preços</span>
+  <span class="arch-node">[HTML estático]</span>       <span class="arch-note"># relatório semanal gerado automaticamente</span>
+                          │
+                          ▼
+<span class="arch-layer">╔══════════════════════════════════════════════════════════════════╗
+║                    CAMADA DE ALERTAS                            ║
+╚══════════════════════════════════════════════════════════════════╝</span>
+
+  <span class="arch-node">[Python alerter]</span> ──→ <span class="arch-node">[Email / WhatsApp API]</span>
+  Triggers:
+      • ppm2 variação &gt; ±5% em 7 dias num CEP
+      • MPI cruza limiar (e.g., 60→61 ou 40→39)
+      • Queda abrupta de estoque (&gt;20% em 7d)
+      • Novo anúncio com ppm2 &gt;15% abaixo da mediana do CEP
+    </div>
+
+    <h3>Opção No-Code (Google Sheets + Make.com)</h3>
+    <div class="two-col">
+      <div class="panel">
+        <h4>Componentes No-Code</h4>
+        <ul>
+          <li><b>Phantombuster:</b> scraping de ZAP/VivaReal → Google Sheets</li>
+          <li><b>Make.com:</b> orquestração de fluxo (trigger semanal)</li>
+          <li><b>Google Sheets:</b> tabela central de anúncios + fórmulas de ppm2</li>
+          <li><b>Looker Studio:</b> dashboard conectado ao Sheets</li>
+          <li><b>ViaCEP API:</b> enriquecimento de bairro/logradouro via IMPORTDATA()</li>
+          <li><b>Gmail / WhatsApp Business:</b> alertas via Make.com</li>
+        </ul>
+      </div>
+      <div class="panel">
+        <h4>Fórmulas Google Sheets — ppm2</h4>
+        <ul>
+          <li><b>Preço/m²:</b> <code>=B2/C2</code> (preço/área)</li>
+          <li><b>Mediana CEP:</b> <code>=MEDIAN(IF(F:F=F2,D:D))</code></li>
+          <li><b>Outlier flag:</b> <code>=IF(ABS((D2-MEDIAN(D:D))/STDEV(D:D))&gt;2.5,"outlier","")</code></li>
+          <li><b>Variação 30d:</b> <code>=(mediana_atual - mediana_30d_atras)/mediana_30d_atras</code></li>
+          <li><b>MPI simples:</b> Score ponderado manual por 4 colunas de input</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- STEP 5: AUTOMAÇÃO -->
+  <section class="section" id="automacao">
+    <div class="section-header">
+      <div class="step-badge">Step 5</div>
+      <div class="section-title">Automação e KPIs</div>
+    </div>
+
+    <h3>Frequência de Atualização</h3>
+    <div class="freq-grid">
+      <div class="freq-card">
+        <div class="freq">Diário</div>
+        <div class="title">Varredura de Alertas</div>
+        <div class="items">Variações bruscas de preço, remoção de anúncios, novos listings abaixo da mediana</div>
+      </div>
+      <div class="freq-card">
+        <div class="freq">Semanal</div>
+        <div class="title">Atualização de Listing</div>
+        <div class="items">Scraping completo ZAP + VivaReal + OLX. Recalculação de ppm2 e MPI por CEP</div>
+      </div>
+      <div class="freq-card">
+        <div class="freq">Quinzenal</div>
+        <div class="title">Relatório de Bairro</div>
+        <div class="items">Consolidação por bairro, tendência 30/90d, comparativo entre bairros de Campinas</div>
+      </div>
+      <div class="freq-card">
+        <div class="freq">Mensal</div>
+        <div class="title">Benchmarking</div>
+        <div class="items">Atualização FIPE ZAP+, IGMI-R, IVAR. Validação cruzada entre fontes. Relatório gerencial</div>
+      </div>
+    </div>
+
+    <h3>Sistema de Alertas</h3>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Alerta</th>
+            <th>Gatilho</th>
+            <th>Canal</th>
+            <th>Severidade</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Queda de Preço</strong></td>
+            <td>ppm2 mediana do CEP cai &gt; 5% em 7 dias</td>
+            <td>Email + Dashboard</td>
+            <td><span class="badge badge-med">Médio</span></td>
+          </tr>
+          <tr>
+            <td><strong>Alta de Preço</strong></td>
+            <td>ppm2 mediana do CEP sobe &gt; 5% em 7 dias</td>
+            <td>Email + Dashboard</td>
+            <td><span class="badge badge-med">Médio</span></td>
+          </tr>
+          <tr>
+            <td><strong>Oportunidade</strong></td>
+            <td>Novo anúncio com ppm2 &gt; 15% abaixo da mediana do CEP</td>
+            <td>WhatsApp / Email imediato</td>
+            <td><span class="badge badge-high">Alto</span></td>
+          </tr>
+          <tr>
+            <td><strong>Explosão de Demanda</strong></td>
+            <td>Taxa de remoção semanal &gt; 30% do estoque (MPI spike)</td>
+            <td>Email + Dashboard</td>
+            <td><span class="badge badge-high">Alto</span></td>
+          </tr>
+          <tr>
+            <td><strong>Colapso de Oferta</strong></td>
+            <td>Estoque do CEP cai &gt; 20% em 7 dias</td>
+            <td>Dashboard</td>
+            <td><span class="badge badge-med">Médio</span></td>
+          </tr>
+          <tr>
+            <td><strong>MPI Limiar</strong></td>
+            <td>MPI cruza 40 ou 60 (mudança de zona)</td>
+            <td>Email semanal</td>
+            <td><span class="badge badge-low">Baixo</span></td>
+          </tr>
+          <tr>
+            <td><strong>Dados Escassos</strong></td>
+            <td>CEP com &lt; 5 anúncios na semana (confiabilidade baixa)</td>
+            <td>Dashboard (flag visual)</td>
+            <td><span class="badge badge-low">Info</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>Estrutura do Dashboard de KPIs</h3>
+    <div class="arch-diagram">
+┌─────────────────────────────────────────────────────────────────┐
+│  MONITOR IMOBILIÁRIO — CAMPINAS/SP          [Data: semana atual] │
+├──────────────┬──────────────┬──────────────┬────────────────────┤
+│ R$/m² Median │ Δ 7 dias     │ MPI Score    │ Estoque Ativo      │
+│  R$ 8.240    │  +1.2% ▲     │  67 / 100    │  1.847 anúncios    │
+│  Apartamentos│  (campinas)  │  🟠 Aquecido  │  Δ -8% 7d          │
+├──────────────┴──────────────┴──────────────┴────────────────────┤
+│  MAPA DE CALOR — R$/m² por CEP                                   │
+│  [Kepler.gl ou Looker Studio heatmap por polígono de CEP]        │
+├───────────────────────────────┬─────────────────────────────────┤
+│  TOP 5 CEPs — MAIOR R$/m²     │  TOP 5 CEPs — MAIOR MPI          │
+│  13025-XXX: R$ 11.200         │  13070-161:  MPI 78              │
+│  13015-XXX: R$ 10.800         │  13025-XXX:  MPI 74              │
+│  13070-XXX: R$ 9.600          │  13015-XXX:  MPI 69              │
+│  ...                          │  ...                             │
+├───────────────────────────────┴─────────────────────────────────┤
+│  SÉRIE HISTÓRICA ppm2 (12 meses) — por tipo e bairro             │
+│  [Linha: Apartamento | Casa | Comparativo FIPE ZAP+ Campinas]    │
+├─────────────────────────────────────────────────────────────────┤
+│  ALERTAS ATIVOS: 2 oportunidades detectadas │ 1 MPI limiar       │
+└─────────────────────────────────────────────────────────────────┘
+    </div>
+  </section>
+
+  <!-- STEP 6: PLANO DE AÇÃO -->
+  <section class="section" id="plano">
+    <div class="section-header">
+      <div class="step-badge">Step 6</div>
+      <div class="section-title">Plano de Implementação — Step-by-Step</div>
+    </div>
+
+    <div class="two-col" style="margin-bottom:20px;">
+      <div class="panel">
+        <h4>Opção A — No-Code (2–3 semanas)</h4>
+        <ul>
+          <li><b>Custo:</b> ~R$ 200–400/mês (Phantombuster + Make.com + proxies)</li>
+          <li><b>Habilidade:</b> Google Sheets avançado</li>
+          <li><b>Limitação:</b> Volume de dados &lt; 5.000 anúncios/semana; sem geoespacial avançado</li>
+          <li><b>Ideal para:</b> validação inicial do modelo antes de escalar</li>
+        </ul>
+      </div>
+      <div class="panel">
+        <h4>Opção B — Python/Code (4–6 semanas)</h4>
+        <ul>
+          <li><b>Custo:</b> ~R$ 100–200/mês (VPS + proxies)</li>
+          <li><b>Habilidade:</b> Python intermediário, SQL, Docker básico</li>
+          <li><b>Capacidade:</b> 50.000+ anúncios/semana; análise geoespacial; MPI completo</li>
+          <li><b>Ideal para:</b> sistema de produção escalável e automatizado</li>
+        </ul>
+      </div>
+    </div>
+
+    <h3>Fases de Implementação (Opção B — Código)</h3>
+    <ol class="steps-list">
+      <li>
+        <div class="step-num">1</div>
+        <div class="step-content">
+          <h4>Semana 1 — Infra & Fonte FIPE ZAP+</h4>
+          <p>Configurar VPS (Ubuntu 22), PostgreSQL com PostGIS, e ambiente Python (<code>scrapy</code>, <code>pandas</code>, <code>sqlalchemy</code>). Baixar série histórica FIPE ZAP+ para Campinas e popular tabela de referência. Validar pipeline de transformação básica.</p>
+        </div>
+      </li>
+      <li>
+        <div class="step-num">2</div>
+        <div class="step-content">
+          <h4>Semana 2 — Spider ZAP + VivaReal</h4>
+          <p>Desenvolver e testar spiders Scrapy para ZAP e VivaReal com rotação de proxies. Implementar parser do <code>__NEXT_DATA__</code> JSON embutido (mais estável que HTML scraping). Criar módulo de deduplicação. Meta: &gt;1.000 anúncios de Campinas na primeira coleta.</p>
+        </div>
+      </li>
+      <li>
+        <div class="step-num">3</div>
+        <div class="step-content">
+          <h4>Semana 3 — Normalização + cálculo ppm2</h4>
+          <p>Implementar pipeline de normalização completo: validação de CEP via <code>ViaCEP API</code>, normalização de área, remoção de outliers por z-score. Calcular e persistir snapshot semanal de ppm2 por CEP+tipo. Adicionar spider OLX e QuintoAndar.</p>
+        </div>
+      </li>
+      <li>
+        <div class="step-num">4</div>
+        <div class="step-content">
+          <h4>Semana 4 — Motor MPI</h4>
+          <p>Implementar e calibrar o modelo MPI. Construir histórico de 4 semanas coletando manualmente (ou importando dados da FIPE) para calibrar os min/max de normalização. Validar scores contra percepção qualitativa do mercado de Campinas.</p>
+        </div>
+      </li>
+      <li>
+        <div class="step-num">5</div>
+        <div class="step-content">
+          <h4>Semana 5 — Dashboard + Looker Studio</h4>
+          <p>Conectar PostgreSQL ao Looker Studio via BigQuery connector ou pg_connector. Construir dashboard com KPIs principais, mapa de calor (Kepler.gl ou Looker Studio Maps), série histórica e tabela de alertas ativos.</p>
+        </div>
+      </li>
+      <li>
+        <div class="step-num">6</div>
+        <div class="step-content">
+          <h4>Semana 6 — Automação e Alertas</h4>
+          <p>Configurar cron jobs semanais e diários. Implementar módulo de alertas com envio via Gmail API ou WhatsApp Business API. Testar pipeline end-to-end. Documentar thresholds de alertas com base nas primeiras 4 semanas de dados.</p>
+        </div>
+      </li>
+      <li>
+        <div class="step-num">7</div>
+        <div class="step-content">
+          <h4>Mês 2–3 — Enriquecimento</h4>
+          <p>Integrar dados IPTU/Planta Genérica de Valores da Prefeitura de Campinas para validação cruzada de R$/m². Configurar consultas ONR para transações reais (ground-truth). Refinar pesos do MPI com pelo menos 8 semanas de histórico.</p>
+        </div>
+      </li>
+    </ol>
+
+    <h3>Stack Tecnológica Recomendada</h3>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Camada</th>
+            <th>Ferramenta</th>
+            <th>Justificativa</th>
+            <th>Custo Mensal</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Scraping</td>
+            <td>Scrapy + Playwright</td>
+            <td>Scrapy para HTML estático; Playwright para JS-heavy (QuintoAndar)</td>
+            <td>Gratuito</td>
+          </tr>
+          <tr>
+            <td>Proxies</td>
+            <td>BrightData ou ScraperAPI</td>
+            <td>Rotação de IP para evitar bloqueio nos portais</td>
+            <td>~R$ 150–300</td>
+          </tr>
+          <tr>
+            <td>Processamento</td>
+            <td>Python (pandas, numpy, scipy)</td>
+            <td>Ecossistema consolidado para análise de dados</td>
+            <td>Gratuito</td>
+          </tr>
+          <tr>
+            <td>Banco de dados</td>
+            <td>PostgreSQL + PostGIS</td>
+            <td>SQL robusto + suporte geoespacial nativo</td>
+            <td>~R$ 50 (VPS)</td>
+          </tr>
+          <tr>
+            <td>Orquestração</td>
+            <td>Apache Airflow (ou cron simples)</td>
+            <td>DAGs semanais; cron para MVP inicial</td>
+            <td>Gratuito</td>
+          </tr>
+          <tr>
+            <td>Dashboard</td>
+            <td>Looker Studio + Kepler.gl</td>
+            <td>Gratuito; Looker para KPIs; Kepler para mapas de calor</td>
+            <td>Gratuito</td>
+          </tr>
+          <tr>
+            <td>Alertas</td>
+            <td>Python + Gmail API / Make.com</td>
+            <td>Gmail API gratuita; Make.com para no-code triggers</td>
+            <td>~R$ 0–100</td>
+          </tr>
+          <tr>
+            <td>CEP enrichment</td>
+            <td>ViaCEP API</td>
+            <td>API pública gratuita para validar e enriquecer CEPs</td>
+            <td>Gratuito</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="alert alert-ok" style="margin-top:20px;">
+      <span class="alert-icon">✅</span>
+      <div><strong>Custo total estimado (Opção B — Código):</strong> R$ 300–550/mês, sendo o maior custo em proxies rotativos. Com volume limitado (&lt;10.000 req/semana), é possível reduzir para R$ 100–150/mês usando proxies residenciais compartilhados.</div>
+    </div>
+
+    <div class="alert alert-warn" style="margin-top:12px;">
+      <span class="alert-icon">⚠️</span>
+      <div><strong>Ponto crítico de validação:</strong> Nas primeiras 4 semanas, valide os dados coletados comparando o ppm2 mediano calculado com os dados FIPE ZAP+ para Campinas. Divergências &gt;15% indicam problema no parser de área. Corrija antes de escalar.</div>
+    </div>
+  </section>
+
+</div>
+
+<!-- Footer -->
+<div class="footer">
+  <div>Monitor Imobiliário Campinas/SP — v1.0 — Março 2026</div>
+  <div>Fontes: ZAP/VivaReal (OLX Group) · FIPE ZAP+ · ABECIP IGMI-R · FGV IVAR · Prefeitura Campinas · ONR</div>
+</div>
+
+</body>
+</html>

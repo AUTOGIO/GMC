@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GMC — Mission Control</title>
+<style>
+  :root {
+    --bg: #0a0a0a;
+    --surface: #111111;
+    --surface2: #181818;
+    --border: rgba(74,78,82,0.35);
+    --border-bright: rgba(74,78,82,0.6);
+    --lime: #D0FF00;
+    --silver: #C0C0C0;
+    --blue: #4f8ef7;
+    --purple: #7c5cfc;
+    --green: #22c55e;
+    --yellow: #f59e0b;
+    --red: #ef4444;
+    --text: #E2E8F0;
+    --muted: #4A4E52;
+    --muted2: #94A3B8;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', 'Segoe UI', system-ui, sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* ── Background grid ── */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(74,78,82,0.07) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(74,78,82,0.07) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .wrap {
+    position: relative;
+    z-index: 1;
+    max-width: 1080px;
+    margin: 0 auto;
+    padding: 48px 32px 64px;
+  }
+
+  /* ── Header ── */
+  .header {
+    text-align: center;
+    margin-bottom: 56px;
+  }
+  .gmc-logo {
+    display: inline-block;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--muted);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 4px 12px;
+    margin-bottom: 20px;
+  }
+  .header h1 {
+    font-family: 'Cormorant Garamond', 'Georgia', serif;
+    font-size: 38px;
+    font-weight: 600;
+    letter-spacing: 4px;
+    background: linear-gradient(135deg, #C0C0C0 0%, #FFFFFF 45%, #C0C0C0 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 10px;
+  }
+  .header .tagline {
+    color: var(--muted2);
+    font-size: 13px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 28px;
+  }
+  .header .date-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(208,255,0,0.07);
+    border: 1px solid rgba(208,255,0,0.2);
+    border-radius: 20px;
+    padding: 5px 14px;
+    font-size: 12px;
+    color: var(--lime);
+  }
+  .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--lime); animation: pulse 2s infinite; }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
+
+  /* ── Section label ── */
+  .section-label {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .section-label::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+
+  /* ── Cards grid ── */
+  .grid { display: grid; gap: 16px; margin-bottom: 40px; }
+  .grid-2 { grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); }
+  .grid-3 { grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); }
+
+  /* ── Launch card ── */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 24px;
+    text-decoration: none;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    transition: border-color 0.2s, background 0.2s, transform 0.18s, box-shadow 0.2s;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+  }
+  .card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    opacity: 0;
+    transition: opacity 0.2s;
+  }
+  .card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 12px 32px rgba(0,0,0,0.5);
+  }
+  .card:hover::before { opacity: 1; }
+
+  /* Accent variants */
+  .card-lime   { --ac: var(--lime);   --ac-bg: rgba(208,255,0,0.06); }
+  .card-silver { --ac: var(--silver); --ac-bg: rgba(192,192,192,0.06); }
+  .card-blue   { --ac: var(--blue);   --ac-bg: rgba(79,142,247,0.07); }
+  .card-purple { --ac: var(--purple); --ac-bg: rgba(124,92,252,0.07); }
+  .card-green  { --ac: var(--green);  --ac-bg: rgba(34,197,94,0.07); }
+  .card-yellow { --ac: var(--yellow); --ac-bg: rgba(245,158,11,0.07); }
+
+  .card:hover { background: var(--ac-bg, var(--surface2)); border-color: rgba(var(--ac), 0.5); }
+  .card::before { background: var(--ac, var(--lime)); }
+  .card:hover { border-color: color-mix(in srgb, var(--ac) 45%, transparent); }
+
+  .card-icon {
+    font-size: 28px;
+    line-height: 1;
+  }
+  .card-meta {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 2px;
+  }
+  .card-tag {
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    padding: 2px 7px;
+    border-radius: 3px;
+    background: rgba(255,255,255,0.06);
+    color: var(--muted2);
+  }
+  .card h3 {
+    font-size: 16px;
+    font-weight: 700;
+    color: #fff;
+    line-height: 1.3;
+  }
+  .card p {
+    font-size: 12px;
+    color: var(--muted2);
+    line-height: 1.6;
+  }
+  .card-footer {
+    margin-top: auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-top: 12px;
+    border-top: 1px solid var(--border);
+  }
+  .card-action {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    color: var(--muted2);
+    transition: color 0.2s;
+  }
+  .card:hover .card-action { color: var(--ac, var(--lime)); }
+  .card-arrow {
+    font-size: 16px;
+    color: var(--muted);
+    transition: transform 0.2s, color 0.2s;
+  }
+  .card:hover .card-arrow { transform: translateX(4px); color: var(--ac, var(--lime)); }
+
+  /* Status dot */
+  .status-dot {
+    width: 7px; height: 7px;
+    border-radius: 50%;
+    display: inline-block;
+  }
+  .status-live   { background: var(--green); box-shadow: 0 0 6px var(--green); animation: pulse 2s infinite; }
+  .status-static { background: var(--blue); }
+  .status-file   { background: var(--yellow); }
+
+  /* ── CSV data-files grid ── */
+  .csv-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 8px;
+    margin-bottom: 40px;
+  }
+  .csv-item {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 10px 12px;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: border-color 0.2s, background 0.2s;
+    font-size: 11px;
+    color: var(--muted2);
+  }
+  .csv-item:hover {
+    border-color: var(--border-bright);
+    background: var(--surface2);
+    color: var(--text);
+  }
+  .csv-item .csv-icon { font-size: 14px; flex-shrink: 0; }
+  .csv-item .csv-name {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  /* ── Footer ── */
+  .footer {
+    border-top: 1px solid var(--border);
+    padding-top: 28px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+    font-size: 12px;
+    color: var(--muted);
+  }
+  .footer strong { color: var(--muted2); }
+
+  /* ── Keyboard shortcut badge ── */
+  kbd {
+    background: var(--surface2);
+    border: 1px solid var(--border-bright);
+    border-radius: 4px;
+    padding: 2px 6px;
+    font-size: 10px;
+    font-family: monospace;
+    color: var(--muted2);
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- Header -->
+  <header class="header">
+    <div class="gmc-logo">Giovannini Mare Capital</div>
+    <h1>MISSION CONTROL</h1>
+    <div class="tagline">Single-Family Office · Risk-First Allocation · Q1 2026</div>
+    <div class="date-badge">
+      <span class="dot"></span>
+      <span id="livedate">Loading…</span>
+    </div>
+  </header>
+
+  <!-- PRIMARY DASHBOARDS -->
+  <div class="section-label">Primary Dashboards</div>
+  <div class="grid grid-2" style="margin-bottom:40px;">
+
+    <a class="card card-lime" href="http://localhost:5173" target="_blank" rel="noopener">
+      <div style="display:flex;align-items:center;gap:12px;">
+        <div class="card-icon">📊</div>
+        <div>
+          <div class="card-meta">
+            <span class="status-dot status-live"></span>
+            <span class="card-tag">React App · Dev Server</span>
+          </div>
+          <h3>GMC Portfolio Dashboard</h3>
+        </div>
+      </div>
+      <p>Full portfolio overview — KPIs, allocation, gavetas, convex USD snapshot, instruments, macro context and reports. Live PTAX from BCB.</p>
+      <div class="card-footer">
+        <span class="card-action">localhost:5173</span>
+        <span class="card-arrow">→</span>
+      </div>
+    </a>
+
+    <a class="card card-blue" href="campinas_real_estate_monitor.html" target="_blank" rel="noopener">
+      <div style="display:flex;align-items:center;gap:12px;">
+        <div class="card-icon">🏙️</div>
+        <div>
+          <div class="card-meta">
+            <span class="status-dot status-static"></span>
+            <span class="card-tag">Static HTML · Monitor</span>
+          </div>
+          <h3>Real Estate Monitor</h3>
+        </div>
+      </div>
+      <p>Preço/m² por CEP · Market Pressure Index (MPI 0–100) · Fontes: ZAP/VivaReal/FIPE ZAP+ · Campinas/SP.</p>
+      <div class="card-footer">
+        <span class="card-action">campinas_real_estate_monitor.html</span>
+        <span class="card-arrow">→</span>
+      </div>
+    </a>
+
+  </div>
+
+  <!-- SPREADSHEETS -->
+  <div class="section-label">Spreadsheets</div>
+  <div class="grid grid-2" style="margin-bottom:40px;">
+
+    <a class="card card-green" href="GMC_Portfolio_Dashboard.xlsx">
+      <div style="display:flex;align-items:center;gap:12px;">
+        <div class="card-icon">📗</div>
+        <div>
+          <div class="card-meta">
+            <span class="status-dot status-file"></span>
+            <span class="card-tag">Excel · 9 Sheets</span>
+          </div>
+          <h3>GMC Portfolio Dashboard</h3>
+        </div>
+      </div>
+      <p>Dashboard · Asset Allocation · Gavetas · Instruments · Equities VISA · Crypto CFM · Regime & Risk · Macro Context · <strong style="color:#86efac">🏠 Real Estate BR</strong> (with Monitor link).</p>
+      <div class="card-footer">
+        <span class="card-action">GMC_Portfolio_Dashboard.xlsx</span>
+        <span class="card-arrow">→</span>
+      </div>
+    </a>
+
+    <a class="card card-silver" href="dist/index.html" target="_blank" rel="noopener">
+      <div style="display:flex;align-items:center;gap:12px;">
+        <div class="card-icon">🏗️</div>
+        <div>
+          <div class="card-meta">
+            <span class="status-dot status-static"></span>
+            <span class="card-tag">Built · Static</span>
+          </div>
+          <h3>Dashboard (Built)</h3>
+        </div>
+      </div>
+      <p>Pre-built production version of the GMC Portfolio Dashboard. No dev server required — opens directly in browser.</p>
+      <div class="card-footer">
+        <span class="card-action">dist/index.html</span>
+        <span class="card-arrow">→</span>
+      </div>
+    </a>
+
+  </div>
+
+  <!-- DATA FILES -->
+  <div class="section-label">Data Files — numbers_sheets/</div>
+  <div class="csv-grid">
+    <a class="csv-item" href="numbers_sheets/gmc_dashboard_summary.csv"><span class="csv-icon">📋</span><span class="csv-name">dashboard_summary</span></a>
+    <a class="csv-item" href="numbers_sheets/gmc_real_estate.csv"><span class="csv-icon">🏠</span><span class="csv-name">real_estate</span></a>
+    <a class="csv-item" href="numbers_sheets/gmc_real_estate_inventory.csv"><span class="csv-icon">🏠</span><span class="csv-name">re_inventory</span></a>
+    <a class="csv-item" href="numbers_sheets/gmc_real_estate_stats.csv"><span class="csv-icon">📈</span><span class="csv-name">re_stats</span></a>
+    <a class="csv-item" href="numbers_sheets/gmc_allocation.csv"><span class="csv-icon">🥧</span><span class="csv-name">allocation</span></a>
+    <a class="csv-item" href="numbers_sheets/gmc_convex_gavetas_alignment.csv"><span class="csv-icon">🗂</span><span class="csv-name">gavetas_alignment</span></a>
+    <a class="csv-item" href="numbers_sheets/gmc_inventory_detailed.csv"><span class="csv-icon">📋</span><span class="csv-name">inventory_detailed</span></a>
+    <a class="csv-item" href="numbers_sheets/gmc_cash_position.csv"><span class="csv-icon">💵</span><span class="csv-name">cash_position</span></a>
+    <a class="csv-item" href="numbers_sheets/gmc_banking.csv"><span class="csv-icon">🏦</span><span class="csv-name">banking</span></a>
+    <a class="csv-item" href="numbers_sheets/gmc_macro_recommendations.csv"><span class="csv-icon">🌐</span><span class="csv-name">macro_recommendations</span></a>
+    <a class="csv-item" href="numbers_sheets/gmc_pending_assets.csv"><span class="csv-icon">⏳</span><span class="csv-name">pending_assets</span></a>
+    <a class="csv-item" href="gmc_convex_asset_summary.csv"><span class="csv-icon">📊</span><span class="csv-name">convex_summary</span></a>
+    <a class="csv-item" href="gmc_convex_instruments.csv"><span class="csv-icon">🔧</span><span class="csv-name">convex_instruments</span></a>
+  </div>
+
+  <!-- QUICK ACTIONS -->
+  <div class="section-label">Quick Actions</div>
+  <div class="grid grid-3" style="margin-bottom:48px;">
+
+    <div class="card card-lime" onclick="launchAll()" style="cursor:pointer;">
+      <div class="card-icon">🚀</div>
+      <h3>Launch All</h3>
+      <p>Open every dashboard in a new tab simultaneously.</p>
+      <div class="card-footer">
+        <span class="card-action">Open all tabs</span>
+        <span class="card-arrow">→</span>
+      </div>
+    </div>
+
+    <div class="card card-purple" onclick="launchDashboards()" style="cursor:pointer;">
+      <div class="card-icon">📺</div>
+      <h3>Dashboards Only</h3>
+      <p>Open GMC Portfolio + Real Estate Monitor.</p>
+      <div class="card-footer">
+        <span class="card-action">2 tabs</span>
+        <span class="card-arrow">→</span>
+      </div>
+    </div>
+
+    <div class="card card-blue" onclick="checkDevServer()" style="cursor:pointer;">
+      <div class="card-icon">⚡</div>
+      <h3>Check Dev Server</h3>
+      <p>Ping localhost:5173 to verify the Vite server is running.</p>
+      <div class="card-footer">
+        <span class="card-action" id="server-status">Click to check</span>
+        <span class="card-arrow">→</span>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div>© 2026 <strong>Giovannini Mare Capital LLC</strong> — Single-Family Office</div>
+    <div style="display:flex;gap:12px;align-items:center;">
+      <kbd>Ctrl+D</kbd> Bookmark this page
+      &nbsp;·&nbsp;
+      <kbd>Ctrl+Shift+T</kbd> Reopen closed tab
+    </div>
+    <div>Convex Research Framework · Risk-First Allocation</div>
+  </footer>
+
+</div>
+
+<script>
+  // Live date/time
+  function updateDate() {
+    const now = new Date();
+    const opts = { weekday:'long', year:'numeric', month:'long', day:'numeric', hour:'2-digit', minute:'2-digit' };
+    document.getElementById('livedate').textContent = now.toLocaleDateString('en-US', opts);
+  }
+  updateDate();
+  setInterval(updateDate, 30000);
+
+  // Launch all dashboards
+  function launchAll() {
+    window.open('http://localhost:5173', '_blank');
+    window.open('campinas_real_estate_monitor.html', '_blank');
+    window.open('dist/index.html', '_blank');
+  }
+
+  function launchDashboards() {
+    window.open('http://localhost:5173', '_blank');
+    window.open('campinas_real_estate_monitor.html', '_blank');
+  }
+
+  // Dev server check
+  async function checkDevServer() {
+    const el = document.getElementById('server-status');
+    el.textContent = 'Checking…';
+    try {
+      const ctrl = new AbortController();
+      const tid = setTimeout(() => ctrl.abort(), 2500);
+      const r = await fetch('http://localhost:5173', { signal: ctrl.signal, mode: 'no-cors' });
+      clearTimeout(tid);
+      el.textContent = '✅ Server running';
+    } catch(e) {
+      if (e.name === 'AbortError') {
+        el.textContent = '⚠️ Timeout — run: npm run dev';
+      } else {
+        // no-cors fetch resolves even on CORS block → opaque response means it's up
+        el.textContent = '✅ Server reachable';
+      }
+    }
+  }
+</script>
+</body>
+</html>

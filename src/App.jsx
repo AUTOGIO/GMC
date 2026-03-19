@@ -1,8 +1,9 @@
 
 import React, { useState, useEffect, useMemo } from 'react';
 import { Shield, TrendingUp, Building2, Wallet, Globe, AlertTriangle, Activity, Gem, Target, Layers, MapPin, Edit3, DollarSign } from 'lucide-react';
-import ReportsSection from './ReportsSection';
-import IntelligenceChatSection from './IntelligenceChatSection';
+import ConvexReportsSection from './ConvexReportsSection';
+import MacroContextSection from './MacroContextSection';
+import { fetchGlobalMetrics, triggerRefresh, getRegimeDisplay, fmtDate } from './macroApi';
 
 import {
   convexPortfolio,
@@ -65,8 +66,20 @@ const GMCDashboard = () => {
   const [selectedProperty, setSelectedProperty] = useState(null);
   const [editingProperty, setEditingProperty] = useState(null);
   
-  // Currency conversion state
+  // Currency conversion state — seeded from BCB PTAX on mount
   const [exchangeRate, setExchangeRate] = useState(5.85); // USD to BRL
+
+  // Live macro data from Personal_Tracker_Global (port 8013)
+  const [macroData, setMacroData] = useState(null);
+
+  useEffect(() => {
+    fetchGlobalMetrics().then(data => {
+      setMacroData(data);
+      // Replace the hardcoded exchange rate with live BCB PTAX
+      const live = data?.ptaxUsdBrl;
+      if (live && live > 1 && live < 20) setExchangeRate(live);
+    });
+  }, []);
   const [displayCurrency, setDisplayCurrency] = useState('BRL');
 
   // Properties with configurable m² prices
@@ -114,7 +127,8 @@ const GMCDashboard = () => {
 
   // --- HELPERS ---
 
-  const asOfDate = "2026-03-11";
+  // Use live macro timestamp when available; fall back to last hard-coded snapshot date
+  const asOfDate = fmtDate(macroData?.timestamp, '2026-03-11');
   
   // Quick stats
   const totalProperties = properties.length;
@@ -166,8 +180,8 @@ const GMCDashboard = () => {
             <p style={{ color: '#94A3B8', fontSize: '15px', letterSpacing: '2px', margin: '16px 0 8px 0', fontFamily: "'DM Sans', sans-serif" }}>
               SINGLE-FAMILY OFFICE • RISK-FIRST ALLOCATION
             </p>
-            <p style={{ color: '#D0FF00', fontSize: '14px', letterSpacing: '1px', margin: 0, fontFamily: "'DM Sans', sans-serif", fontWeight: 'bold' }}>
-              Defensive convex regime — As of: {asOfDate}
+            <p style={{ color: getRegimeDisplay(macroData?.regimeHint).color, fontSize: '14px', letterSpacing: '1px', margin: 0, fontFamily: "'DM Sans', sans-serif", fontWeight: 'bold' }}>
+              {getRegimeDisplay(macroData?.regimeHint).label} — As of: {asOfDate}
             </p>
           </div>
 
@@ -276,9 +290,50 @@ const GMCDashboard = () => {
         {/* 2b. Real Estate / Property Inventory */}
         <section id="s2b-realestate" style={{ marginBottom: '48px' }}>
            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '24px' }}>
-             <h2 style={{ fontSize: '20px', letterSpacing: '2px', color: '#C0C0C0', margin: 0, fontFamily: "'DM Sans', sans-serif" }}>
-               REAL ESTATE INVENTORY (BR)
-             </h2>
+             <div style={{ display: 'flex', alignItems: 'center', gap: '16px', flexWrap: 'wrap' }}>
+               <h2 style={{ fontSize: '20px', letterSpacing: '2px', color: '#C0C0C0', margin: 0, fontFamily: "'DM Sans', sans-serif" }}>
+                 REAL ESTATE INVENTORY (BR)
+               </h2>
+               {/* ── Monitor Panel Link ── */}
+               <a
+                 href="/campinas_real_estate_monitor.html"
+                 target="_blank"
+                 rel="noopener noreferrer"
+                 title="Abrir Monitor de Mercado — Campinas/SP"
+                 style={{
+                   display: 'inline-flex',
+                   alignItems: 'center',
+                   gap: '7px',
+                   padding: '6px 14px',
+                   background: 'linear-gradient(135deg, rgba(79,142,247,0.15) 0%, rgba(124,92,252,0.12) 100%)',
+                   border: '1px solid rgba(79,142,247,0.35)',
+                   borderRadius: '8px',
+                   textDecoration: 'none',
+                   color: '#7ab8ff',
+                   fontSize: '11px',
+                   fontWeight: '600',
+                   letterSpacing: '0.08em',
+                   textTransform: 'uppercase',
+                   fontFamily: "'DM Sans', sans-serif",
+                   transition: 'all 0.2s ease',
+                   whiteSpace: 'nowrap',
+                 }}
+                 onMouseEnter={e => {
+                   e.currentTarget.style.background = 'linear-gradient(135deg, rgba(79,142,247,0.28) 0%, rgba(124,92,252,0.22) 100%)';
+                   e.currentTarget.style.borderColor = 'rgba(79,142,247,0.65)';
+                   e.currentTarget.style.color = '#a8d4ff';
+                 }}
+                 onMouseLeave={e => {
+                   e.currentTarget.style.background = 'linear-gradient(135deg, rgba(79,142,247,0.15) 0%, rgba(124,92,252,0.12) 100%)';
+                   e.currentTarget.style.borderColor = 'rgba(79,142,247,0.35)';
+                   e.currentTarget.style.color = '#7ab8ff';
+                 }}
+               >
+                 <MapPin size={11} />
+                 Monitor Campinas
+                 <span style={{ opacity: 0.6 }}>↗</span>
+               </a>
+             </div>
              <div style={{
                 display: 'flex',
                 alignItems: 'center',
@@ -855,15 +910,25 @@ const GMCDashboard = () => {
 
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontFamily: "'DM Sans', sans-serif", fontSize: '13px', color: '#4A4E52', flexWrap: 'wrap', gap: '16px' }}>
             <div>© 2026 Giovannini Mare Capital LLC — Single-Family Office</div>
-            <div>Convex Research Framework | 1 USD = 5.85 BRL</div>
+            <div>Convex Research Framework | 1 USD = {exchangeRate.toFixed(4)} BRL{macroData?.online ? ' · live' : macroData?.fromCache ? ' · cached' : ' · fallback'}</div>
           </div>
         </footer>
 
-        {/* REPORTS — Convex Research Library (GMC NEXUS) */}
-        <ReportsSection />
+        {/* 9. MACRO CONTEXT — Live Brazil + Global Signals */}
+        <MacroContextSection
+          macroData={macroData}
+          onRefresh={async () => {
+            const fresh = await triggerRefresh();
+            if (fresh) {
+              setMacroData(fresh);
+              const live = fresh.ptaxUsdBrl;
+              if (live && live > 1 && live < 20) setExchangeRate(live);
+            }
+          }}
+        />
 
-        {/* INTELLIGENCE CHAT — Grounded on Convex Research (GMC NEXUS) */}
-        <IntelligenceChatSection />
+        {/* REPORTS — Convex Research Library */}
+        <ConvexReportsSection />
 
       </div>
     </div>
