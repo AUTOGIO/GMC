@@ -4,7 +4,8 @@
 #  Double-click this file on macOS to open all dashboards.
 # ═══════════════════════════════════════════════════════════════
 
-DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+LAUNCHER_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+DIR="$(cd "$LAUNCHER_DIR/.." && pwd)"   # GMC root — where package.json lives
 cd "$DIR"
 
 echo ""
@@ -16,17 +17,17 @@ echo ""
 
 # ── 1. Open Excel spreadsheet ───────────────────────────────────
 echo "  [1/4] Opening Excel spreadsheet..."
-open "$DIR/GMC_Portfolio_Dashboard.xlsx"
+open "$LAUNCHER_DIR/GMC_Portfolio_Dashboard.xlsx"
 sleep 1
 
 # ── 2. Open Mission Control Launcher in browser ─────────────────
 echo "  [2/4] Opening Mission Control Launcher..."
-open "$DIR/GMC_Launcher.html"
+open "$LAUNCHER_DIR/GMC_Launcher.html"
 sleep 1
 
 # ── 3. Open Real Estate Monitor in browser ──────────────────────
 echo "  [3/4] Opening Real Estate Monitor (Campinas/SP)..."
-open "$DIR/campinas_real_estate_monitor.html"
+open "$LAUNCHER_DIR/campinas_real_estate_monitor.html"
 sleep 1
 
 # ── 4. Start Vite dev server + open GMC Dashboard ───────────────
@@ -39,7 +40,7 @@ if lsof -i :5173 -sTCP:LISTEN -t >/dev/null 2>&1; then
 else
   echo "        → Starting npm run dev on port 5173..."
   # Run in background, log to temp file
-  nohup npm --prefix "$DIR" run dev > /tmp/gmc_vite.log 2>&1 &
+  nohup npm run dev > /tmp/gmc_vite.log 2>&1 &
   VITE_PID=$!
   echo "        → Vite PID: $VITE_PID (log: /tmp/gmc_vite.log)"
   echo "        → Waiting for server to start..."

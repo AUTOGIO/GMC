@@ -513,6 +513,7 @@
 
 <!-- Nav -->
 <nav class="nav">
+  <a href="#admin" style="color:#D0FF00;font-weight:600;">Portfólio</a>
   <a href="#overview">Visão Geral</a>
   <a href="#fontes">Fontes de Dados</a>
   <a href="#preco">Preço/m²</a>
@@ -523,6 +524,107 @@
 </nav>
 
 <div class="container">
+
+  <!-- ══════════════════════════════════════════════════════════════ -->
+  <!-- PORTFOLIO ADMINISTRATION — from imoveis_state.json           -->
+  <!-- ══════════════════════════════════════════════════════════════ -->
+  <section class="section" id="admin" style="margin-bottom:48px;">
+    <div class="section-header">
+      <div class="step-badge" style="background:rgba(208,255,0,0.12);color:#D0FF00;border:1px solid rgba(208,255,0,0.3);">Portfólio</div>
+      <div class="section-title">Administração de Imóveis — Campinas/SP</div>
+    </div>
+    <p style="color:var(--muted);font-size:13px;margin:0 0 24px;">
+      Dados consolidados de <strong style="color:var(--text)">Administracao_Imoveis_Completa + Avancada.xlsx</strong> · Atualizado: 23/03/2026
+    </p>
+
+    <!-- KPI STRIP -->
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:28px;">
+      <div class="kpi-card" style="border-color:rgba(208,255,0,0.25);">
+        <div class="label">Total Imóveis</div>
+        <div class="value" style="color:#D0FF00;">12</div>
+        <div class="desc">Campinas/SP + Nova Veneza</div>
+      </div>
+      <div class="kpi-card">
+        <div class="label">Valor do Portfólio</div>
+        <div class="value" style="font-size:18px;color:#C0C0C0;">R$ 7,57M</div>
+        <div class="desc">Valor de venda declarado</div>
+      </div>
+      <div class="kpi-card">
+        <div class="label">Renda Mensal Potencial</div>
+        <div class="value" style="font-size:18px;color:#22c55e;">R$ 18.850</div>
+        <div class="desc">Se 100% ocupado</div>
+      </div>
+      <div class="kpi-card">
+        <div class="label">Imóveis Alugados</div>
+        <div class="value" style="color:#22c55e;">11<span style="font-size:14px;color:var(--muted)">/12</span></div>
+        <div class="desc">Taxa de ocupação: 91,7%</div>
+      </div>
+      <div class="kpi-card">
+        <div class="label">Renda Recebida (Mar/26)</div>
+        <div class="value" style="font-size:18px;color:#22c55e;">R$ 12.450</div>
+        <div class="desc">Esperado: R$ 14.650</div>
+      </div>
+      <div class="kpi-card">
+        <div class="label">Lucro Líquido (Mar/26)</div>
+        <div class="value" style="font-size:18px;color:#D0FF00;">R$ 10.120</div>
+        <div class="desc">Após despesas R$ 2.330</div>
+      </div>
+    </div>
+
+    <!-- PROPERTY TABLE -->
+    <h4 style="font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin:0 0 12px;">Inventário de Imóveis</h4>
+    <div style="overflow-x:auto;border-radius:8px;border:1px solid var(--border);margin-bottom:28px;">
+      <table style="width:100%;border-collapse:collapse;background:#1a1d27;">
+        <thead>
+          <tr style="background:#222635;">
+            <th style="text-align:left;padding:10px 14px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);border-bottom:1px solid var(--border);white-space:nowrap;">ID</th>
+            <th style="text-align:left;padding:10px 14px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);border-bottom:1px solid var(--border);white-space:nowrap;">Tipo</th>
+            <th style="text-align:left;padding:10px 14px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);border-bottom:1px solid var(--border);">Endereço</th>
+            <th style="text-align:right;padding:10px 14px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);border-bottom:1px solid var(--border);white-space:nowrap;">m²</th>
+            <th style="text-align:right;padding:10px 14px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);border-bottom:1px solid var(--border);white-space:nowrap;">Valor Venda</th>
+            <th style="text-align:right;padding:10px 14px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);border-bottom:1px solid var(--border);white-space:nowrap;">Aluguel/Mês</th>
+            <th style="text-align:right;padding:10px 14px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);border-bottom:1px solid var(--border);white-space:nowrap;">ROI Anual</th>
+          </tr>
+        </thead>
+        <tbody id="imoveis-tbody">
+          <tr><td colspan="7" style="padding:14px;color:var(--muted);font-size:13px;">Carregando…</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- ROI + TYPE BREAKDOWN side-by-side -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:12px;">
+      <!-- Top 5 -->
+      <div style="background:#1a1d27;border:1px solid var(--border);border-radius:8px;padding:18px;">
+        <div style="font-size:11px;text-transform:uppercase;letter-spacing:.1em;color:var(--accent);font-weight:700;margin-bottom:14px;">Top 5 Rentabilidade</div>
+        <table style="width:100%;border-collapse:collapse;" id="top5-table">
+          <thead>
+            <tr>
+              <th style="text-align:left;font-size:11px;color:var(--muted);padding:4px 8px;">#</th>
+              <th style="text-align:left;font-size:11px;color:var(--muted);padding:4px 8px;">Imóvel</th>
+              <th style="text-align:right;font-size:11px;color:var(--muted);padding:4px 8px;">ROI</th>
+            </tr>
+          </thead>
+          <tbody id="top5-tbody"></tbody>
+        </table>
+      </div>
+      <!-- Receita por tipo -->
+      <div style="background:#1a1d27;border:1px solid var(--border);border-radius:8px;padding:18px;">
+        <div style="font-size:11px;text-transform:uppercase;letter-spacing:.1em;color:var(--accent);font-weight:700;margin-bottom:14px;">Receita por Tipo</div>
+        <div id="receita-tipo"></div>
+      </div>
+    </div>
+
+    <!-- ROI ALERT -->
+    <div style="background:rgba(239,68,68,0.07);border:1px solid rgba(239,68,68,0.25);border-radius:8px;padding:14px 16px;font-size:13px;color:var(--muted);display:flex;gap:10px;margin-top:16px;">
+      <span style="font-size:16px;">⚠️</span>
+      <div>
+        <strong style="color:#f87171;">ROI real negativo em 2025 (−1,19%).</strong>
+        ROI nominal de 2,99% ficou abaixo do IPCA 4,23%. Imóveis com melhor desempenho: Vagas #11/#12 (21,1% ROI) e Apartamento #8 (8,5%).
+        O Terreno #1 e Apartamento #2 puxam a média para baixo.
+      </div>
+    </div>
+  </section>
 
   <!-- OVERVIEW -->
   <section class="section" id="overview">
@@ -1401,9 +1503,87 @@
 
 <!-- Footer -->
 <div class="footer">
-  <div>Monitor Imobiliário Campinas/SP — v1.0 — Março 2026</div>
-  <div>Fontes: ZAP/VivaReal (OLX Group) · FIPE ZAP+ · ABECIP IGMI-R · FGV IVAR · Prefeitura Campinas · ONR</div>
+  <div>Monitor Imobiliário Campinas/SP — v1.1 — Março 2026</div>
+  <div>Fontes: ZAP/VivaReal (OLX Group) · FIPE ZAP+ · ABECIP IGMI-R · FGV IVAR · Prefeitura Campinas · ONR · Administracao_Imoveis_Completa/Avancada.xlsx</div>
 </div>
+
+<script>
+// ── Portfolio admin data (merged from xlsx) ──────────────────────────────
+const IMOVEIS = [
+  {id:1,  tipo:"Terreno",     end:"Loteamento Paraná Regina, Nova Veneza",          m2:null, venda:450000,  aluguel:0,    roi:0.00},
+  {id:2,  tipo:"Apartamento", end:"Rua Buarque de Macedo, 635, Campinas",           m2:280,  venda:2065560, aluguel:3500, roi:2.03},
+  {id:3,  tipo:"Casa",        end:"Av. Imperatriz Leopoldina, 10, Campinas",        m2:50,   venda:359700,  aluguel:1800, roi:6.01},
+  {id:4,  tipo:"Casa",        end:"Rua Franz Wilhelm Daffert, 484, Campinas",       m2:380,  venda:2332820, aluguel:4200, roi:2.16},
+  {id:5,  tipo:"Apartamento", end:"Rua Hércules Florence, 367, Campinas",           m2:50,   venda:321600,  aluguel:1200, roi:4.48},
+  {id:6,  tipo:"Apartamento", end:"Rua Falcão Filho, 103, Campinas",                m2:70,   venda:450240,  aluguel:1500, roi:4.00},
+  {id:7,  tipo:"Casa",        end:"Av. Imperatriz Leopoldina, 405, Campinas",       m2:130,  venda:935220,  aluguel:2800, roi:3.59},
+  {id:8,  tipo:"Apartamento", end:"Rua Paulo Setúbal, 367 – Apt 41, Campinas",      m2:69,   venda:112539,  aluguel:800,  roi:8.53},
+  {id:9,  tipo:"Apartamento", end:"Rua 14 de Dezembro, 51-59 – Apt 215, Campinas", m2:39,   venda:105963,  aluguel:650,  roi:7.36},
+  {id:10, tipo:"Apartamento", end:"Rua Cel. Manuel de Morais, 317 – Apt 11",        m2:110,  venda:398640,  aluguel:1800, roi:5.42},
+  {id:11, tipo:"Vaga",        end:"Rua Cel. Manuel de Morais, 317 – Vaga 01",       m2:null, venda:17031,   aluguel:300,  roi:21.14},
+  {id:12, tipo:"Vaga",        end:"Rua Cel. Manuel de Morais, 317 – Vaga 02",       m2:null, venda:17031,   aluguel:300,  roi:21.14},
+];
+
+const TOP5 = [
+  {id:11, tipo:"Vaga",        roi:21.14},
+  {id:12, tipo:"Vaga",        roi:21.14},
+  {id:8,  tipo:"Apartamento", roi:8.53},
+  {id:9,  tipo:"Apartamento", roi:7.36},
+  {id:3,  tipo:"Casa",        roi:6.01},
+];
+
+const RECEITA_TIPO = [
+  {tipo:"Apartamento", val:9450},
+  {tipo:"Casa",        val:8800},
+  {tipo:"Vaga",        val:600},
+  {tipo:"Terreno",     val:0},
+];
+
+const fmtBRL = v => new Intl.NumberFormat('pt-BR',{style:'currency',currency:'BRL',maximumFractionDigits:0}).format(v);
+const roiColor = r => r >= 6 ? '#22c55e' : r >= 3 ? '#7ab8ff' : r >= 1 ? '#f59e0b' : '#ef4444';
+const typeIcon = t => ({Apartamento:'🏢',Casa:'🏠',Terreno:'📍',Vaga:'🅿️'}[t] || '🏗️');
+
+// Populate property table
+const tbody = document.getElementById('imoveis-tbody');
+tbody.innerHTML = IMOVEIS.map(p => `
+  <tr style="border-bottom:1px solid rgba(46,51,71,0.6);">
+    <td style="padding:9px 14px;font-size:12px;color:#D0FF00;font-weight:700;">#${p.id}</td>
+    <td style="padding:9px 14px;font-size:12px;white-space:nowrap;">${typeIcon(p.tipo)} ${p.tipo}</td>
+    <td style="padding:9px 14px;font-size:12px;color:#cbd5e1;">${p.end}</td>
+    <td style="padding:9px 14px;font-size:12px;text-align:right;color:#94a3b8;">${p.m2 != null ? p.m2+' m²' : '—'}</td>
+    <td style="padding:9px 14px;font-size:12px;text-align:right;color:#C0C0C0;font-weight:500;">${fmtBRL(p.venda)}</td>
+    <td style="padding:9px 14px;font-size:12px;text-align:right;color:${p.aluguel > 0 ? '#22c55e' : '#4A4E52'};font-weight:600;">${p.aluguel > 0 ? fmtBRL(p.aluguel) : '—'}</td>
+    <td style="padding:9px 14px;font-size:12px;text-align:right;font-weight:700;color:${roiColor(p.roi)};">${p.roi.toFixed(2)}%</td>
+  </tr>
+`).join('');
+
+// Top 5
+document.getElementById('top5-tbody').innerHTML = TOP5.map((r, i) => `
+  <tr>
+    <td style="padding:6px 8px;font-size:12px;color:#D0FF00;font-weight:700;">${i+1}</td>
+    <td style="padding:6px 8px;font-size:12px;color:#e2e8f0;">${typeIcon(r.tipo)} #${r.id} ${r.tipo}</td>
+    <td style="padding:6px 8px;font-size:12px;text-align:right;font-weight:700;color:${roiColor(r.roi)};">${r.roi.toFixed(2)}%</td>
+  </tr>
+`).join('');
+
+// Receita por tipo bars
+const total = RECEITA_TIPO.reduce((s,r) => s + r.val, 0);
+document.getElementById('receita-tipo').innerHTML = RECEITA_TIPO.map(r => {
+  const pct = total > 0 ? ((r.val / total) * 100).toFixed(1) : 0;
+  return `
+    <div style="margin-bottom:12px;">
+      <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px;">
+        <span style="color:#e2e8f0;">${typeIcon(r.tipo)} ${r.tipo}</span>
+        <span style="color:#22c55e;font-weight:600;">${fmtBRL(r.val)}</span>
+      </div>
+      <div style="height:6px;background:rgba(74,78,82,0.3);border-radius:3px;overflow:hidden;">
+        <div style="width:${pct}%;height:100%;background:#D0FF00;border-radius:3px;"></div>
+      </div>
+      <div style="text-align:right;font-size:11px;color:#4A4E52;margin-top:2px;">${pct}%</div>
+    </div>
+  `;
+}).join('');
+</script>
 
 </body>
 </html>

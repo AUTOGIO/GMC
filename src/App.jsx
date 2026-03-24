@@ -1,8 +1,9 @@
 
 import React, { useState, useEffect, useMemo } from 'react';
-import { Shield, TrendingUp, Building2, Wallet, Globe, AlertTriangle, Activity, Gem, Target, Layers, MapPin, Edit3, DollarSign } from 'lucide-react';
+import { Shield, TrendingUp, Building2, Wallet, Globe, AlertTriangle, Activity, Gem, Target, Layers, Home, PieChart as PieChartIcon, FileText, BarChart2 } from 'lucide-react';
 import ConvexReportsSection from './ConvexReportsSection';
 import MacroContextSection from './MacroContextSection';
+import RealEstateSection from './RealEstateSection';
 import { fetchGlobalMetrics, triggerRefresh, getRegimeDisplay, fmtDate } from './macroApi';
 
 import {
@@ -17,6 +18,16 @@ import {
   detailedEquitiesVisa,
   detailedCryptoCfm,
 } from './data/portfolioLoader';
+
+import {
+  imoveis as imoveisData,
+  inquilinos,
+  pagamentos,
+  despesas,
+  relatorioMensal,
+  relatorioAnual,
+  dashboardKpis,
+} from './data/realEstateLoader';
 
 import {
   ResponsiveContainer,
@@ -82,21 +93,76 @@ const GMCDashboard = () => {
   }, []);
   const [displayCurrency, setDisplayCurrency] = useState('BRL');
 
-  // Properties with configurable m² prices
-  const [properties, setProperties] = useState([
-    { id: 1, type: 'Terreno', address: 'Loteamento Paraná Regina, SN, Nova Veneza', cep: '13183-513', area: null, pricePerM2: null, marketValue: 450000, taxAssessment: 130000, building: null, garages: null, mapsUrl: 'https://maps.google.com/?q=Loteamento+Parana+Regina+Nova+Veneza' },
-    { id: 2, type: 'Apartamento', address: 'Rua Buarque de Macedo, 635, Vila Nova, Campinas', cep: '13073-018', area: 280, pricePerM2: 7377, marketValue: null, taxAssessment: 129173, building: 'Edifício Populus', garages: 4, mapsUrl: 'https://maps.google.com/?q=Rua+Buarque+de+Macedo+635+Campinas' },
-    { id: 3, type: 'Casa', address: 'Av. Imperatriz Leopoldina, 10, Vila Nova, Campinas', cep: '13073-035', area: 50, pricePerM2: 7194, marketValue: null, taxAssessment: 26000, building: null, garages: null, mapsUrl: 'https://maps.google.com/?q=Av+Imperatriz+Leopoldina+10+Campinas' },
-    { id: 4, type: 'Casa', address: 'Rua Franz Wilhelm Daffert, 484, Chapadão, Campinas', cep: '13070-161', area: 380, pricePerM2: 6139, marketValue: null, taxAssessment: 153307, building: null, garages: null, mapsUrl: 'https://maps.google.com/?q=Rua+Franz+Wilhelm+Daffert+484+Campinas' },
-    { id: 5, type: 'Apartamento', address: 'Rua Hércules Florence, 367, Botafogo, Campinas', cep: '13020-170', area: 50, pricePerM2: 6432, marketValue: null, taxAssessment: 48100, building: null, garages: null, mapsUrl: 'https://maps.google.com/?q=Rua+Hercules+Florence+367+Campinas' },
-    { id: 6, type: 'Apartamento', address: 'Rua Falcão Filho, 103, Campinas', cep: '13020-158', area: 70, pricePerM2: 6432, marketValue: null, taxAssessment: 82864, building: null, garages: null, mapsUrl: 'https://maps.google.com/?q=Rua+Falcao+Filho+103+Campinas' },
-    { id: 7, type: 'Casa', address: 'Av. Imperatriz Leopoldina, 405, Vila Nova, Campinas', cep: '13073-035', area: 130, pricePerM2: 7194, marketValue: null, taxAssessment: 139000, building: null, garages: null, mapsUrl: 'https://maps.google.com/?q=Av+Imperatriz+Leopoldina+405+Campinas' },
-    { id: 8, type: 'Apartamento', address: 'Rua Paulo Setúbal, 367 – Apt 41, 4º andar, Edifício Ébano, Campinas/SP', cep: null, area: 69, pricePerM2: 1631, marketValue: null, venalValue: 112493.80, taxAssessment: null, building: 'Edifício Ébano', garages: null, matricula: '103.496', cartorio: '2º Cartório de Registro de Imóveis', mapsUrl: 'https://maps.google.com/?q=Rua+Paulo+Setubal+367+Campinas' },
-    { id: 9, type: 'Apartamento', address: 'Rua 14 de Dezembro, 51-59 – Apt 215, Edifício Pitangueiras, Campinas/SP', cep: null, area: 39, pricePerM2: 2717, marketValue: null, venalValue: 105961.38, taxAssessment: null, building: 'Edifício Pitangueiras', garages: null, matricula: '37.776', cartorio: '2º Cartório de Registro de Imóveis', mapsUrl: 'https://maps.google.com/?q=Rua+14+de+Dezembro+51+Campinas' },
-    { id: 10, type: 'Apartamento', address: 'Rua Coronel Manuel de Morais, 317 – Apt 11, Edifício Pitangua, Campinas/SP', cep: null, area: 110, pricePerM2: 3624, marketValue: null, venalValue: 398687.67, taxAssessment: null, building: 'Edifício Pitangua', garages: null, matricula: '95.359', cartorio: '2º Cartório de Registro de Imóveis', mapsUrl: 'https://maps.google.com/?q=Rua+Coronel+Manuel+de+Morais+317+Campinas' },
-    { id: 11, type: 'Vaga', address: 'Rua Coronel Manuel de Morais, 317 – Vaga 01, Edifício Pitangua, Campinas/SP', cep: null, area: null, pricePerM2: null, marketValue: null, venalValue: 17030.68, taxAssessment: null, building: 'Edifício Pitangua', garages: null, matricula: '95.360', cartorio: '2º Cartório de Registro de Imóveis', mapsUrl: 'https://maps.google.com/?q=Rua+Coronel+Manuel+de+Morais+317+Campinas' },
-    { id: 12, type: 'Vaga', address: 'Rua Coronel Manuel de Morais, 317 – Vaga 02, Edifício Pitangua, Campinas/SP', cep: null, area: null, pricePerM2: null, marketValue: null, venalValue: 17030.68, taxAssessment: null, building: 'Edifício Pitangua', garages: null, matricula: '95.361', cartorio: '2º Cartório de Registro de Imóveis', mapsUrl: 'https://maps.google.com/?q=Rua+Coronel+Manuel+de+Morais+317+Campinas' },
-  ]);
+  // ─── SIDEBAR: active section tracking ───
+  const [activeSection, setActiveSection] = useState('s1-overview');
+
+  const navItems = [
+    { id: 's1-overview',       label: 'Overview',          icon: Home },
+    { id: 's2-allocation',     label: 'Allocation',        icon: PieChartIcon },
+    { id: 's2b-realestate',    label: 'Real Estate',       icon: Building2 },
+    { id: 's3-regime',         label: 'Convex Portfolio',  icon: Shield },
+    { id: 's4-usd-snapshot',   label: 'USD Snapshot',      icon: Wallet },
+    { id: 's5-gavetas',        label: 'Gavetas',           icon: Layers },
+    { id: 's6-optimized-alloc',label: 'Optimized Alloc',   icon: Target },
+    { id: 's7-instruments',    label: 'Instruments',       icon: Activity },
+    { id: 's8-historical',     label: 'Historical',        icon: BarChart2 },
+    { id: 's9-macro',          label: 'Macro Context',     icon: Globe },
+    { id: 's10-reports',       label: 'Reports',           icon: FileText },
+  ];
+
+  const scrollToSection = (id) => {
+    const mainEl = document.getElementById('main-scroll');
+    const sectionEl = document.getElementById(id);
+    if (mainEl && sectionEl) {
+      mainEl.scrollTo({ top: sectionEl.offsetTop - 24, behavior: 'smooth' });
+    }
+    setActiveSection(id);
+  };
+
+  useEffect(() => {
+    const mainEl = document.getElementById('main-scroll');
+    if (!mainEl) return;
+    const sectionIds = navItems.map(n => n.id);
+    const handleScroll = () => {
+      const scrollTop = mainEl.scrollTop;
+      let current = sectionIds[0];
+      for (const id of sectionIds) {
+        const el = document.getElementById(id);
+        if (el && el.offsetTop <= scrollTop + 120) current = id;
+      }
+      setActiveSection(current);
+    };
+    mainEl.addEventListener('scroll', handleScroll, { passive: true });
+    return () => mainEl.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  // Properties: base metadata (cep, building, pricePerM2, etc.) merged with
+  // aluguelMensal + valorVenda from realEstateLoader (imoveis_state.json).
+  const PROPERTY_META = {
+    1:  { cep: '13183-513', area: null,  pricePerM2: null, marketValue: 450000,  taxAssessment: 130000,    building: null,                  garages: null, matricula: null,    cartorio: null,                               mapsUrl: 'https://maps.google.com/?q=Loteamento+Parana+Regina+Nova+Veneza' },
+    2:  { cep: '13073-018', area: 280,   pricePerM2: 7377, marketValue: null,    taxAssessment: 129173,    building: 'Edifício Populus',     garages: 4,    matricula: null,    cartorio: null,                               mapsUrl: 'https://maps.google.com/?q=Rua+Buarque+de+Macedo+635+Campinas' },
+    3:  { cep: '13073-035', area: 50,    pricePerM2: 7194, marketValue: null,    taxAssessment: 26000,     building: null,                  garages: null, matricula: null,    cartorio: null,                               mapsUrl: 'https://maps.google.com/?q=Av+Imperatriz+Leopoldina+10+Campinas' },
+    4:  { cep: '13070-161', area: 380,   pricePerM2: 6139, marketValue: null,    taxAssessment: 153307,    building: null,                  garages: null, matricula: null,    cartorio: null,                               mapsUrl: 'https://maps.google.com/?q=Rua+Franz+Wilhelm+Daffert+484+Campinas' },
+    5:  { cep: '13020-170', area: 50,    pricePerM2: 6432, marketValue: null,    taxAssessment: 48100,     building: null,                  garages: null, matricula: null,    cartorio: null,                               mapsUrl: 'https://maps.google.com/?q=Rua+Hercules+Florence+367+Campinas' },
+    6:  { cep: '13020-158', area: 70,    pricePerM2: 6432, marketValue: null,    taxAssessment: 82864,     building: null,                  garages: null, matricula: null,    cartorio: null,                               mapsUrl: 'https://maps.google.com/?q=Rua+Falcao+Filho+103+Campinas' },
+    7:  { cep: '13073-035', area: 130,   pricePerM2: 7194, marketValue: null,    taxAssessment: 139000,    building: null,                  garages: null, matricula: null,    cartorio: null,                               mapsUrl: 'https://maps.google.com/?q=Av+Imperatriz+Leopoldina+405+Campinas' },
+    8:  { cep: null,         area: 69,   pricePerM2: 1631, marketValue: null,    venalValue: 112493.80,    building: 'Edifício Ébano',       garages: null, matricula: '103.496', cartorio: '2º Cartório de Registro de Imóveis', mapsUrl: 'https://maps.google.com/?q=Rua+Paulo+Setubal+367+Campinas' },
+    9:  { cep: null,         area: 39,   pricePerM2: 2717, marketValue: null,    venalValue: 105961.38,    building: 'Edifício Pitangueiras', garages: null, matricula: '37.776',  cartorio: '2º Cartório de Registro de Imóveis', mapsUrl: 'https://maps.google.com/?q=Rua+14+de+Dezembro+51+Campinas' },
+    10: { cep: null,         area: 110,  pricePerM2: 3624, marketValue: null,    venalValue: 398687.67,    building: 'Edifício Pitangua',    garages: null, matricula: '95.359',  cartorio: '2º Cartório de Registro de Imóveis', mapsUrl: 'https://maps.google.com/?q=Rua+Coronel+Manuel+de+Morais+317+Campinas' },
+    11: { cep: null,         area: null, pricePerM2: null, marketValue: null,    venalValue: 17030.68,     building: 'Edifício Pitangua',    garages: 1,    matricula: '95.360',  cartorio: '2º Cartório de Registro de Imóveis', mapsUrl: 'https://maps.google.com/?q=Rua+Coronel+Manuel+de+Morais+317+Campinas' },
+    12: { cep: null,         area: null, pricePerM2: null, marketValue: null,    venalValue: 17030.68,     building: 'Edifício Pitangua',    garages: 1,    matricula: '95.361',  cartorio: '2º Cartório de Registro de Imóveis', mapsUrl: 'https://maps.google.com/?q=Rua+Coronel+Manuel+de+Morais+317+Campinas' },
+  };
+
+  // Merge xlsx data (valorVenda, aluguelMensal) with local metadata (cep, building, pricePerM2…)
+  const [properties, setProperties] = useState(
+    imoveisData.map(p => ({
+      id:            p.id,
+      type:          p.tipo,
+      address:       p.endereco,
+      aluguelMensal: p.aluguelMensal,
+      ...(PROPERTY_META[p.id] || {}),
+    }))
+  );
 
   // Calculate market value based on area and price per m²
   const getCalculatedValue = (property) => {
@@ -163,12 +229,80 @@ const GMCDashboard = () => {
 
   return (
     <div style={{
-      minHeight: '100vh',
+      height: '100vh',
+      overflow: 'hidden',
+      display: 'flex',
       background: 'linear-gradient(135deg, #0A0A0A 0%, #121212 50%, #0A0A0A 100%)',
       fontFamily: "'Cormorant Garamond', Georgia, serif",
       color: '#E2E8F0',
-      padding: '24px',
     }}>
+
+      {/* ─── SIDEBAR NAVIGATION ─── */}
+      <nav style={{
+        width: '200px',
+        minWidth: '200px',
+        height: '100vh',
+        overflowY: 'auto',
+        background: 'rgba(6, 6, 6, 0.98)',
+        borderRight: '1px solid rgba(192, 192, 192, 0.08)',
+        display: 'flex',
+        flexDirection: 'column',
+        flexShrink: 0,
+      }}>
+        {/* Logo block */}
+        <div style={{ padding: '24px 18px 18px', borderBottom: '1px solid rgba(192,192,192,0.08)' }}>
+          <div style={{ fontSize: '15px', fontWeight: '600', letterSpacing: '4px', color: '#C0C0C0', fontFamily: "'DM Sans', sans-serif" }}>GMC</div>
+          <div style={{ fontSize: '9px', letterSpacing: '2px', color: '#4A4E52', fontFamily: "'DM Sans', sans-serif", marginTop: '5px', textTransform: 'uppercase' }}>Portfolio Dashboard</div>
+        </div>
+
+        {/* Nav links */}
+        <div style={{ padding: '10px 0', flex: 1 }}>
+          {navItems.map(item => {
+            const Icon = item.icon;
+            const isActive = activeSection === item.id;
+            return (
+              <button
+                key={item.id}
+                onClick={() => scrollToSection(item.id)}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '10px',
+                  padding: '9px 18px',
+                  background: isActive ? 'rgba(208, 255, 0, 0.07)' : 'transparent',
+                  border: 'none',
+                  borderLeft: isActive ? '2px solid #D0FF00' : '2px solid transparent',
+                  cursor: 'pointer',
+                  color: isActive ? '#D0FF00' : '#94A3B8',
+                  fontFamily: "'DM Sans', sans-serif",
+                  fontSize: '12px',
+                  textAlign: 'left',
+                  width: '100%',
+                  transition: 'color 0.15s, background 0.15s',
+                  letterSpacing: '0.4px',
+                  lineHeight: '1',
+                }}
+                onMouseEnter={e => { if (!isActive) { e.currentTarget.style.color = '#E2E8F0'; e.currentTarget.style.background = 'rgba(255,255,255,0.03)'; } }}
+                onMouseLeave={e => { if (!isActive) { e.currentTarget.style.color = '#94A3B8'; e.currentTarget.style.background = 'transparent'; } }}
+              >
+                <Icon size={13} style={{ flexShrink: 0 }} />
+                <span>{item.label}</span>
+              </button>
+            );
+          })}
+        </div>
+
+        {/* Bottom regime pill */}
+        <div style={{ padding: '14px 18px', borderTop: '1px solid rgba(192,192,192,0.08)', fontFamily: "'DM Sans', sans-serif" }}>
+          <div style={{ fontSize: '9px', letterSpacing: '1px', color: '#4A4E52', marginBottom: '4px', textTransform: 'uppercase' }}>Regime</div>
+          <div style={{ fontSize: '11px', color: getRegimeDisplay(macroData?.regimeHint).color, fontWeight: 'bold', letterSpacing: '0.5px' }}>
+            {getRegimeDisplay(macroData?.regimeHint).label}
+          </div>
+        </div>
+      </nav>
+
+      {/* ─── MAIN SCROLLABLE CONTENT ─── */}
+      <main id="main-scroll" style={{ flex: 1, height: '100vh', overflowY: 'auto', padding: '24px' }}>
       <div style={{ position: 'relative', zIndex: 1, maxWidth: '1000px', margin: '0 auto' }}>
         
         {/* 1. Overview & KPI Strip */}
@@ -287,296 +421,30 @@ const GMCDashboard = () => {
           </div>
         </section>
 
-        {/* 2b. Real Estate / Property Inventory */}
-        <section id="s2b-realestate" style={{ marginBottom: '48px' }}>
-           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '24px' }}>
-             <div style={{ display: 'flex', alignItems: 'center', gap: '16px', flexWrap: 'wrap' }}>
-               <h2 style={{ fontSize: '20px', letterSpacing: '2px', color: '#C0C0C0', margin: 0, fontFamily: "'DM Sans', sans-serif" }}>
-                 REAL ESTATE INVENTORY (BR)
-               </h2>
-               {/* ── Monitor Panel Link ── */}
-               <a
-                 href="/campinas_real_estate_monitor.html"
-                 target="_blank"
-                 rel="noopener noreferrer"
-                 title="Abrir Monitor de Mercado — Campinas/SP"
-                 style={{
-                   display: 'inline-flex',
-                   alignItems: 'center',
-                   gap: '7px',
-                   padding: '6px 14px',
-                   background: 'linear-gradient(135deg, rgba(79,142,247,0.15) 0%, rgba(124,92,252,0.12) 100%)',
-                   border: '1px solid rgba(79,142,247,0.35)',
-                   borderRadius: '8px',
-                   textDecoration: 'none',
-                   color: '#7ab8ff',
-                   fontSize: '11px',
-                   fontWeight: '600',
-                   letterSpacing: '0.08em',
-                   textTransform: 'uppercase',
-                   fontFamily: "'DM Sans', sans-serif",
-                   transition: 'all 0.2s ease',
-                   whiteSpace: 'nowrap',
-                 }}
-                 onMouseEnter={e => {
-                   e.currentTarget.style.background = 'linear-gradient(135deg, rgba(79,142,247,0.28) 0%, rgba(124,92,252,0.22) 100%)';
-                   e.currentTarget.style.borderColor = 'rgba(79,142,247,0.65)';
-                   e.currentTarget.style.color = '#a8d4ff';
-                 }}
-                 onMouseLeave={e => {
-                   e.currentTarget.style.background = 'linear-gradient(135deg, rgba(79,142,247,0.15) 0%, rgba(124,92,252,0.12) 100%)';
-                   e.currentTarget.style.borderColor = 'rgba(79,142,247,0.35)';
-                   e.currentTarget.style.color = '#7ab8ff';
-                 }}
-               >
-                 <MapPin size={11} />
-                 Monitor Campinas
-                 <span style={{ opacity: 0.6 }}>↗</span>
-               </a>
-             </div>
-             <div style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '12px',
-                padding: '8px 16px',
-                background: 'rgba(18, 18, 18, 0.8)',
-                border: '1px solid rgba(74, 78, 82, 0.4)',
-                borderRadius: '12px',
-              }}>
-                <DollarSign size={16} style={{ color: '#C0C0C0' }} />
-                <button
-                  onClick={() => setDisplayCurrency('BRL')}
-                  style={{
-                    padding: '6px 12px',
-                    background: displayCurrency === 'BRL' ? 'rgba(208, 255, 0, 0.2)' : 'transparent',
-                    border: displayCurrency === 'BRL' ? '1px solid rgba(208, 255, 0, 0.4)' : '1px solid transparent',
-                    borderRadius: '6px',
-                    color: displayCurrency === 'BRL' ? '#D0FF00' : '#4A4E52',
-                    cursor: 'pointer',
-                    fontFamily: "'DM Sans', sans-serif",
-                    fontSize: '12px',
-                  }}
-                >
-                  BRL
-                </button>
-                <button
-                  onClick={() => setDisplayCurrency('USD')}
-                  style={{
-                    padding: '6px 12px',
-                    background: displayCurrency === 'USD' ? 'rgba(208, 255, 0, 0.2)' : 'transparent',
-                    border: displayCurrency === 'USD' ? '1px solid rgba(208, 255, 0, 0.4)' : '1px solid transparent',
-                    borderRadius: '6px',
-                    color: displayCurrency === 'USD' ? '#D0FF00' : '#4A4E52',
-                    cursor: 'pointer',
-                    fontFamily: "'DM Sans', sans-serif",
-                    fontSize: '12px',
-                  }}
-                >
-                  USD
-                </button>
-              </div>
-           </div>
-           
-           <div style={{
-              background: 'rgba(18, 18, 18, 0.6)',
-              border: '1px solid rgba(74, 78, 82, 0.3)',
-              borderRadius: '16px',
-              overflow: 'hidden',
-            }}>
-              <div style={{
-                padding: '20px 24px',
-                borderBottom: '1px solid rgba(74, 78, 82, 0.3)',
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-              }}>
-                <h3 style={{
-                  fontSize: '14px',
-                  fontFamily: "'DM Sans', sans-serif",
-                  letterSpacing: '2px',
-                  color: '#C0C0C0',
-                  margin: 0,
-                }}>
-                  PROPERTY INVENTORY — EXPOSURE SUMMARY
-                </h3>
-                <div style={{
-                  fontFamily: "'DM Sans', sans-serif",
-                  fontSize: '12px',
-                  color: '#4A4E52',
-                }}>
-                  Total: <span style={{ color: '#D0FF00', fontWeight: '600' }}>{formatRealEstate(realEstateValue)}</span>
-                  <span style={{ marginLeft: '8px', fontSize: '11px', color: '#4A4E52' }}>
-                    ({displayCurrency === 'USD' ? formatBRL(realEstateValue) : formatUsdOnly(realEstateValueUsd)})
-                  </span>
-                </div>
-              </div>
-
-              <div style={{ padding: '16px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                {properties.map((property) => {
-                  const calculatedValue = getCalculatedValue(property);
-                  const isEditing = editingProperty === property.id;
-                  
-                  return (
-                    <div
-                      key={property.id}
-                      style={{
-                        background: selectedProperty === property.id 
-                          ? 'rgba(192, 192, 192, 0.1)' 
-                          : 'rgba(10, 10, 10, 0.5)',
-                        border: selectedProperty === property.id 
-                          ? '1px solid rgba(192, 192, 192, 0.4)'
-                          : '1px solid rgba(74, 78, 82, 0.2)',
-                        borderRadius: '12px',
-                        padding: '16px',
-                        cursor: 'pointer',
-                        transition: 'all 0.2s ease',
-                      }}
-                      onClick={() => setSelectedProperty(selectedProperty === property.id ? null : property.id)}
-                    >
-                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '12px' }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                          <span style={{ fontSize: '24px' }}>{getTypeIcon(property.type)}</span>
-                          <div>
-                            <div style={{ fontWeight: '500', color: '#F8FAFC', marginBottom: '2px' }}>
-                              {property.type}
-                              {property.building && <span style={{ color: '#94A3B8', fontWeight: '400' }}> — {property.building}</span>}
-                            </div>
-                            <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '12px', color: '#4A4E52' }}>
-                              ID: {property.id} {property.matricula && `• Matrícula: ${property.matricula}`}
-                            </div>
-                          </div>
-                        </div>
-                        <div style={{ textAlign: 'right' }}>
-                          <div style={{ fontSize: '20px', fontWeight: '500', color: '#D0FF00' }}>
-                            {formatRealEstate(calculatedValue)}
-                          </div>
-                          <div style={{ fontSize: '12px', color: '#4A4E52', fontFamily: "'DM Sans', sans-serif" }}>
-                            {displayCurrency === 'USD' ? formatBRL(calculatedValue) : formatUsdOnly(calculatedValue / exchangeRate)}
-                          </div>
-                        </div>
-                      </div>
-
-                      <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '13px', color: '#CBD5E1', marginBottom: '12px' }}>
-                        {property.address}
-                      </div>
-
-                      <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap', alignItems: 'center' }}>
-                        {property.area && (
-                          <div style={{
-                            padding: '6px 12px',
-                            background: 'rgba(192, 192, 192, 0.1)',
-                            borderRadius: '6px',
-                            fontFamily: "'DM Sans', sans-serif",
-                            fontSize: '12px',
-                            color: '#C0C0C0',
-                          }}>
-                            📐 {property.area} m²
-                          </div>
-                        )}
-
-                        {property.area && property.pricePerM2 !== null && (
-                          <div
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              setEditingProperty(property.id);
-                            }}
-                            style={{
-                              padding: '6px 12px',
-                              background: isEditing ? 'rgba(192, 192, 192, 0.2)' : 'rgba(192, 192, 192, 0.1)',
-                              border: '1px dashed rgba(192, 192, 192, 0.4)',
-                              borderRadius: '6px',
-                              fontFamily: "'DM Sans', sans-serif",
-                              fontSize: '12px',
-                              color: '#C0C0C0',
-                              display: 'flex',
-                              alignItems: 'center',
-                              gap: '6px',
-                              cursor: 'pointer',
-                            }}
-                          >
-                            {isEditing ? (
-                              <>
-                                <span>R$/m²:</span>
-                                <input
-                                  type="number"
-                                  defaultValue={property.pricePerM2}
-                                  onClick={(e) => e.stopPropagation()}
-                                  onKeyDown={(e) => {
-                                    if (e.key === 'Enter') {
-                                      updatePropertyPrice(property.id, e.target.value);
-                                    }
-                                    if (e.key === 'Escape') {
-                                      setEditingProperty(null);
-                                    }
-                                  }}
-                                  onBlur={(e) => updatePropertyPrice(property.id, e.target.value)}
-                                  autoFocus
-                                  style={{
-                                    width: '70px',
-                                    padding: '2px 6px',
-                                    background: 'rgba(10, 10, 10, 0.8)',
-                                    border: '1px solid rgba(192, 192, 192, 0.4)',
-                                    borderRadius: '4px',
-                                    color: '#F8FAFC',
-                                    fontSize: '12px',
-                                    fontFamily: "'DM Sans', sans-serif",
-                                  }}
-                                />
-                              </>
-                            ) : (
-                              <>
-                                <span>R$ {property.pricePerM2?.toLocaleString('pt-BR')}/m²</span>
-                                <Edit3 size={10} />
-                              </>
-                            )}
-                          </div>
-                        )}
-
-                        {property.garages && (
-                          <div style={{
-                            padding: '6px 12px',
-                            background: 'rgba(192, 192, 192, 0.1)',
-                            borderRadius: '6px',
-                            fontFamily: "'DM Sans', sans-serif",
-                            fontSize: '12px',
-                            color: '#C0C0C0',
-                          }}>
-                            🚗 {property.garages} vagas
-                          </div>
-                        )}
-
-                        {property.mapsUrl && (
-                          <a
-                            href={property.mapsUrl}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            onClick={(e) => e.stopPropagation()}
-                            style={{
-                              padding: '6px 12px',
-                              background: 'rgba(208, 255, 0, 0.1)',
-                              border: '1px solid rgba(208, 255, 0, 0.3)',
-                              borderRadius: '6px',
-                              fontFamily: "'DM Sans', sans-serif",
-                              fontSize: '12px',
-                              color: '#D0FF00',
-                              textDecoration: 'none',
-                              display: 'flex',
-                              alignItems: 'center',
-                              gap: '6px',
-                              transition: 'all 0.2s ease',
-                            }}
-                          >
-                            <MapPin size={12} />
-                            Google Maps
-                          </a>
-                        )}
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-           </div>
-        </section>
+        {/* 2b. Real Estate — tabbed section (Portfolio + Monitor Campinas) */}
+        <RealEstateSection
+          properties={properties}
+          exchangeRate={exchangeRate}
+          displayCurrency={displayCurrency}
+          setDisplayCurrency={setDisplayCurrency}
+          editingProperty={editingProperty}
+          setEditingProperty={setEditingProperty}
+          selectedProperty={selectedProperty}
+          setSelectedProperty={setSelectedProperty}
+          realEstateValue={realEstateValue}
+          realEstateValueUsd={realEstateValueUsd}
+          updatePropertyPrice={updatePropertyPrice}
+          formatBRL={formatBRL}
+          formatUsdOnly={formatUsdOnly}
+          getCalculatedValue={getCalculatedValue}
+          getTypeIcon={getTypeIcon}
+          inquilinos={inquilinos}
+          pagamentos={pagamentos}
+          despesas={despesas}
+          relatorioMensal={relatorioMensal}
+          relatorioAnual={relatorioAnual}
+          dashboardKpis={dashboardKpis}
+        />
 
         {/* 3. Convex Portfolio Regime & Doctrine */}
         <section id="s3-regime" style={{ marginBottom: '48px' }}>
@@ -915,22 +783,27 @@ const GMCDashboard = () => {
         </footer>
 
         {/* 9. MACRO CONTEXT — Live Brazil + Global Signals */}
-        <MacroContextSection
-          macroData={macroData}
-          onRefresh={async () => {
-            const fresh = await triggerRefresh();
-            if (fresh) {
-              setMacroData(fresh);
-              const live = fresh.ptaxUsdBrl;
-              if (live && live > 1 && live < 20) setExchangeRate(live);
-            }
-          }}
-        />
+        <div id="s9-macro">
+          <MacroContextSection
+            macroData={macroData}
+            onRefresh={async () => {
+              const fresh = await triggerRefresh();
+              if (fresh) {
+                setMacroData(fresh);
+                const live = fresh.ptaxUsdBrl;
+                if (live && live > 1 && live < 20) setExchangeRate(live);
+              }
+            }}
+          />
+        </div>
 
         {/* REPORTS — Convex Research Library */}
-        <ConvexReportsSection />
+        <div id="s10-reports">
+          <ConvexReportsSection />
+        </div>
 
       </div>
+      </main>
     </div>
   );
 };
