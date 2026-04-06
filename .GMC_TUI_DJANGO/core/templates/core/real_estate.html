@@ -1,0 +1,121 @@
+{% extends 'core/base.html' %}
+
+{% block title %}Real Estate{% endblock %}
+
+{% block content %}
+<section class="summary-strip">
+  <article class="tui-panel summary-card">
+    <div class="panel-title">[ TOTAL MARKET VALUE ]</div>
+    <strong>${{ summary.total_market|floatformat:2 }}</strong>
+  </article>
+  <article class="tui-panel summary-card">
+    <div class="panel-title">[ TOTAL TAX VALUE ]</div>
+    <strong>${{ summary.total_tax|floatformat:2 }}</strong>
+  </article>
+  <article class="tui-panel summary-card">
+    <div class="panel-title">[ TOTAL AREA ]</div>
+    <strong>{{ summary.total_area|floatformat:2 }} m²</strong>
+  </article>
+  <article class="tui-panel summary-card">
+    <div class="panel-title">[ TAX GAP ]</div>
+    <strong class="tone-warn">{{ summary.tax_gap_pct|floatformat:2 }}%</strong>
+  </article>
+</section>
+
+<section class="real-estate-grid">
+  <article class="tui-panel full-width">
+    <div class="panel-title">[ PROPERTY ASSETS ]</div>
+    <table class="tui-table dense-table">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>City</th>
+          <th class="align-right">Market</th>
+          <th class="align-right">Tax</th>
+          <th class="align-right">Area (m²)</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for asset in properties %}
+          <tr>
+            <td>{{ asset.name }}</td>
+            <td>{{ asset.asset_type }}</td>
+            <td>{{ asset.city }}</td>
+            <td class="align-right">${{ asset.market_value|floatformat:2 }}</td>
+            <td class="align-right">${{ asset.tax_value|floatformat:2 }}</td>
+            <td class="align-right">{{ asset.area_m2|floatformat:2 }}</td>
+            <td><span class="status-badge status-active">{{ asset.status }}</span></td>
+          </tr>
+        {% empty %}
+          <tr><td colspan="7" class="dim">No property data loaded.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </article>
+
+  <article class="tui-panel">
+    <div class="panel-title">[ MARKET VS TAX ]</div>
+    <div class="chart-box"><canvas id="realEstateValueChart"></canvas></div>
+  </article>
+
+  <article class="tui-panel">
+    <div class="panel-title">[ EXPOSURE BY TYPE ]</div>
+    <table class="tui-table compact-table">
+      <thead>
+        <tr>
+          <th>Type</th>
+          <th class="align-right">Market Value</th>
+          <th class="align-right">Weight %</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for item in exposure %}
+          <tr>
+            <td>{{ item.type }}</td>
+            <td class="align-right">${{ item.market|floatformat:2 }}</td>
+            <td class="align-right">{{ item.weight|floatformat:2 }}%</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </article>
+
+  <article class="tui-panel full-width">
+    <div class="panel-title">[ CITY / UNITS / AREA / VALUATION ]</div>
+    <table class="tui-table compact-table">
+      <thead>
+        <tr>
+          <th>City</th>
+          <th class="align-right">Units</th>
+          <th class="align-right">Area (m²)</th>
+          <th class="align-right">Market</th>
+          <th class="align-right">Tax</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for row in city_rows %}
+          <tr>
+            <td>{{ row.city }}</td>
+            <td class="align-right">{{ row.units }}</td>
+            <td class="align-right">{{ row.area|floatformat:2 }}</td>
+            <td class="align-right">${{ row.market|floatformat:2 }}</td>
+            <td class="align-right">${{ row.tax|floatformat:2 }}</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </article>
+</section>
+{% endblock %}
+
+{% block extra_json %}
+  {{ value_chart|json_script:'real-estate-chart-data' }}
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  window.initRealEstateChart();
+</script>
+{% endblock %}

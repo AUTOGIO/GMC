@@ -1,0 +1,87 @@
+{% extends 'core/base.html' %}
+
+{% block title %}Macro{% endblock %}
+
+{% block content %}
+<section class="macro-cards">
+  {% for signal in signals %}
+    <article class="tui-panel signal-card">
+      <div class="panel-title">[ {{ signal.name|upper }} ]</div>
+      <div class="signal-main tone-{{ signal.status_color|lower }}">{{ signal.signal_value }}</div>
+      <div class="signal-regime">{{ signal.regime }}</div>
+      <p class="dim">{{ signal.notes }}</p>
+    </article>
+  {% empty %}
+    <article class="tui-panel"><p class="dim">No macro signals available.</p></article>
+  {% endfor %}
+</section>
+
+<section class="macro-grid">
+  <article class="tui-panel">
+    <div class="panel-title">[ SIGNAL HEAT TABLE ]</div>
+    <table class="tui-table compact-table">
+      <thead>
+        <tr>
+          <th>Signal</th>
+          <th>Regime</th>
+          <th class="align-right">Value</th>
+          <th class="align-right">Heat</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for row in heat_rows %}
+          <tr>
+            <td>{{ row.signal.name }}</td>
+            <td>{{ row.signal.regime }}</td>
+            <td class="align-right tone-{{ row.signal.status_color|lower }}">{{ row.signal.signal_value }}</td>
+            <td class="align-right">
+              <span class="heat-cell" style="--heat: {{ row.intensity }}%;">{{ row.intensity }}%</span>
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </article>
+
+  <article class="tui-panel">
+    <div class="panel-title">[ TREND MONITOR ]</div>
+    <div class="chart-box"><canvas id="macroTrendChart"></canvas></div>
+  </article>
+
+  <article class="tui-panel">
+    <div class="panel-title">[ RULE / TRIGGER PANEL ]</div>
+    <ul class="rule-list">
+      {% for rule in rules %}
+        <li>{{ rule }}</li>
+      {% endfor %}
+    </ul>
+  </article>
+
+  <article class="tui-panel">
+    <div class="panel-title">[ OPERATOR NOTES ]</div>
+    <ul class="notes-feed">
+      {% for note in operator_notes %}
+        <li>
+          <div class="note-head">
+            <strong>{{ note.title }}</strong>
+            <span class="dim">{{ note.created_at|date:"Y-m-d H:i" }}</span>
+          </div>
+          <p>{{ note.body }}</p>
+        </li>
+      {% empty %}
+        <li class="dim">No macro notes available.</li>
+      {% endfor %}
+    </ul>
+  </article>
+</section>
+{% endblock %}
+
+{% block extra_json %}
+  {{ trend_chart|json_script:'macro-trend-data' }}
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  window.initMacroChart();
+</script>
+{% endblock %}

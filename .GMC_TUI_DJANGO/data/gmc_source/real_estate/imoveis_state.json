@@ -1,0 +1,584 @@
+{
+  "last_update": "2026-03-23",
+  "source_files": [
+    "Administracao_Imoveis_Completa.xlsx",
+    "Administracao_Imoveis_Avancada.xlsx"
+  ],
+  "merge_strategy": "Completa=base(imoveis+inquilinos+pagamentos+despesas+relatorios), Avancada=dashboard_kpis",
+  "imoveis": [
+    {
+      "id": 1,
+      "tipo": "Terreno",
+      "endereco": "Loteamento Paraná Regina, SN, Nova Veneza",
+      "metragem": null,
+      "vagas": null,
+      "matricula": null,
+      "valorVenda": 450000.0,
+      "aluguelMensal": 0.0
+    },
+    {
+      "id": 2,
+      "tipo": "Apartamento",
+      "endereco": "Rua Buarque de Macedo, 635, Vila Nova, Campinas",
+      "metragem": 280.0,
+      "vagas": 4,
+      "matricula": null,
+      "valorVenda": 2065560.0,
+      "aluguelMensal": 3500.0
+    },
+    {
+      "id": 3,
+      "tipo": "Casa",
+      "endereco": "Av. Imperatriz Leopoldina, 10, Vila Nova, Campinas",
+      "metragem": 50.0,
+      "vagas": null,
+      "matricula": null,
+      "valorVenda": 359700.0,
+      "aluguelMensal": 1800.0
+    },
+    {
+      "id": 4,
+      "tipo": "Casa",
+      "endereco": "Rua Franz Wilhelm Daffert, 484, Chapadão, Campinas",
+      "metragem": 380.0,
+      "vagas": null,
+      "matricula": null,
+      "valorVenda": 2332820.0,
+      "aluguelMensal": 4200.0
+    },
+    {
+      "id": 5,
+      "tipo": "Apartamento",
+      "endereco": "Rua Hércules Florence, 367, Botafogo, Campinas",
+      "metragem": 50.0,
+      "vagas": null,
+      "matricula": null,
+      "valorVenda": 321600.0,
+      "aluguelMensal": 1200.0
+    },
+    {
+      "id": 6,
+      "tipo": "Apartamento",
+      "endereco": "Rua Falcão Filho, 103, Campinas",
+      "metragem": 70.0,
+      "vagas": null,
+      "matricula": null,
+      "valorVenda": 450240.0,
+      "aluguelMensal": 1500.0
+    },
+    {
+      "id": 7,
+      "tipo": "Casa",
+      "endereco": "Av. Imperatriz Leopoldina, 405, Vila Nova, Campinas",
+      "metragem": 130.0,
+      "vagas": null,
+      "matricula": null,
+      "valorVenda": 935220.0,
+      "aluguelMensal": 2800.0
+    },
+    {
+      "id": 8,
+      "tipo": "Apartamento",
+      "endereco": "Rua Paulo Setúbal, 367 – Apt 41, 4º andar, Edifício Ébano, Campinas/SP",
+      "metragem": 69.0,
+      "vagas": null,
+      "matricula": "103.496",
+      "valorVenda": 112539.0,
+      "aluguelMensal": 800.0
+    },
+    {
+      "id": 9,
+      "tipo": "Apartamento",
+      "endereco": "Rua 14 de Dezembro, 51-59 – Apt 215, Edifício Pitangueiras, Campinas/SP",
+      "metragem": 39.0,
+      "vagas": null,
+      "matricula": "37.776",
+      "valorVenda": 105963.0,
+      "aluguelMensal": 650.0
+    },
+    {
+      "id": 10,
+      "tipo": "Apartamento",
+      "endereco": "Rua Coronel Manuel de Morais, 317 – Apt 11, Edifício Pitangua, Campinas/SP",
+      "metragem": 110.0,
+      "vagas": null,
+      "matricula": "95.359",
+      "valorVenda": 398640.0,
+      "aluguelMensal": 1800.0
+    },
+    {
+      "id": 11,
+      "tipo": "Vaga",
+      "endereco": "Rua Coronel Manuel de Morais, 317 – Vaga 01, Edifício Pitangua, Campinas/SP",
+      "metragem": null,
+      "vagas": 1,
+      "matricula": "95.360",
+      "valorVenda": 17031.0,
+      "aluguelMensal": 300.0
+    },
+    {
+      "id": 12,
+      "tipo": "Vaga",
+      "endereco": "Rua Coronel Manuel de Morais, 317 – Vaga 02, Edifício Pitangua, Campinas/SP",
+      "metragem": null,
+      "vagas": 1,
+      "matricula": "95.361",
+      "valorVenda": 17031.0,
+      "aluguelMensal": 300.0
+    }
+  ],
+  "inquilinos": [
+    {
+      "idImovel": 2,
+      "nome": "João Silva",
+      "telefone": "(19) 98765-4321",
+      "email": "joao@email.com",
+      "dataInicio": "01/01/2023",
+      "dataTermino": "31/12/2024",
+      "status": "Vencido"
+    },
+    {
+      "idImovel": 3,
+      "nome": "Maria Santos",
+      "telefone": "(19) 99876-5432",
+      "email": "maria@email.com",
+      "dataInicio": "15/02/2023",
+      "dataTermino": "14/02/2025",
+      "status": "Vencido"
+    },
+    {
+      "idImovel": 4,
+      "nome": "Pedro Oliveira",
+      "telefone": "(19) 97654-3210",
+      "email": "pedro@email.com",
+      "dataInicio": "10/03/2023",
+      "dataTermino": "09/03/2025",
+      "status": "Vencido"
+    },
+    {
+      "idImovel": 5,
+      "nome": "Ana Costa",
+      "telefone": "(19) 96543-2109",
+      "email": "ana@email.com",
+      "dataInicio": "20/01/2024",
+      "dataTermino": "19/01/2026",
+      "status": "Vencido"
+    },
+    {
+      "idImovel": 6,
+      "nome": "Carlos Mendes",
+      "telefone": "(19) 95432-1098",
+      "email": "carlos@email.com",
+      "dataInicio": "05/05/2023",
+      "dataTermino": "04/05/2025",
+      "status": "Vencido"
+    },
+    {
+      "idImovel": 7,
+      "nome": "Lucia Ferreira",
+      "telefone": "(19) 94321-0987",
+      "email": "lucia@email.com",
+      "dataInicio": "12/06/2023",
+      "dataTermino": "11/06/2025",
+      "status": "Vencido"
+    },
+    {
+      "idImovel": 8,
+      "nome": "Roberto Silva",
+      "telefone": "(19) 93210-9876",
+      "email": "roberto@email.com",
+      "dataInicio": "01/07/2023",
+      "dataTermino": "30/06/2025",
+      "status": "Vencido"
+    },
+    {
+      "idImovel": 9,
+      "nome": "Fernanda Costa",
+      "telefone": "(19) 92109-8765",
+      "email": "fernanda@email.com",
+      "dataInicio": "15/08/2023",
+      "dataTermino": "14/08/2025",
+      "status": "Vencido"
+    },
+    {
+      "idImovel": 10,
+      "nome": "Gustavo Martins",
+      "telefone": "(19) 91098-7654",
+      "email": "gustavo@email.com",
+      "dataInicio": "20/09/2023",
+      "dataTermino": "19/09/2025",
+      "status": "Vencido"
+    }
+  ],
+  "pagamentos": [
+    {
+      "idImovel": 2,
+      "mesAno": "03/2026",
+      "valorEsperado": 3500.0,
+      "valorRecebido": 3500.0,
+      "dataPagamento": "05/03/2026",
+      "status": "Recebido"
+    },
+    {
+      "idImovel": 2,
+      "mesAno": "02/2026",
+      "valorEsperado": 3500.0,
+      "valorRecebido": 3500.0,
+      "dataPagamento": "03/02/2026",
+      "status": "Recebido"
+    },
+    {
+      "idImovel": 3,
+      "mesAno": "03/2026",
+      "valorEsperado": 1800.0,
+      "valorRecebido": 0.0,
+      "dataPagamento": null,
+      "status": "Pendente"
+    },
+    {
+      "idImovel": 4,
+      "mesAno": "03/2026",
+      "valorEsperado": 4200.0,
+      "valorRecebido": 4200.0,
+      "dataPagamento": "02/03/2026",
+      "status": "Recebido"
+    },
+    {
+      "idImovel": 5,
+      "mesAno": "03/2026",
+      "valorEsperado": 1200.0,
+      "valorRecebido": 1200.0,
+      "dataPagamento": "01/03/2026",
+      "status": "Recebido"
+    },
+    {
+      "idImovel": 6,
+      "mesAno": "03/2026",
+      "valorEsperado": 1500.0,
+      "valorRecebido": 1500.0,
+      "dataPagamento": "04/03/2026",
+      "status": "Recebido"
+    },
+    {
+      "idImovel": 7,
+      "mesAno": "03/2026",
+      "valorEsperado": 2800.0,
+      "valorRecebido": 0.0,
+      "dataPagamento": null,
+      "status": "Pendente"
+    }
+  ],
+  "despesas": [
+    {
+      "idImovel": 2,
+      "data": "15/02/2026",
+      "tipo": "Manutenção",
+      "descricao": "Reparo de torneira",
+      "valor": 250.0,
+      "fornecedor": "Encanador João"
+    },
+    {
+      "idImovel": 4,
+      "data": "20/02/2026",
+      "tipo": "Limpeza",
+      "descricao": "Limpeza geral",
+      "valor": 400.0,
+      "fornecedor": "Serviços Gerais"
+    },
+    {
+      "idImovel": 7,
+      "data": "10/03/2026",
+      "tipo": "Pintura",
+      "descricao": "Pintura fachada",
+      "valor": 1500.0,
+      "fornecedor": "Pintor Silva"
+    },
+    {
+      "idImovel": 3,
+      "data": "25/02/2026",
+      "tipo": "Reparos",
+      "descricao": "Troca de vidro",
+      "valor": 180.0,
+      "fornecedor": "Vidraçaria Central"
+    }
+  ],
+  "relatorio_mensal": {
+    "periodo": "Março de 2026",
+    "rendaEsperada": 14650.0,
+    "rendaRecebida": 12450.0,
+    "inadimplencia": 2200.0,
+    "despesas": 2330.0,
+    "lucroLiquido": 10120.0
+  },
+  "relatorio_anual": {
+    "ano": 2025,
+    "ipcaAnual": 4.23,
+    "resumo": {
+      "totalImoveis": 12,
+      "valorTotalPortfolio": 7566344,
+      "receitaAnualEstimada": 226200,
+      "despesasAnuaisEstimadas": 19280,
+      "lucrobrutoanual": 206920,
+      "roiNominalPct": 2.989555,
+      "roiAjustadoPct": -1.190104
+    },
+    "evolucaoMensal": [
+      {
+        "mes": "Janeiro",
+        "receita": 14650,
+        "despesa": 1200,
+        "lucro": 13450,
+        "margemPct": 91.81
+      },
+      {
+        "mes": "Fevereiro",
+        "receita": 14650,
+        "despesa": 1500,
+        "lucro": 13150,
+        "margemPct": 89.76
+      },
+      {
+        "mes": "Março",
+        "receita": 14650,
+        "despesa": 2330,
+        "lucro": 12320,
+        "margemPct": 84.1
+      },
+      {
+        "mes": "Abril",
+        "receita": 14650,
+        "despesa": 1100,
+        "lucro": 13550,
+        "margemPct": 92.49
+      },
+      {
+        "mes": "Maio",
+        "receita": 14650,
+        "despesa": 1800,
+        "lucro": 12850,
+        "margemPct": 87.71
+      },
+      {
+        "mes": "Junho",
+        "receita": 14650,
+        "despesa": 950,
+        "lucro": 13700,
+        "margemPct": 93.52
+      },
+      {
+        "mes": "Julho",
+        "receita": 14650,
+        "despesa": 1300,
+        "lucro": 13350,
+        "margemPct": 91.13
+      },
+      {
+        "mes": "Agosto",
+        "receita": 14650,
+        "despesa": 2100,
+        "lucro": 12550,
+        "margemPct": 85.67
+      },
+      {
+        "mes": "Setembro",
+        "receita": 14650,
+        "despesa": 1400,
+        "lucro": 13250,
+        "margemPct": 90.44
+      },
+      {
+        "mes": "Outubro",
+        "receita": 14650,
+        "despesa": 1600,
+        "lucro": 13050,
+        "margemPct": 89.08
+      },
+      {
+        "mes": "Novembro",
+        "receita": 14650,
+        "despesa": 1200,
+        "lucro": 13450,
+        "margemPct": 91.81
+      },
+      {
+        "mes": "Dezembro",
+        "receita": 14650,
+        "despesa": 2800,
+        "lucro": 11850,
+        "margemPct": 80.89
+      }
+    ],
+    "roiPorImovel": [
+      {
+        "id": 11,
+        "tipo": "Vaga",
+        "aluguelAnual": 3600,
+        "valorVenda": 17031,
+        "roiNominalPct": 21.14,
+        "roiAjustadoPct": 16.22,
+        "rentabilidade": "Excelente"
+      },
+      {
+        "id": 12,
+        "tipo": "Vaga",
+        "aluguelAnual": 3600,
+        "valorVenda": 17031,
+        "roiNominalPct": 21.14,
+        "roiAjustadoPct": 16.22,
+        "rentabilidade": "Excelente"
+      },
+      {
+        "id": 8,
+        "tipo": "Apartamento",
+        "aluguelAnual": 9600,
+        "valorVenda": 112539,
+        "roiNominalPct": 8.53,
+        "roiAjustadoPct": 4.13,
+        "rentabilidade": "Excelente"
+      },
+      {
+        "id": 9,
+        "tipo": "Apartamento",
+        "aluguelAnual": 7800,
+        "valorVenda": 105963,
+        "roiNominalPct": 7.36,
+        "roiAjustadoPct": 3.0,
+        "rentabilidade": "Excelente"
+      },
+      {
+        "id": 3,
+        "tipo": "Casa",
+        "aluguelAnual": 21600,
+        "valorVenda": 359700,
+        "roiNominalPct": 6.01,
+        "roiAjustadoPct": 1.7,
+        "rentabilidade": "Excelente"
+      },
+      {
+        "id": 10,
+        "tipo": "Apartamento",
+        "aluguelAnual": 21600,
+        "valorVenda": 398640,
+        "roiNominalPct": 5.42,
+        "roiAjustadoPct": 1.14,
+        "rentabilidade": "Excelente"
+      },
+      {
+        "id": 5,
+        "tipo": "Apartamento",
+        "aluguelAnual": 14400,
+        "valorVenda": 321600,
+        "roiNominalPct": 4.48,
+        "roiAjustadoPct": 0.24,
+        "rentabilidade": "Boa"
+      },
+      {
+        "id": 6,
+        "tipo": "Apartamento",
+        "aluguelAnual": 18000,
+        "valorVenda": 450240,
+        "roiNominalPct": 4.0,
+        "roiAjustadoPct": -0.22,
+        "rentabilidade": "Boa"
+      },
+      {
+        "id": 7,
+        "tipo": "Casa",
+        "aluguelAnual": 33600,
+        "valorVenda": 935220,
+        "roiNominalPct": 3.59,
+        "roiAjustadoPct": -0.61,
+        "rentabilidade": "Boa"
+      },
+      {
+        "id": 4,
+        "tipo": "Casa",
+        "aluguelAnual": 50400,
+        "valorVenda": 2332820,
+        "roiNominalPct": 2.16,
+        "roiAjustadoPct": -1.99,
+        "rentabilidade": "Moderada"
+      },
+      {
+        "id": 2,
+        "tipo": "Apartamento",
+        "aluguelAnual": 42000,
+        "valorVenda": 2065560,
+        "roiNominalPct": 2.03,
+        "roiAjustadoPct": -2.11,
+        "rentabilidade": "Moderada"
+      },
+      {
+        "id": 1,
+        "tipo": "Terreno",
+        "aluguelAnual": 0,
+        "valorVenda": 450000,
+        "roiNominalPct": 0.0,
+        "roiAjustadoPct": -4.06,
+        "rentabilidade": "Baixa"
+      }
+    ]
+  },
+  "dashboard_kpis": {
+    "totalImoveis": 12,
+    "valorTotalPortfolio": 7566344,
+    "rendaMensalEstimada": 18850,
+    "imoveisAlugados": 11,
+    "taxaOcupacao": 91.7,
+    "receitaPorTipo": [
+      {
+        "tipo": "Apartamento",
+        "receitaMensal": 9450
+      },
+      {
+        "tipo": "Casa",
+        "receitaMensal": 8800
+      },
+      {
+        "tipo": "Vaga",
+        "receitaMensal": 600
+      },
+      {
+        "tipo": "Terreno",
+        "receitaMensal": 0
+      }
+    ],
+    "top5Rentabilidade": [
+      {
+        "id": 11,
+        "tipo": "Vaga",
+        "aluguelMensal": 300,
+        "valorVenda": 17031,
+        "rentabilidadeAnualPct": 21.14
+      },
+      {
+        "id": 12,
+        "tipo": "Vaga",
+        "aluguelMensal": 300,
+        "valorVenda": 17031,
+        "rentabilidadeAnualPct": 21.14
+      },
+      {
+        "id": 8,
+        "tipo": "Apartamento",
+        "aluguelMensal": 800,
+        "valorVenda": 112539,
+        "rentabilidadeAnualPct": 8.53
+      },
+      {
+        "id": 9,
+        "tipo": "Apartamento",
+        "aluguelMensal": 650,
+        "valorVenda": 105963,
+        "rentabilidadeAnualPct": 7.36
+      },
+      {
+        "id": 3,
+        "tipo": "Casa",
+        "aluguelMensal": 1800,
+        "valorVenda": 359700,
+        "rentabilidadeAnualPct": 6.01
+      }
+    ]
+  }
+}
