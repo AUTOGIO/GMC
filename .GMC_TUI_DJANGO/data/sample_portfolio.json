@@ -1,0 +1,56 @@
+{
+  "asset_categories": [
+    {"name": "Equities", "code": "EQ", "color": "#4CC9F0", "sort_order": 1},
+    {"name": "Fixed Income", "code": "FI", "color": "#7AE582", "sort_order": 2},
+    {"name": "Cash & Liquidity", "code": "CASH", "color": "#FFB703", "sort_order": 3},
+    {"name": "Real Assets", "code": "RA", "color": "#F72585", "sort_order": 4},
+    {"name": "Alternatives", "code": "ALT", "color": "#4895EF", "sort_order": 5},
+    {"name": "Hedges", "code": "HEDGE", "color": "#F94144", "sort_order": 6}
+  ],
+  "positions": [
+    {"name": "US Quality Basket", "ticker": "QUAL", "category_code": "EQ", "bucket_name": "Core Growth", "current_value": 185000, "target_value": 172000, "status": "ACTIVE", "notes": "Stable factor exposure."},
+    {"name": "Brazil Dividend Leaders", "ticker": "B3DV", "category_code": "EQ", "bucket_name": "Income", "current_value": 92000, "target_value": 98000, "status": "HOLD", "notes": "Monitor payout seasonality."},
+    {"name": "Global Health Innovation", "ticker": "HLTH", "category_code": "EQ", "bucket_name": "Thematic", "current_value": 54000, "target_value": 65000, "status": "WATCH", "notes": "Await valuation reset."},
+    {"name": "Inflation Linked NTN-B", "ticker": "NTNB", "category_code": "FI", "bucket_name": "Protection", "current_value": 143000, "target_value": 140000, "status": "ACTIVE", "notes": "Real-rate hedge."},
+    {"name": "USD Sovereign Ladder", "ticker": "USTL", "category_code": "FI", "bucket_name": "Duration", "current_value": 101500, "target_value": 95000, "status": "HOLD", "notes": "Carry remains attractive."},
+    {"name": "Short Term Credit", "ticker": "STCR", "category_code": "FI", "bucket_name": "Liquidity Buffer", "current_value": 77000, "target_value": 80000, "status": "ACTIVE", "notes": "Low volatility sleeve."},
+    {"name": "Primary Cash Reserve", "ticker": "", "category_code": "CASH", "bucket_name": "Cash Reserve", "current_value": 86000, "target_value": 90000, "status": "ACTIVE", "notes": "Operational runway."},
+    {"name": "USD Treasury Bills", "ticker": "TBIL", "category_code": "CASH", "bucket_name": "Treasury Liquidity", "current_value": 63000, "target_value": 55000, "status": "ACTIVE", "notes": "Tactical optionality."},
+    {"name": "Gold Proxy", "ticker": "XAU", "category_code": "HEDGE", "bucket_name": "Crisis Hedge", "current_value": 58000, "target_value": 70000, "status": "PENDING", "notes": "Increase on risk spike."},
+    {"name": "Long Volatility Sleeve", "ticker": "VIXL", "category_code": "HEDGE", "bucket_name": "Tail Protection", "current_value": 21000, "target_value": 25000, "status": "WATCH", "notes": "Carry cost managed."},
+    {"name": "REIT Rotation", "ticker": "REIT", "category_code": "RA", "bucket_name": "Income Real Assets", "current_value": 73000, "target_value": 70000, "status": "ACTIVE", "notes": "Selective property cashflow."},
+    {"name": "Commodity Broad Basket", "ticker": "CMOD", "category_code": "RA", "bucket_name": "Inflation Beta", "current_value": 62000, "target_value": 68000, "status": "HOLD", "notes": "Energy-heavy composition."},
+    {"name": "Private Credit Fund", "ticker": "PCF", "category_code": "ALT", "bucket_name": "Yield Enhancement", "current_value": 97000, "target_value": 90000, "status": "ACTIVE", "notes": "Quarterly lockup."},
+    {"name": "Special Situations", "ticker": "SPEC", "category_code": "ALT", "bucket_name": "Opportunistic", "current_value": 49000, "target_value": 62000, "status": "WATCH", "notes": "Pipeline under review."}
+  ],
+  "macro_signals": [
+    {"name": "Global Liquidity Pulse", "signal_value": 6.8, "regime": "Disinflationary Growth", "status_color": "cyan", "notes": "Liquidity impulse remains constructive."},
+    {"name": "Inflation Momentum", "signal_value": 4.1, "regime": "Cooling", "status_color": "green", "notes": "Core inflation decelerating."},
+    {"name": "Credit Stress Index", "signal_value": 2.7, "regime": "Contained", "status_color": "green", "notes": "No systemic stress signs."},
+    {"name": "Dollar Strength", "signal_value": 5.3, "regime": "Firm", "status_color": "amber", "notes": "Tighter financial conditions abroad."},
+    {"name": "Commodities Breadth", "signal_value": 3.9, "regime": "Mixed", "status_color": "magenta", "notes": "Energy leading, metals lagging."},
+    {"name": "Rates Volatility", "signal_value": 4.9, "regime": "Elevated", "status_color": "amber", "notes": "Duration entries should be paced."},
+    {"name": "EM Risk Appetite", "signal_value": 3.4, "regime": "Neutral", "status_color": "blue", "notes": "Selective country risk on."},
+    {"name": "Housing Conditions", "signal_value": 5.7, "regime": "Stable", "status_color": "green", "notes": "Regional resilience ongoing."}
+  ],
+  "property_assets": [
+    {"name": "Aldeota Residential Block", "asset_type": "Residential", "city": "Fortaleza", "market_value": 1250000, "tax_value": 910000, "area_m2": 420, "status": "OPERATIVE"},
+    {"name": "Meireles Commercial Floor", "asset_type": "Commercial", "city": "Fortaleza", "market_value": 1840000, "tax_value": 1490000, "area_m2": 510, "status": "LEASED"},
+    {"name": "Parangaba Logistics Lot", "asset_type": "Industrial", "city": "Fortaleza", "market_value": 960000, "tax_value": 780000, "area_m2": 1300, "status": "OPERATIVE"},
+    {"name": "Joao Pessoa Multifamily", "asset_type": "Residential", "city": "Joao Pessoa", "market_value": 1380000, "tax_value": 1055000, "area_m2": 620, "status": "STABILIZING"},
+    {"name": "Recife Waterfront Unit", "asset_type": "Hospitality", "city": "Recife", "market_value": 1120000, "tax_value": 830000, "area_m2": 360, "status": "LEASED"},
+    {"name": "Natal Retail Strip", "asset_type": "Commercial", "city": "Natal", "market_value": 880000, "tax_value": 670000, "area_m2": 295, "status": "OPERATIVE"}
+  ],
+  "system_notes": [
+    {"title": "Equity Beta Trim", "body": "Reduce high beta sleeve by 2 units if rates volatility stays above 5 for two sessions.", "panel": "OVERVIEW"},
+    {"title": "Cash Ladder Rebalance", "body": "Shift 15k from reserve to 3M bills after payroll cycle closes.", "panel": "PORTFOLIO"},
+    {"title": "Macro Trigger", "body": "If dollar index prints above 106.5, move EM exposure to neutral floor.", "panel": "MACRO"},
+    {"title": "Property Tax Appeal", "body": "Meireles floor tax base can be challenged during Q3 reassessment window.", "panel": "REAL_ESTATE"},
+    {"title": "Commodity Overlay", "body": "Keep commodity basket capped below 8% while demand breadth remains mixed.", "panel": "OVERVIEW"},
+    {"title": "Income Stability", "body": "Dividend concentration acceptable, but review payout sensitivity model monthly.", "panel": "PORTFOLIO"},
+    {"title": "Regime Bias", "body": "Disinflationary growth still primary scenario with moderate policy uncertainty.", "panel": "MACRO"},
+    {"title": "Area Utilization", "body": "Industrial lot occupancy improving, target lease rollover in 90 days.", "panel": "REAL_ESTATE"},
+    {"title": "Liquidity Rule", "body": "Never run liquidity sleeve below 11% of total current value.", "panel": "OVERVIEW"},
+    {"title": "Tail Hedge Budget", "body": "Maintain hedge carry spend between 120 and 180 bps annualized.", "panel": "PORTFOLIO"}
+  ]
+}
