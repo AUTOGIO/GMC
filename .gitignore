@@ -8,6 +8,8 @@ dist2/
 # ── Environment & secrets ────────────────────────────────────────
 .env
 .env.*
+!.env.example
+!.GMC_TUI_DJANGO/.env.example
 
 # ── Logs ────────────────────────────────────────────────────────
 *.log

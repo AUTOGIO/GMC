@@ -1,6 +1,8 @@
 
 import React, { useState, useEffect, useMemo } from 'react';
-import { Shield, TrendingUp, Building2, Wallet, Globe, AlertTriangle, Activity, Gem, Target, Layers, Home, PieChart as PieChartIcon, FileText, BarChart2 } from 'lucide-react';
+import { Shield, TrendingUp, Building2, Wallet, Globe, AlertTriangle, Activity, Gem, Target, Layers, Home, PieChart as PieChartIcon, FileText, BarChart2, Terminal } from 'lucide-react';
+
+const TUI_DASHBOARD_URL = (import.meta.env.VITE_TUI_DASHBOARD_URL ?? '').trim();
 import ConvexReportsSection from './ConvexReportsSection';
 import MacroContextSection from './MacroContextSection';
 import RealEstateSection from './RealEstateSection';
@@ -254,6 +256,34 @@ const GMCDashboard = () => {
           <div style={{ fontSize: '15px', fontWeight: '600', letterSpacing: '4px', color: '#C0C0C0', fontFamily: "'DM Sans', sans-serif" }}>GMC</div>
           <div style={{ fontSize: '9px', letterSpacing: '2px', color: '#4A4E52', fontFamily: "'DM Sans', sans-serif", marginTop: '5px', textTransform: 'uppercase' }}>Portfolio Dashboard</div>
         </div>
+
+        {TUI_DASHBOARD_URL ? (
+          <div style={{ padding: '0 14px 14px', borderBottom: '1px solid rgba(192,192,192,0.08)' }}>
+            <a
+              href={TUI_DASHBOARD_URL}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '8px',
+                padding: '9px 12px',
+                borderRadius: '6px',
+                border: '1px solid rgba(208, 255, 0, 0.35)',
+                background: 'rgba(208, 255, 0, 0.06)',
+                color: '#D0FF00',
+                fontFamily: "'DM Sans', sans-serif",
+                fontSize: '11px',
+                fontWeight: 600,
+                letterSpacing: '0.14em',
+                textDecoration: 'none',
+                textTransform: 'uppercase',
+              }}
+            >
+              <Terminal size={14} style={{ flexShrink: 0 }} />
+              TUI shell
+            </a>
+          </div>
+        ) : null}
 
         {/* Nav links */}
         <div style={{ padding: '10px 0', flex: 1 }}>

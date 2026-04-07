@@ -130,6 +130,19 @@ body.tui-body::before {
   box-shadow: 0 0 8px rgba(76, 201, 240, 0.25);
 }
 
+.shortcut-shell-toggle {
+  border-color: #3d4f35;
+  color: #b8e986;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+}
+
+.shortcut-shell-toggle:hover {
+  border-color: #b8e986;
+  color: #e8ffc8;
+  box-shadow: 0 0 8px rgba(184, 233, 134, 0.2);
+}
+
 .app-shell {
   display: grid;
   grid-template-columns: 230px minmax(0, 1fr) 280px;

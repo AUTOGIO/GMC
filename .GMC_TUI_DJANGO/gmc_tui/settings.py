@@ -73,3 +73,6 @@ STATICFILES_DIRS = [BASE_DIR / "core" / "static"]
 STATIC_ROOT = BASE_DIR / "staticfiles"
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+# Absolute URL of the Vite/React GMC dashboard (dev server or static deploy). Empty = hide WEBAPP link in TUI shell.
+WEBAPP_DASHBOARD_URL = config("WEBAPP_DASHBOARD_URL", default="").strip()

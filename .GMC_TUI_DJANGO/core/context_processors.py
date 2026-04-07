@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.utils import timezone
 
 from .models import MacroSignal
@@ -17,6 +18,10 @@ def app_shell_context(request):
             "title": "GMC TUI",
             "build": "v0.1",
             "operator_mode": "LIVE-SIM",
+            "webapp_dashboard_url": getattr(
+                settings, "WEBAPP_DASHBOARD_URL", ""
+            )
+            or "",
         },
         "footer_status": {
             "mode": "LIVE-SIM",

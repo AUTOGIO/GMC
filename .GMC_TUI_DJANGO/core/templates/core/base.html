@@ -24,6 +24,9 @@
       <a href="{% url 'core:portfolio' %}" class="shortcut {% if '/portfolio/' in request.path %}active{% endif %}">[F2] Portfolio</a>
       <a href="{% url 'core:macro' %}" class="shortcut {% if '/macro/' in request.path %}active{% endif %}">[F3] Macro</a>
       <a href="{% url 'core:real_estate' %}" class="shortcut {% if '/real-estate/' in request.path %}active{% endif %}">[F4] Real Estate</a>
+      {% if app_meta.webapp_dashboard_url %}
+      <a href="{{ app_meta.webapp_dashboard_url }}" class="shortcut shortcut-shell-toggle">WEBAPP</a>
+      {% endif %}
     </div>
     <div class="mode">MODE: {{ app_meta.operator_mode }}</div>
   </header>
@@ -37,6 +40,9 @@
         <li><a href="{% url 'core:macro' %}" class="{% if '/macro/' in request.path %}active{% endif %}">Macro Signals</a></li>
         <li><a href="{% url 'core:real_estate' %}" class="{% if '/real-estate/' in request.path %}active{% endif %}">Property Exposure</a></li>
         <li><a href="/admin/">Django Admin</a></li>
+        {% if app_meta.webapp_dashboard_url %}
+        <li><a href="{{ app_meta.webapp_dashboard_url }}">GMC Web Dashboard</a></li>
+        {% endif %}
       </ul>
 
       <div class="side-block">
