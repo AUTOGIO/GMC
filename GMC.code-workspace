@@ -2,6 +2,12 @@
     "folders": [
         {
             "path": "."
+        },
+        {
+            "path": "../../GMC_TUI_DJANGO"
+        },
+        {
+            "path": "../Personal_Tracker"
         }
     ]
 }

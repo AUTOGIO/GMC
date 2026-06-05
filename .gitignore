@@ -9,7 +9,11 @@ dist2/
 .env
 .env.*
 !.env.example
-!.GMC_TUI_DJANGO/.env.example
+
+# ── Mare Desk (Xcode) ───────────────────────────────────────────
+MareDesk/DerivedData/
+MareDesk/build/
+*.xcuserstate
 
 # ── Logs ────────────────────────────────────────────────────────
 *.log
