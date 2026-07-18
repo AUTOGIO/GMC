@@ -3,13 +3,10 @@ import Foundation
 enum CaptureBundleLocator {
     static let userDefaultsKey = "MareDesk.preferredCaptureBundlePath"
 
-    /// Canonical Giovannini Mare Capital repository (iCloud Projects (Essential)/GMC).
+    /// Canonical Giovannini Mare Capital repository (Documents/GitHub/GMC).
     static var primaryGMCRepositoryRoot: URL {
         FileManager.default.homeDirectoryForCurrentUser
-            .appendingPathComponent(
-                "Library/Mobile Documents/com~apple~CloudDocs/Projects (Essential)/GMC",
-                isDirectory: true
-            )
+            .appendingPathComponent("Documents/GitHub/GMC", isDirectory: true)
     }
 
     static var primaryCaptureBundleURL: URL {
@@ -49,6 +46,12 @@ enum CaptureBundleLocator {
 
         let home = FileManager.default.homeDirectoryForCurrentUser
         candidates.append(home.appendingPathComponent("Documents/Active_Projects/GMC/data/gmc_source", isDirectory: true))
+        candidates.append(
+            home.appendingPathComponent(
+                "Library/Mobile Documents/com~apple~CloudDocs/Projects (Essential)/GMC/data/gmc_source",
+                isDirectory: true
+            )
+        )
 
         if let devRoot = developerProjectRoot() {
             candidates.append(devRoot.appendingPathComponent("data/gmc_source", isDirectory: true))
