@@ -22,7 +22,7 @@ Load this skill whenever the user asks to:
 - Build or extend the **GMC Portfolio Dashboard** (React/Vite app)
 - Update the **GMC Mission Control Launcher** (GMC_Launcher.html)
 - Modify the **Real Estate Monitor** (campinas_real_estate_monitor.html)
-- Add or update **data modules** (CSV files in numbers_sheets/)
+- Add or update **data modules** (CSV files in data/processed/)
 - Extend the **Excel Dashboard** (GMC_Portfolio_Dashboard.xlsx)
 - Deploy updates to **GitHub Pages** (https://autogio.github.io/GMC/)
 - Design new **gavetas**, buckets, or allocation modules
@@ -70,7 +70,7 @@ Read `references/architecture.md` for the full system map.
 - Component files in `src/components/`
 - Page-level views in `src/pages/` or `src/views/`
 - Shared utilities in `src/lib/` or `src/utils/`
-- CSV data consumed via `fetch()` from `public/numbers_sheets/` or hardcoded in `src/data/`
+- CSV data consumed via `fetch()` from `public/data/processed/` or hardcoded in `src/data/`
 - Live APIs (BCB PTAX, etc.) fetched client-side with proper error handling and fallback display
 - No external UI libraries unless already in use — build from primitives using the GMC design tokens
 
@@ -81,7 +81,7 @@ Read `references/architecture.md` for the full system map.
 - No external dependencies other than Google Fonts (DM Sans, Cormorant Garamond)
 
 **Data/CSV rules:**
-- CSVs live in `numbers_sheets/` inside the repo
+- CSVs live in `data/processed/` inside the repo
 - Filenames use `gmc_` prefix + descriptive name: `gmc_allocation.csv`, `gmc_real_estate.csv`
 - All monetary values in BRL unless explicitly tagged as USD
 - Keep a `gmc_convex_asset_summary.csv` and `gmc_convex_instruments.csv` at repo root
@@ -159,7 +159,7 @@ GMC/
 ├── GMC_Launcher.html             ← Mission Control entry point
 ├── campinas_real_estate_monitor.html
 ├── GMC_Portfolio_Dashboard.xlsx
-├── numbers_sheets/               ← CSV data layer
+├── data/processed/               ← CSV data layer
 │   ├── gmc_dashboard_summary.csv
 │   ├── gmc_allocation.csv
 │   ├── gmc_convex_gavetas_alignment.csv

@@ -9,7 +9,7 @@ ICONSET="$(mktemp -d)/MareDesk.iconset"
 ICNS="$(mktemp -d)/AppIcon.icns"
 
 if [[ ! -f "$ICON_SRC" ]]; then
-  ICON_SRC="/Users/giovannini_nuovo/.cursor/projects/Volumes-MICRO-01-GMC-TUI-DJANGO/assets/MareDeskIcon.png"
+  ICON_SRC="$(cd "$SCRIPT_DIR/../.." && pwd)/assets/GMT.png"
 fi
 
 if [[ ! -f "$ICON_SRC" ]]; then

@@ -3,19 +3,17 @@ import Foundation
 enum CaptureBundleLocator {
     static let userDefaultsKey = "MareDesk.preferredCaptureBundlePath"
 
-    /// Canonical Giovannini Mare Capital repository (iCloud-synced AUTOGIO/GMC).
+    /// Canonical Giovannini Mare Capital repository (iCloud Projects (Essential)/GMC).
     static var primaryGMCRepositoryRoot: URL {
         FileManager.default.homeDirectoryForCurrentUser
-            .appendingPathComponent("Library/Mobile Documents/com~apple~CloudDocs/Projects (Essential)/GitHub/AUTOGIO/GMC", isDirectory: true)
+            .appendingPathComponent(
+                "Library/Mobile Documents/com~apple~CloudDocs/Projects (Essential)/GMC",
+                isDirectory: true
+            )
     }
 
     static var primaryCaptureBundleURL: URL {
         primaryGMCRepositoryRoot.appendingPathComponent("data/gmc_source", isDirectory: true)
-    }
-
-    static var legacyCaptureBundleURL: URL {
-        primaryGMCRepositoryRoot
-            .appendingPathComponent(".GMC_TUI_DJANGO/data/gmc_source", isDirectory: true)
     }
 
     static var sandboxedCaptureBundleURL: URL? {
@@ -39,7 +37,6 @@ enum CaptureBundleLocator {
         }
 
         candidates.append(primaryCaptureBundleURL)
-        candidates.append(legacyCaptureBundleURL)
 
         if let saved = UserDefaults.standard.string(forKey: userDefaultsKey) {
             candidates.append(URL(fileURLWithPath: saved, isDirectory: true))
@@ -48,12 +45,10 @@ enum CaptureBundleLocator {
         if let gmcRoot = env["GMC_WEBAPP_ROOT"], !gmcRoot.isEmpty {
             let root = URL(fileURLWithPath: gmcRoot, isDirectory: true)
             candidates.append(root.appendingPathComponent("data/gmc_source", isDirectory: true))
-            candidates.append(root.appendingPathComponent(".GMC_TUI_DJANGO/data/gmc_source", isDirectory: true))
         }
 
         let home = FileManager.default.homeDirectoryForCurrentUser
-        candidates.append(home.appendingPathComponent("Documents/GitHub/AUTOGIO/GMC/data/gmc_source", isDirectory: true))
-        candidates.append(home.appendingPathComponent("Documents/GitHub/AUTOGIO/GMC/.GMC_TUI_DJANGO/data/gmc_source", isDirectory: true))
+        candidates.append(home.appendingPathComponent("Documents/Active_Projects/GMC/data/gmc_source", isDirectory: true))
 
         if let devRoot = developerProjectRoot() {
             candidates.append(devRoot.appendingPathComponent("data/gmc_source", isDirectory: true))
@@ -91,12 +86,21 @@ enum CaptureBundleLocator {
             && FileManager.default.fileExists(atPath: property.path)
     }
 
+    /// Walk up from this source file until we find the repo root (`data/` + `src/` or `README.md`).
     private static func developerProjectRoot() -> URL? {
         let sourceFile = URL(fileURLWithPath: #filePath)
         var directory = sourceFile.deletingLastPathComponent()
-        for _ in 0..<8 {
-            if directory.lastPathComponent == "MareDesk" {
-                return directory.deletingLastPathComponent()
+        for _ in 0..<16 {
+            let dataDir = directory.appendingPathComponent("data", isDirectory: true)
+            let hasData = FileManager.default.fileExists(atPath: dataDir.path)
+            let hasSrc = FileManager.default.fileExists(
+                atPath: directory.appendingPathComponent("src", isDirectory: true).path
+            )
+            let hasReadme = FileManager.default.fileExists(
+                atPath: directory.appendingPathComponent("README.md").path
+            )
+            if hasData && (hasSrc || hasReadme) {
+                return directory
             }
             directory.deleteLastPathComponent()
         }

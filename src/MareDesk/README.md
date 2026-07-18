@@ -14,7 +14,7 @@ xcodebuild -project MareDesk.xcodeproj -scheme MareDesk -destination 'platform=m
 ./Launch_MareDesk.command
 ```
 
-Imports from `../data/gmc_source` in the GMC repo (no sandbox rsync when repo bundle is available).
+Imports from `../../data/gmc_source` in the GMC repo (no sandbox rsync when repo bundle is available).
 
 ## Desks
 

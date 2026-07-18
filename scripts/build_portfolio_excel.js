@@ -12,7 +12,7 @@ import { fileURLToPath } from 'url';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = join(__dirname, '..');
-const DATA_PATH = join(ROOT, 'data', 'portfolio', 'gmc_portfolio_state.json');
+const DATA_PATH = join(ROOT, 'data', 'gmc_source', 'portfolio', 'gmc_portfolio_state.json');
 const OUT_PATH = join(ROOT, 'data', 'portfolio', 'GMC_Portfolio_Dashboard.xlsx');
 
 const state = JSON.parse(readFileSync(DATA_PATH, 'utf8'));

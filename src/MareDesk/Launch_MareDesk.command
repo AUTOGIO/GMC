@@ -1,8 +1,9 @@
 #!/bin/bash
 set -euo pipefail
 
-GMC_ROOT="${GMC_ROOT:-$HOME/Library/Mobile Documents/com~apple~CloudDocs/Projects (Essential)/GitHub/AUTOGIO/GMC}"
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+# Repo root is two levels above src/MareDesk
+GMC_ROOT="${GMC_ROOT:-$(cd "$SCRIPT_DIR/../.." && pwd)}"
 SEED_SCRIPT="$SCRIPT_DIR/scripts/seed_capture_bundle.sh"
 REPO_BUNDLE="$GMC_ROOT/data/gmc_source"
 CONTAINER_BUNDLE="$HOME/Library/Containers/com.giovanninimare.MareDesk/Data/Library/Application Support/gmc_capture"

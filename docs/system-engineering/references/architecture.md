@@ -10,7 +10,7 @@ The GMC ecosystem is a multi-layer family office management system composed of f
 │  GMC_Launcher.html  ←→  React/Vite App  ←→  Static Pages   │
 ├─────────────────────────────────────────────────────────────┤
 │                       DATA LAYER                            │
-│       CSV files (numbers_sheets/) + Excel Dashboard         │
+│       CSV files (data/processed/) + Excel Dashboard         │
 ├─────────────────────────────────────────────────────────────┤
 │                   EXTERNAL APIS                             │
 │         BCB PTAX (BRL/USD)  ·  Future: market data         │
@@ -77,7 +77,7 @@ The GMC ecosystem is a multi-layer family office management system composed of f
 
 ---
 
-## CSV Data Layer — `numbers_sheets/`
+## CSV Data Layer — `data/processed/`
 
 | File | Contents |
 |---|---|
@@ -137,11 +137,11 @@ Local edit → git push to main → GitHub Actions workflow → dist/ deployed t
 ```
 BCB PTAX API ──────────────────────────────────────────┐
                                                         ▼
-numbers_sheets/*.csv ──► React App (Vite) ──► Portfolio Dashboard
+data/processed/*.csv ──► React App (Vite) ──► Portfolio Dashboard
                                 ▲
 gmc_convex_*.csv ───────────────┘
 
-Manual data entry ──► Excel Dashboard ──► CSV export ──► numbers_sheets/
+Manual data entry ──► Excel Dashboard ──► CSV export ──► data/processed/
                               │
                               └──► Real Estate BR sheet ──► Monitor (manual sync)
 

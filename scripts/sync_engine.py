@@ -44,53 +44,56 @@ def save_to_csv(data, filename):
 
 def sync_portfolio():
     base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-    assets_dir = os.path.join(base_dir, "Giovannini_Mare_Capital/Assets")
-    reports_dir = os.path.join(base_dir, "Giovannini_Mare_Capital/Convex_Reports")
-    
-    # Extract everything
-    re_tables = parse_all_markdown_tables(os.path.join(assets_dir, "real_estate_master.md"))
-    banking_tables = parse_all_markdown_tables(os.path.join(assets_dir, "Banking.md"))
-    macro_tables = parse_all_markdown_tables(os.path.join(reports_dir, "MACRO_SUMMARY.md"))
-    convex_tables = parse_all_markdown_tables(os.path.join(assets_dir, "convex_portfolio_instruments.md"))
-    
-    # 1. Detailed Inventory
-    if re_tables: save_to_csv(re_tables[0], os.path.join(base_dir, "gmc_inventory_detailed.csv"))
-    
-    # 1b. Convex instruments (from convex_portfolio_instruments.md)
+    docs_dir = os.path.join(base_dir, "docs")
+    processed = os.path.join(base_dir, "data", "processed")
+    os.makedirs(processed, exist_ok=True)
+
+    # Prefer docs; fall back to archive notes if present
+    instruments_md = os.path.join(docs_dir, "convex_portfolio_instruments.md")
+    re_md = os.path.join(docs_dir, "real_estate_master.md")
+    banking_md = os.path.join(docs_dir, "Banking.md")
+    macro_md = os.path.join(docs_dir, "MACRO_SUMMARY.md")
+
+    re_tables = parse_all_markdown_tables(re_md)
+    banking_tables = parse_all_markdown_tables(banking_md)
+    macro_tables = parse_all_markdown_tables(macro_md)
+    convex_tables = parse_all_markdown_tables(instruments_md)
+
+    if re_tables:
+        save_to_csv(re_tables[0], os.path.join(processed, "gmc_inventory_detailed.csv"))
+
     if convex_tables:
-        save_to_csv(convex_tables[0], os.path.join(base_dir, "gmc_convex_instruments.csv"))
+        save_to_csv(convex_tables[0], os.path.join(processed, "gmc_convex_instruments.csv"))
         if len(convex_tables) >= 2:
-            save_to_csv(convex_tables[1], os.path.join(base_dir, "gmc_convex_asset_summary.csv"))
-    
-    # 2. Master Summary (Composite)
+            save_to_csv(convex_tables[1], os.path.join(processed, "gmc_convex_asset_summary.csv"))
+
     summary_rows = []
-    # Add Macro Recs
     if macro_tables:
         summary_rows.append({"Metric": "--- MACRO RECOMMENDATIONS ---", "Value": ""})
         for row in macro_tables[0]:
             k = row.get("Bucket (Gaveta)", "Gaveta")
             v = row.get("Weight", "") + " | " + row.get("Signal", "")
             summary_rows.append({"Metric": k, "Value": v})
-    
-    # Add Real Estate Stats
+
     if len(re_tables) >= 2:
         summary_rows.append({"Metric": "--- REAL ESTATE SUMMARY ---", "Value": ""})
         for row in re_tables[1]:
             summary_rows.append({"Metric": row.get("Metric", ""), "Value": row.get("Value", "")})
-            
-    # Add Cash
+
     if banking_tables:
         summary_rows.append({"Metric": "--- LIQUIDITY POSITION ---", "Value": ""})
         for row in banking_tables[0]:
-            summary_rows.append({"Metric": "Cash (" + row.get("Currency", "BRL") + ")", "Value": row.get("Value", "")})
-            
-    # Save Master Summary
+            summary_rows.append({
+                "Metric": "Cash (" + row.get("Currency", "BRL") + ")",
+                "Value": row.get("Value", ""),
+            })
+
     if summary_rows:
-        with open(os.path.join(base_dir, "gmc_dashboard_summary.csv"), 'w', newline='', encoding='utf-8') as f:
+        with open(os.path.join(processed, "gmc_dashboard_summary.csv"), 'w', newline='', encoding='utf-8') as f:
             writer = csv.DictWriter(f, fieldnames=["Metric", "Value"])
             writer.writeheader()
             writer.writerows(summary_rows)
-        print("Updated gmc_dashboard_summary.csv")
+        print("Updated data/processed/gmc_dashboard_summary.csv")
 
 if __name__ == "__main__":
     sync_portfolio()

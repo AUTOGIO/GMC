@@ -15,14 +15,16 @@ def csv_to_as_list(csv_path):
     return '{' + ', '.join(as_rows) + '}'
 
 def generate_populator():
-    base_dir = "/Users/dnigga/Documents/Active_Projects/GMC"
-    
+    base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    processed = os.path.join(base_dir, "data", "processed")
+    scripts_dir = os.path.join(base_dir, "scripts")
+
     files = {
-        "macro_rec": os.path.join(base_dir, "gmc_macro_recommendations.csv"),
-        "re_stats": os.path.join(base_dir, "gmc_real_estate_stats.csv"),
-        "cash": os.path.join(base_dir, "gmc_cash_position.csv"),
-        "inventory": os.path.join(base_dir, "gmc_real_estate_inventory.csv"),
-        "alignment": os.path.join(base_dir, "gmc_convex_gavetas_alignment.csv")
+        "macro_rec": os.path.join(processed, "gmc_macro_recommendations.csv"),
+        "re_stats": os.path.join(processed, "gmc_real_estate.csv"),
+        "cash": os.path.join(processed, "gmc_banking.csv"),
+        "inventory": os.path.join(processed, "gmc_inventory_detailed.csv"),
+        "alignment": os.path.join(processed, "gmc_convex_gavetas_alignment.csv"),
     }
     
     script = """
@@ -92,9 +94,9 @@ end populateTable
     script = script.replace("DATA_RE_STATS", csv_to_as_list(files["re_stats"]))
     script = script.replace("DATA_INVENTORY", csv_to_as_list(files["inventory"]))
     
-    with open(os.path.join(base_dir, "populate_dashboard.scpt"), "w") as f:
+    with open(os.path.join(scripts_dir, "populate_dashboard.scpt"), "w") as f:
         f.write(script)
-    print("Generated populate_dashboard.scpt")
+    print("Generated scripts/populate_dashboard.scpt")
 
 if __name__ == "__main__":
     generate_populator()

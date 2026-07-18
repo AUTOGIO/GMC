@@ -1,41 +1,43 @@
-# ── Dependencies ────────────────────────────────────────────────
+# Dependencies
 node_modules/
+.venv/
+venv/
 
-# ── Build output ─────────────────────────────────────────────────
+# Build / caches
 dist/
 dist2/
+__pycache__/
+*.pyc
+.pytest_cache/
+src/MareDesk/DerivedData/
+src/MareDesk/build/
+*.xcuserstate
 
-# ── Environment & secrets ────────────────────────────────────────
+# Environment & secrets
 .env
 .env.*
 !.env.example
 
-# ── Mare Desk (Xcode) ───────────────────────────────────────────
-MareDesk/DerivedData/
-MareDesk/build/
-*.xcuserstate
-
-# ── Logs ────────────────────────────────────────────────────────
+# Logs & scratch
+logs/
+tmp/
 *.log
 
-# ── OS & editor noise ───────────────────────────────────────────
+# OS & editor noise
 .DS_Store
 .cursor/
-*.code-workspace
 Thumbs.db
 
-# ── LibreOffice / Excel lock files ──────────────────────────────
+# Office lock files
 .~lock.*
 ~$*
 
-# ── Vite temp timestamps ─────────────────────────────────────────
+# Vite leftovers (retired stack)
 vite.config.js.timestamp-*.mjs
 
-# ── Backup files ────────────────────────────────────────────────
+# Backup / scratch
 *.bak
 *.bak2
-
-# ── Temp refactor scripts (root-level scratch work) ──────────────
 refactor_app.cjs
 refactor_app2.cjs
 refactor_app3.cjs
