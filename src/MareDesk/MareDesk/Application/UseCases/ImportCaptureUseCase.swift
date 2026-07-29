@@ -42,4 +42,26 @@ struct ImportCaptureUseCase {
         )
         return bundle.capture
     }
+
+    func restoreFromFrozen(capture: CaptureEvent, payloads: [FrozenCapturePayload]) async throws -> CaptureEvent {
+        let sourcePath = capture.metadata["source"] ?? "frozen-archive"
+        AppLogger.importing.info("Restoring capture from frozen payloads for \(sourcePath, privacy: .public)")
+
+        let bundle = try await importer.importFromFrozenPayloads(payloads, sourcePath: sourcePath)
+
+        try await holdingRepository.replaceCategories(bundle.categories)
+        try await holdingRepository.replaceAll(bundle.holdings)
+
+        if let composite = holdingRepository as? any CompositeDeskRepository {
+            try await composite.replaceIndicators(bundle.indicators)
+            try await composite.replaceProperties(bundle.properties)
+        }
+
+        try await captureRepository.replaceMemos(bundle.memos, for: capture)
+
+        AppLogger.importing.info(
+            "Frozen restore completed: \(bundle.holdings.count) holdings, \(bundle.properties.count) properties"
+        )
+        return capture
+    }
 }

@@ -1,0 +1,12 @@
+{
+  "name": "gmc-scripts",
+  "private": true,
+  "type": "module",
+  "description": "Runnable helpers for GMC portfolio exports",
+  "scripts": {
+    "build-portfolio-excel": "node build_portfolio_excel.js"
+  },
+  "dependencies": {
+    "xlsx": "^0.18.5"
+  }
+}

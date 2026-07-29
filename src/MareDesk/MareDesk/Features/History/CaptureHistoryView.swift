@@ -115,7 +115,7 @@ struct CaptureHistoryView: View {
     private func restorePanel(_ entry: CaptureHistoryEntry) -> some View {
         DeskPanel(title: "RESTORE CAPTURE") {
             VStack(alignment: .leading, spacing: 8) {
-                Text("Re-import portfolio and property data from this capture's archived source bundle.")
+                Text("Restore portfolio and property data from this capture's archived frozen snapshot.")
                     .foregroundStyle(DeskTheme.label)
                 Button("Restore This Capture") {
                     Task { await restoreCapture(entry) }
@@ -246,7 +246,7 @@ struct CaptureHistoryView: View {
     private func restoreCapture(_ entry: CaptureHistoryEntry) async {
         do {
             _ = try await dependencies.restoreCaptureUseCase.execute(captureID: entry.id)
-            restoreMessage = "Restored capture from archived source."
+            restoreMessage = "Restored capture from archived frozen snapshot."
             await refresh()
             NotificationCenter.default.post(name: .mareDeskDataDidRefresh, object: nil)
         } catch {
@@ -256,11 +256,13 @@ struct CaptureHistoryView: View {
 
     private func importBundle(at url: URL) async {
         do {
-            _ = try await dependencies.importCaptureUseCase.execute(from: url)
-            CaptureBundleLocator.remember(url)
-            bundlePath = url.path
-            await refresh()
-            NotificationCenter.default.post(name: .mareDeskDataDidRefresh, object: nil)
+            try await SecurityScopedAccess.withAccess(to: url) {
+                _ = try await dependencies.importCaptureUseCase.execute(from: url)
+                CaptureBundleLocator.remember(url)
+                bundlePath = url.path
+                await refresh()
+                NotificationCenter.default.post(name: .mareDeskDataDidRefresh, object: nil)
+            }
         } catch {
             errorMessage = error.localizedDescription
             AppLogger.importing.error("History import failed: \(error.localizedDescription, privacy: .public)")

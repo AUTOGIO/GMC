@@ -165,10 +165,17 @@ final class SwiftDataCaptureRepository: CaptureRepository {
     }
 
     func replaceMemos(_ memos: [OperatorMemo], for capture: CaptureEvent) async throws {
+        let existing = try context.fetch(FetchDescriptor<OperatorMemo>())
+        existing.forEach { context.delete($0) }
         memos.forEach { memo in
             memo.captureEvent = capture
             context.insert(memo)
         }
         try context.save()
+    }
+
+    func fetchFrozenPayloads(for capture: CaptureEvent) async throws -> [FrozenCapturePayload] {
+        let all = try context.fetch(FetchDescriptor<FrozenCapturePayload>())
+        return all.filter { $0.captureEvent?.persistentModelID == capture.persistentModelID }
     }
 }

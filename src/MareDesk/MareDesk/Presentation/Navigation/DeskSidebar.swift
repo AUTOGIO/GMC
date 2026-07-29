@@ -4,6 +4,7 @@ struct DeskSidebar: View {
     @Binding var selection: DeskKind
     @Binding var showSettings: Bool
     @Environment(AppDependencies.self) private var dependencies
+    @State private var importErrorMessage: String?
 
     var body: some View {
         List(selection: $selection) {
@@ -39,6 +40,14 @@ struct DeskSidebar: View {
         }
         .listStyle(.sidebar)
         .navigationTitle("Mare Desk")
+        .alert("Import Failed", isPresented: Binding(
+            get: { importErrorMessage != nil },
+            set: { if !$0 { importErrorMessage = nil } }
+        )) {
+            Button("OK", role: .cancel) {}
+        } message: {
+            Text(importErrorMessage ?? "")
+        }
         .onReceive(NotificationCenter.default.publisher(for: .navigateDesk)) { notification in
             if let desk = notification.object as? DeskKind {
                 selection = desk
@@ -59,10 +68,13 @@ struct DeskSidebar: View {
 
     private func importBundle(at url: URL) async {
         do {
-            _ = try await dependencies.importCaptureUseCase.execute(from: url)
-            CaptureBundleLocator.remember(url)
-            NotificationCenter.default.post(name: .mareDeskDataDidRefresh, object: nil)
+            try await SecurityScopedAccess.withAccess(to: url) {
+                _ = try await dependencies.importCaptureUseCase.execute(from: url)
+                CaptureBundleLocator.remember(url)
+                NotificationCenter.default.post(name: .mareDeskDataDidRefresh, object: nil)
+            }
         } catch {
+            importErrorMessage = error.localizedDescription
             AppLogger.importing.error("Import failed: \(error.localizedDescription, privacy: .public)")
         }
     }

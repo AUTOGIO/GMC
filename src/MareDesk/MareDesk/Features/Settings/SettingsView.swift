@@ -11,6 +11,15 @@ struct SettingsView: View {
 
     var body: some View {
         Form {
+            Section {
+                Label {
+                    Text("AI providers and IBKR integration are experimental stubs. Portfolio data comes from local JSON import only.")
+                } icon: {
+                    Image(systemName: "exclamationmark.triangle.fill")
+                        .foregroundStyle(.orange)
+                }
+            }
+
             Section("AI Provider") {
                 Picker("Active Provider", selection: $selectedProvider) {
                     ForEach(AIProviderKind.allCases) { kind in
@@ -30,7 +39,7 @@ struct SettingsView: View {
             }
 
             Section("Capture Import") {
-                Text("Import Giovannini Mare Capital JSON bundles from the sidebar action or via Shortcuts.")
+                Text("Import Giovannini Mare Capital JSON bundles from the sidebar action.")
                 Text("Expected layout: portfolio/ and real_estate/ folders with GMC export JSON files.")
                     .font(.caption)
                     .foregroundStyle(.secondary)
@@ -60,7 +69,7 @@ struct SettingsView: View {
             dataSource = status.source
             await dependencies.brokerageCoordinator.refreshAvailability()
             if dependencies.brokerageCoordinator.isIBKRAuthenticated {
-                ibkrStatus = "Authenticated (localhost:5001)"
+                ibkrStatus = "Gateway authenticated — positions not wired (local book active)"
             } else if dependencies.brokerageCoordinator.isIBKRAvailable {
                 ibkrStatus = "Running — login required"
             } else {

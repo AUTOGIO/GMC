@@ -176,6 +176,7 @@ protocol CaptureRepository {
     func storeFrozenPayloads(_ payloads: [FrozenCapturePayload], for capture: CaptureEvent) async throws
     func fetchMemos(scope: MemoScope?, limit: Int) async throws -> [OperatorMemo]
     func replaceMemos(_ memos: [OperatorMemo], for capture: CaptureEvent) async throws
+    func fetchFrozenPayloads(for capture: CaptureEvent) async throws -> [FrozenCapturePayload]
     func hasAnyHoldings() async throws -> Bool
     func fetchCapture(id: String) async throws -> CaptureEvent?
 }
@@ -183,6 +184,7 @@ protocol CaptureRepository {
 @MainActor
 protocol ExternalCaptureImporter {
     func importBundle(from directory: URL) async throws -> ImportedBundle
+    func importFromFrozenPayloads(_ payloads: [FrozenCapturePayload], sourcePath: String) async throws -> ImportedBundle
 }
 
 struct ImportedBundle {

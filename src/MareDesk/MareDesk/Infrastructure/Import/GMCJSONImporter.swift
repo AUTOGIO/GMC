@@ -85,6 +85,108 @@ struct GMCJSONImporter: ExternalCaptureImporter {
         )
     }
 
+    func importFromFrozenPayloads(_ payloads: [FrozenCapturePayload], sourcePath: String) async throws -> ImportedBundle {
+        guard let financial = payloads.first(where: { $0.domain == .financial }),
+              let property = payloads.first(where: { $0.domain == .property }) else {
+            throw ImportCaptureError.validationFailed("Missing frozen financial or property payload.")
+        }
+
+        let financialObjects = try decodeFrozenObjects(financial.payloadJSON)
+        let propertyObjects = try decodeFrozenObjects(property.payloadJSON)
+
+        let portfolioState = financialObjects[0] as? [String: Any] ?? [:]
+        let currentSnapshot = financialObjects[1] as? [String: Any] ?? [:]
+        let optimizedGavetas: [String: Any]
+        let detailedEquities: [String: Any]
+        let detailedCrypto: [String: Any]
+
+        if financialObjects.count >= 6 {
+            optimizedGavetas = financialObjects[2] as? [String: Any] ?? [:]
+            detailedEquities = financialObjects[3] as? [String: Any] ?? [:]
+            detailedCrypto = financialObjects[4] as? [String: Any] ?? [:]
+        } else {
+            optimizedGavetas = [:]
+            detailedEquities = [:]
+            detailedCrypto = [:]
+        }
+
+        let propertyState = propertyObjects[0] as? [String: Any] ?? [:]
+        let propertyMeta = propertyObjects[1] as? [String: Any] ?? [:]
+
+        let bundle = SourceBundle(
+            portfolioState: portfolioState,
+            currentSnapshot: currentSnapshot,
+            optimizedGavetas: optimizedGavetas,
+            detailedEquities: detailedEquities,
+            detailedCrypto: detailedCrypto,
+            propertyState: propertyState,
+            propertyMeta: propertyMeta,
+            sourcePath: sourcePath
+        )
+
+        let portfolioAsOf = parseAsOf(bundle.portfolioState["last_update"])
+        let propertyAsOf = parseAsOf(bundle.propertyState["last_update"])
+        let regime = titleize(nestedString(bundle.portfolioState, keys: ["regime_engine", "current_regime"])) ?? "Unspecified"
+
+        let categories = buildCategories(from: bundle.portfolioState)
+        let categoryByClassId = categoryLookup(categories)
+        let bucketByAsset = buildBucketMap(from: bundle.portfolioState)
+        let holdings = buildHoldings(
+            from: bundle.portfolioState,
+            snapshot: bundle.currentSnapshot,
+            categories: categoryByClassId,
+            bucketByAsset: bucketByAsset
+        )
+        let indicators = buildIndicators(from: bundle.portfolioState)
+        let properties = buildProperties(
+            from: bundle.propertyState,
+            propertyMeta: bundle.propertyMeta
+        )
+        let totalCurrent = holdings.reduce(Decimal.zero) { $0 + $1.currentAmount }
+        let totalPropertyMarket = properties.reduce(Decimal.zero) { $0 + $1.marketAmount }
+
+        let capture = CaptureEvent(
+            origin: .manual,
+            initiatedBy: "FrozenCaptureRestore",
+            note: "Restored Giovannini Mare Capital capture from archived frozen payload.",
+            metadata: [
+                "source": sourcePath,
+                "restored_from_frozen": "true",
+                "portfolio_updated": stringValue(bundle.portfolioState["last_update"]),
+                "real_estate_updated": stringValue(bundle.propertyState["last_update"])
+            ],
+            capturedAt: .now,
+            holdingCount: holdings.count,
+            indicatorCount: indicators.count,
+            propertyCount: properties.count,
+            totalCurrentUSD: totalCurrent,
+            totalPropertyMarketBRL: totalPropertyMarket,
+            activeRegime: regime,
+            portfolioAsOf: portfolioAsOf,
+            propertyAsOf: propertyAsOf
+        )
+
+        let memos = buildMemos(from: bundle, capture: capture)
+
+        return ImportedBundle(
+            capture: capture,
+            categories: categories,
+            holdings: holdings,
+            indicators: indicators,
+            properties: properties,
+            memos: memos,
+            frozenPayloads: []
+        )
+    }
+
+    private func decodeFrozenObjects(_ payloadJSON: String) throws -> [Any] {
+        guard let data = payloadJSON.data(using: .utf8),
+              let objects = try JSONSerialization.jsonObject(with: data) as? [Any] else {
+            throw ImportCaptureError.validationFailed("Invalid frozen payload JSON.")
+        }
+        return objects
+    }
+
     private func loadSourceBundle(from directory: URL) throws -> SourceBundle {
         let portfolioDir = directory.appendingPathComponent("portfolio", isDirectory: true)
         let propertyDir = directory.appendingPathComponent("real_estate", isDirectory: true)
@@ -445,7 +547,19 @@ struct GMCJSONImporter: ExternalCaptureImporter {
         ]
 
         return [
-            makeFrozenPayload(domain: .financial, objects: [bundle.portfolioState, bundle.currentSnapshot, financialSummary], capture: capture, asOf: portfolioAsOf),
+            makeFrozenPayload(
+                domain: .financial,
+                objects: [
+                    bundle.portfolioState,
+                    bundle.currentSnapshot,
+                    bundle.optimizedGavetas,
+                    bundle.detailedEquities,
+                    bundle.detailedCrypto,
+                    financialSummary
+                ],
+                capture: capture,
+                asOf: portfolioAsOf
+            ),
             makeFrozenPayload(domain: .property, objects: [bundle.propertyState, bundle.propertyMeta, propertySummary], capture: capture, asOf: propertyAsOf)
         ]
     }

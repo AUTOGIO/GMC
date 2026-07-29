@@ -1,6 +1,7 @@
 import os
 import re
 import csv
+import sys
 
 def parse_all_markdown_tables(file_path):
     if not os.path.exists(file_path):
@@ -48,11 +49,25 @@ def sync_portfolio():
     processed = os.path.join(base_dir, "data", "processed")
     os.makedirs(processed, exist_ok=True)
 
+    required_sources = [
+        os.path.join(docs_dir, "real_estate_master.md"),
+        os.path.join(docs_dir, "Banking.md"),
+        os.path.join(docs_dir, "MACRO_SUMMARY.md"),
+    ]
+    missing = [path for path in required_sources if not os.path.exists(path)]
+    if missing:
+        rel = [os.path.relpath(path, base_dir) for path in missing]
+        print("sync_engine.py requires markdown sources that are missing:", file=sys.stderr)
+        for path in rel:
+            print(f"  - {path}", file=sys.stderr)
+        print("Use scripts/sync_portfolio_from_json.py for gmc_source JSON sync instead.", file=sys.stderr)
+        sys.exit(1)
+
     # Prefer docs; fall back to archive notes if present
     instruments_md = os.path.join(docs_dir, "convex_portfolio_instruments.md")
-    re_md = os.path.join(docs_dir, "real_estate_master.md")
-    banking_md = os.path.join(docs_dir, "Banking.md")
-    macro_md = os.path.join(docs_dir, "MACRO_SUMMARY.md")
+    re_md = required_sources[0]
+    banking_md = required_sources[1]
+    macro_md = required_sources[2]
 
     re_tables = parse_all_markdown_tables(re_md)
     banking_tables = parse_all_markdown_tables(banking_md)

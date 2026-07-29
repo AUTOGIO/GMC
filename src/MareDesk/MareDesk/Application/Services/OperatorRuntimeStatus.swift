@@ -10,7 +10,7 @@ enum OperatorDataMode: String, Sendable {
 enum OperatorRuntimeStatus {
     static func resolve(brokerageAvailable: Bool) -> (mode: OperatorDataMode, source: String) {
         if brokerageAvailable {
-            return (.ibkrLive, "localhost:5001")
+            return (.localImport, "IBKR gateway detected — book still from local import")
         }
         if let bundle = CaptureBundleLocator.defaultBundleURL() {
             return (.localImport, CaptureBundleLocator.dataSourceLabel(for: bundle))

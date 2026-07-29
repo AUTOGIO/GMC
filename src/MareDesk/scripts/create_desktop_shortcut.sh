@@ -5,8 +5,10 @@ SCRIPT_DIR="$(cd "$(dirname "$0")/.." && pwd)"
 ICON_SRC="${ICON_SRC:-$SCRIPT_DIR/Assets/MareDeskIcon.png}"
 DESKTOP_APP="${DESKTOP_APP:-$HOME/Desktop/Mare Desk.app}"
 LAUNCH_SCRIPT="$SCRIPT_DIR/Launch_MareDesk.command"
-ICONSET="$(mktemp -d)/MareDesk.iconset"
-ICNS="$(mktemp -d)/AppIcon.icns"
+WORKDIR="$(mktemp -d)"
+trap 'rm -rf "$WORKDIR"' EXIT
+ICONSET="$WORKDIR/MareDesk.iconset"
+ICNS="$WORKDIR/AppIcon.icns"
 
 if [[ ! -f "$ICON_SRC" ]]; then
   ICON_SRC="$(cd "$SCRIPT_DIR/../.." && pwd)/assets/GMT.png"

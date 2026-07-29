@@ -9,6 +9,14 @@ Native macOS operator surface (Mare Desk) for portfolio, macro, and real-estate 
 
 Data import bundle: `data/gmc_source/` (portfolio + real_estate JSON).
 
+Launch seeds repo data into the app sandbox container automatically. Force re-import only when needed:
+
+```bash
+MARE_DESK_FORCE_IMPORT=1 ./src/MareDesk/Launch_MareDesk.command
+```
+
+**Data policy:** keep this repo private; do not publish portfolio or real-estate JSON/CSVs to public hosting.
+
 ## Where things live
 
 | Path | Contents |
@@ -17,5 +25,5 @@ Data import bundle: `data/gmc_source/` (portfolio + real_estate JSON).
 | `data/` | Portfolio JSON, Excel, CSVs (`processed/`), reports |
 | `scripts/` | Sync / Numbers / Excel helpers |
 | `assets/` | Logos and brand images |
-| `docs/` | Guides, philosophy, system notes |
-| `archive/` | Old web terminal, duplicates, Obsidian meta |
+| `docs/` | Guides, philosophy, prompts |
+| `archive/` | Retired web docs, legacy scripts, Obsidian meta |

@@ -3,6 +3,7 @@ import SwiftData
 
 enum RestoreCaptureError: LocalizedError {
     case captureNotFound
+    case missingFrozenPayload
     case missingSourcePath
     case invalidSourceBundle
 
@@ -10,6 +11,8 @@ enum RestoreCaptureError: LocalizedError {
         switch self {
         case .captureNotFound:
             "The selected capture could not be found in local history."
+        case .missingFrozenPayload:
+            "This capture has no archived frozen payload to restore."
         case .missingSourcePath:
             "This capture has no source bundle path in its metadata."
         case .invalidSourceBundle:
@@ -28,9 +31,14 @@ struct RestoreCaptureUseCase {
             throw RestoreCaptureError.captureNotFound
         }
 
+        let payloads = try await captureRepository.fetchFrozenPayloads(for: event)
+        if !payloads.isEmpty {
+            return try await importCaptureUseCase.restoreFromFrozen(capture: event, payloads: payloads)
+        }
+
         let metadata = event.metadata
         guard let sourcePath = metadata["source"], !sourcePath.isEmpty else {
-            throw RestoreCaptureError.missingSourcePath
+            throw RestoreCaptureError.missingFrozenPayload
         }
 
         let sourceURL = URL(fileURLWithPath: sourcePath, isDirectory: true)
