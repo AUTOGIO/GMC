@@ -1,0 +1,16 @@
+{
+  "last_update": "2026-01-01",
+  "imoveis": [
+    {
+      "id": 1,
+      "tipo": "Apartamento",
+      "endereco": "Sample Address 1",
+      "metragem": 50,
+      "vagas": 1,
+      "valorVenda": 100000.0,
+      "aluguelMensal": 1000.0
+    }
+  ],
+  "inquilinos": [],
+  "pagamentos": []
+}

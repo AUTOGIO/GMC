@@ -61,3 +61,19 @@ Creates `~/Desktop/Mare Desk.app` pointing to `Launch_MareDesk.command`.
 ```
 
 Copies `data/gmc_source` into the sandbox container without launching the app.
+
+## Persistence and backup
+
+SwiftData store (default):
+
+```text
+~/Library/Containers/com.giovanninimare.MareDesk/Data/Library/Application Support/default.store
+```
+
+Seeded capture bundle (default after Launch):
+
+```text
+~/Library/Containers/com.giovanninimare.MareDesk/Data/Library/Application Support/gmc_capture/
+```
+
+Back up the container directory before major imports or OS upgrades.

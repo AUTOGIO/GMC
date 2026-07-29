@@ -339,6 +339,7 @@ struct GMCJSONImporter: ExternalCaptureImporter {
         return amounts
     }
 
+    /// Active instruments use target as "current" until per-instrument executed amounts exist in source JSON.
     private func resolveCurrentAmount(
         targetAmount: Decimal,
         classTargetTotal: Decimal,

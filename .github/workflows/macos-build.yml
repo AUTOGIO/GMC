@@ -1,0 +1,20 @@
+name: macOS build
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  build-and-validate:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate capture bundles
+        run: python3 tests/validate_capture_bundle.py
+      - name: Build Mare Desk
+        run: |
+          cd src/MareDesk
+          xcodebuild -project MareDesk.xcodeproj -scheme MareDesk \
+            -destination 'platform=macOS' -configuration Debug build

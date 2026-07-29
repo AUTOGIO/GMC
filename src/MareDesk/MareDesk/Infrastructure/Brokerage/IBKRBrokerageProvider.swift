@@ -1,5 +1,9 @@
 import Foundation
 
+// IBKR Client Portal Gateway uses HTTPS with a locally trusted/self-signed cert on
+// localhost:5001. URLSession.shared may reject the handshake until the Gateway cert
+// is installed or a constrained localhost delegate is added. Probes are display-only;
+// the portfolio book remains from local JSON import.
 struct BrokeragePosition: Sendable {
     let symbol: String
     let description: String

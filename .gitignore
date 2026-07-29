@@ -17,6 +17,9 @@ src/MareDesk/build/
 .env
 .env.*
 !.env.example
+**/openai_api.rtf
+**/*_api_key*
+**/*_secret*
 
 # Logs & scratch
 logs/

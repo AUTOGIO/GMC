@@ -1,0 +1,24 @@
+{
+  "last_update": "2026-01-01",
+  "portfolio_summary": {
+    "total_capital_usd": 100000,
+    "base_currency": "USD"
+  },
+  "regime_engine": {
+    "current_regime": "Test Regime"
+  },
+  "asset_allocation": [
+    {
+      "asset_class": "cash",
+      "target_weight": 0.1,
+      "instruments": [
+        {
+          "name": "USD Cash",
+          "symbol": "USD",
+          "target_amount_usd": 10000,
+          "execution_status": "active"
+        }
+      ]
+    }
+  ]
+}
